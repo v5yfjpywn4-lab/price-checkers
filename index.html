@@ -1,0 +1,2430 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0a0a0f">
+<title>報價查核系統 | 意享生態系</title>
+
+<!-- Open Graph -->
+<meta property="og:title" content="意享報價查核系統">
+<meta property="og:description" content="廠商報價單OCR辨識、月份漲跌比對、異常預警">
+<meta property="og:type" content="website">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<!-- SheetJS for Excel parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- mammoth.js for Word parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+
+<style>
+/* ============================================================
+   CSS Variables & Reset
+   ============================================================ */
+:root {
+  --bg:          #0a0a0f;
+  --bg2:         #111118;
+  --bg3:         #1a1a28;
+  --card:        #16161f;
+  --card-hover:  #1e1e2e;
+  --border:      #2a2a3e;
+  --gold:        #e8c84a;
+  --gold-dim:    #b89d32;
+  --gold-glow:   rgba(232,200,74,0.15);
+  --red:         #e84a4a;
+  --red-dim:     rgba(232,74,74,0.15);
+  --green:       #4ae88a;
+  --green-dim:   rgba(74,232,138,0.12);
+  --text:        #e8e8f0;
+  --text-2:      #9090a8;
+  --text-3:      #5a5a72;
+  --radius:      12px;
+  --radius-sm:   8px;
+  --shadow:      0 4px 24px rgba(0,0,0,0.4);
+  --nav-h:       60px;
+  --tab-h:       56px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+input, select, textarea { font-family: inherit; outline: none; }
+a { color: inherit; text-decoration: none; }
+
+/* ============================================================
+   Top Nav
+   ============================================================ */
+.top-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  background: rgba(10,10,15,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 100;
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.nav-logo {
+  width: 32px; height: 32px;
+  background: var(--gold);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 700; color: #000;
+}
+.nav-title { font-size: 15px; font-weight: 700; color: var(--gold); letter-spacing: 0.5px; }
+.nav-sub { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+.nav-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--text-3);
+  animation: pulse-dot 2s infinite;
+}
+.status-dot.connected { background: var(--green); }
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+}
+
+/* ============================================================
+   Bottom Tab Bar
+   ============================================================ */
+.tab-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: var(--tab-h);
+  background: rgba(10,10,15,0.95);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 0;
+  color: var(--text-3);
+  font-size: 10px;
+  font-weight: 500;
+  transition: color 0.2s;
+  position: relative;
+  cursor: pointer;
+  background: none;
+}
+.tab-item.active { color: var(--gold); }
+.tab-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%;
+  height: 2px;
+  background: var(--gold);
+  border-radius: 0 0 4px 4px;
+}
+.tab-icon { font-size: 20px; line-height: 1; }
+.tab-badge {
+  position: absolute;
+  top: 5px; right: calc(50% - 14px);
+  background: var(--red);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 4px;
+}
+
+/* ============================================================
+   Main Content
+   ============================================================ */
+.main {
+  margin-top: var(--nav-h);
+  margin-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom));
+  min-height: calc(100dvh - var(--nav-h) - var(--tab-h));
+}
+.page { display: none; padding: 16px; }
+.page.active { display: block; }
+
+/* ============================================================
+   Cards
+   ============================================================ */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ============================================================
+   Form Controls
+   ============================================================ */
+.form-group { margin-bottom: 12px; }
+.form-label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-2);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.form-control {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+.form-control:focus { border-color: var(--gold); }
+.form-control option { background: var(--bg3); }
+select.form-control { cursor: pointer; }
+
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: var(--gold);
+  color: #000;
+}
+.btn-primary:active { transform: scale(0.97); background: var(--gold-dim); }
+.btn-outline {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+}
+.btn-outline:active { background: var(--gold-glow); }
+.btn-danger {
+  background: var(--red-dim);
+  color: var(--red);
+  border: 1px solid rgba(232,74,74,0.3);
+}
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-block { width: 100%; }
+
+/* ============================================================
+   Table
+   ============================================================ */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 480px;
+}
+thead th {
+  background: var(--bg3);
+  color: var(--text-2);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text);
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+/* ============================================================
+   Badge / Tag
+   ============================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(232,200,74,0.3); }
+.badge-red  { background: var(--red-dim);   color: var(--red);  border: 1px solid rgba(232,74,74,0.3); }
+.badge-green{ background: var(--green-dim); color: var(--green);border: 1px solid rgba(74,232,138,0.3);}
+.badge-gray { background: rgba(255,255,255,0.06); color: var(--text-2); border: 1px solid var(--border); }
+
+/* ============================================================
+   Change indicator
+   ============================================================ */
+.change-up   { color: var(--red);   font-weight: 700; }
+.change-down { color: var(--green); font-weight: 700; }
+.change-flat { color: var(--text-2); }
+
+.change-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.alert-row td { background: rgba(232,74,74,0.06); }
+
+/* ============================================================
+   Upload Zone
+   ============================================================ */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 32px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+.upload-zone:hover { border-color: var(--gold-dim); }
+.upload-zone.drag-over {
+  border-color: var(--gold);
+  background: var(--gold-glow);
+}
+/* input 隱藏但保留在 DOM，由 JS onclick 觸發 */
+.upload-zone input[type=file] {
+  display: none;
+}
+.upload-icon { font-size: 40px; margin-bottom: 10px; }
+.upload-text { color: var(--text-2); font-size: 13px; }
+.upload-hint { color: var(--text-3); font-size: 11px; margin-top: 6px; }
+
+#preview-img {
+  width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+  display: none;
+}
+
+/* ============================================================
+   OCR Result Editor
+   ============================================================ */
+.ocr-item-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 10px;
+  position: relative;
+}
+.ocr-item-card .item-actions {
+  position: absolute;
+  top: 8px; right: 8px;
+  display: flex; gap: 6px;
+}
+.btn-icon {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-2);
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+.btn-icon:hover { background: var(--red-dim); color: var(--red); }
+
+/* ============================================================
+   Rating badges
+   ============================================================ */
+.rating-a { color: var(--green); font-weight: 700; }
+.rating-b { color: var(--gold);  font-weight: 700; }
+.rating-c { color: #e8974a;      font-weight: 700; }
+.rating-d { color: var(--red);   font-weight: 700; }
+
+/* ============================================================
+   Loader
+   ============================================================ */
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  gap: 12px;
+  color: var(--text-2);
+  font-size: 13px;
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   Toast
+   ============================================================ */
+#toast-container {
+  position: fixed;
+  bottom: calc(var(--tab-h) + 16px + env(safe-area-inset-bottom));
+  left: 16px; right: 16px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 13px;
+  box-shadow: var(--shadow);
+  animation: toast-in 0.3s ease;
+  display: flex; align-items: center; gap: 10px;
+}
+.toast.success { border-left: 3px solid var(--green); }
+.toast.error   { border-left: 3px solid var(--red); }
+.toast.warning { border-left: 3px solid var(--gold); }
+@keyframes toast-in { from { transform: translateY(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ============================================================
+   Empty state
+   ============================================================ */
+.empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-3);
+}
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-text { font-size: 14px; }
+
+/* ============================================================
+   Section header
+   ============================================================ */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+.section-sub {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+/* ============================================================
+   Summary Cards (比對頁)
+   ============================================================ */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.summary-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 12px;
+  text-align: center;
+}
+.summary-num { font-size: 24px; font-weight: 700; }
+.summary-label { font-size: 10px; color: var(--text-3); margin-top: 2px; font-weight: 500; }
+.summary-num.red   { color: var(--red); }
+.summary-num.green { color: var(--green); }
+.summary-num.gold  { color: var(--gold); }
+
+/* ============================================================
+   Pending item card
+   ============================================================ */
+.pending-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pending-card .vendor-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pending-card .item-info { flex: 1; min-width: 0; }
+.pending-card .item-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pending-card .item-meta { font-size: 11px; color: var(--text-2); margin-top: 3px; }
+.pending-card .item-note { font-size: 11px; color: var(--gold); margin-top: 3px; }
+.pending-card .resolve-btn {
+  flex-shrink: 0;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.pending-card .resolve-btn:active { background: var(--green-dim); color: var(--green); border-color: var(--green); }
+
+/* ============================================================
+   Vendor card
+   ============================================================ */
+.vendor-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.vendor-avatar {
+  width: 48px; height: 48px;
+  background: var(--bg3);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.vendor-info { flex: 1; min-width: 0; }
+.vendor-name { font-size: 16px; font-weight: 700; }
+.vendor-cat  { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+.vendor-rating-select {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+/* ============================================================
+   Modal
+   ============================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-sheet {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 600px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  padding: 24px 20px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--gold);
+}
+
+/* ============================================================
+   Config warning
+   ============================================================ */
+.config-banner {
+  background: linear-gradient(135deg, rgba(232,200,74,0.12), rgba(232,200,74,0.04));
+  border: 1px solid rgba(232,200,74,0.3);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--gold);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.config-banner .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+/* ============================================================
+   Channel Tabs（通道選擇）
+   ============================================================ */
+.channel-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.channel-tab {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.channel-tab.active {
+  border-color: var(--gold);
+  background: var(--gold-glow);
+}
+.channel-tab:active { transform: scale(0.97); }
+.ch-icon { font-size: 28px; margin-bottom: 6px; }
+.ch-label { font-size: 14px; font-weight: 700; color: var(--text); }
+.ch-sub { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+.channel-tab.active .ch-label { color: var(--gold); }
+.channel-tab.active .ch-sub   { color: var(--gold-dim); }
+
+/* ============================================================
+   Upload Type Tabs
+   ============================================================ */
+.upload-type-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.upload-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.upload-tab.active {
+  background: var(--gold-glow);
+  border-color: rgba(232,200,74,0.4);
+  color: var(--gold);
+}
+.upload-tab:active { transform: scale(0.97); }
+
+/* Excel preview table overrides */
+#excel-preview-table {
+  font-size: 12px;
+  min-width: auto;
+}
+#excel-preview-table thead th {
+  background: var(--bg);
+  font-size: 11px;
+  padding: 7px 10px;
+  white-space: nowrap;
+}
+#excel-preview-table tbody td {
+  padding: 6px 10px;
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sheet selector buttons */
+.sheet-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  margin: 0 4px 4px 0;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sheet-btn.active {
+  background: var(--gold-glow);
+  border-color: rgba(232,200,74,0.4);
+  color: var(--gold);
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (min-width: 640px) {
+  .page { padding: 24px; }
+  .summary-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (min-width: 960px) {
+  .main { max-width: 800px; margin-left: auto; margin-right: auto; }
+  .tab-bar { max-width: 800px; left: 50%; transform: translateX(-50%); }
+  .top-nav { max-width: 100%; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- File inputs — 最頂層，絕對不在任何 display:none 容器內 -->
+<input type="file" id="img-input"   accept="image/*"         style="display:none">
+<input type="file" id="excel-input" accept=".xlsx,.xls,.csv" style="display:none">
+<input type="file" id="word-input"  accept=".docx"           style="display:none">
+
+<!-- ============================================================
+     Top Nav
+     ============================================================ -->
+<nav class="top-nav">
+  <div class="nav-brand">
+    <div class="nav-logo">意</div>
+    <div>
+      <div class="nav-title">報價查核系統</div>
+      <div class="nav-sub">意享生態系 · 廠商管理</div>
+    </div>
+  </div>
+  <div class="nav-status">
+    <div class="status-dot" id="conn-dot"></div>
+    <span id="conn-label">連線中...</span>
+  </div>
+</nav>
+
+<!-- ============================================================
+     Main
+     ============================================================ -->
+<main class="main">
+
+  <!-- ① 比對頁 -->
+  <div class="page active" id="page-compare">
+    <div class="section-header">
+      <div>
+        <div class="section-title">月份比對</div>
+        <div class="section-sub">選擇廠商與月份，自動計算漲跌幅</div>
+      </div>
+    </div>
+
+    <!-- 設定未完成提示 -->
+    <div class="config-banner" id="config-banner">
+      <span class="icon">⚠️</span>
+      <div>
+        <strong>本機測試模式</strong>｜資料暫存於瀏覽器，功能完整可測試。<br>
+        正式使用請至 <strong>⚙️ 設定</strong> 填入 GAS URL 串接 Google Sheets。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 查詢條件</div>
+      <div class="form-group">
+        <label class="form-label">廠商</label>
+        <select class="form-control" id="cmp-vendor">
+          <option value="">請選擇廠商</option>
+          <option>全富</option>
+          <option>陸陸肉</option>
+          <option>擘進</option>
+          <option>菜商</option>
+          <option>鴻璟立昌</option>
+        </select>
+      </div>
+      <div class="row-2">
+        <div class="form-group">
+          <label class="form-label">基準月（上月）</label>
+          <select class="form-control" id="cmp-base"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">比對月（本月）</label>
+          <select class="form-control" id="cmp-target"></select>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="doCompare()">🔍 開始比對</button>
+    </div>
+
+    <div id="compare-result" style="display:none">
+      <div class="summary-grid" id="compare-summary"></div>
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div class="table-wrap">
+          <table id="compare-table">
+            <thead>
+              <tr>
+                <th>品項</th>
+                <th>單位</th>
+                <th>上月 $</th>
+                <th>本月 $</th>
+                <th>漲跌</th>
+                <th>備註</th>
+              </tr>
+            </thead>
+            <tbody id="compare-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:12px;">
+        <button class="btn btn-outline btn-block" onclick="exportReport()">📥 匯出 CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 上傳頁 -->
+  <div class="page" id="page-upload">
+    <div class="section-header">
+      <div>
+        <div class="section-title">上傳報價單</div>
+        <div class="section-sub">選擇通道上傳</div>
+      </div>
+    </div>
+
+    <!-- 通道選擇 -->
+    <div class="channel-tabs">
+      <button class="channel-tab active" id="ch-tab-file" onclick="switchChannel('file', this)">
+        <div class="ch-icon">📊</div>
+        <div class="ch-label">Excel / Word</div>
+        <div class="ch-sub">不需要 API · 直接匯入</div>
+      </button>
+      <button class="channel-tab" id="ch-tab-image" onclick="switchChannel('image', this)">
+        <div class="ch-icon">📷</div>
+        <div class="ch-label">圖片拍照</div>
+        <div class="ch-sub">需要 API Key</div>
+      </button>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         通道一：Excel / Word（無需 API）
+         ═══════════════════════════════════════ -->
+    <div id="channel-file">
+
+      <!-- 格式切換 -->
+      <div class="upload-type-tabs" style="margin-bottom:12px;">
+        <button class="upload-tab active" id="ft-excel" onclick="switchFileType('excel', this)">
+          <span>📊</span> Excel / CSV
+        </button>
+        <button class="upload-tab" id="ft-word" onclick="switchFileType('word', this)">
+          <span>📄</span> Word
+        </button>
+      </div>
+
+      <!-- Excel 上傳區 -->
+      <div class="card" id="ft-section-excel">
+        <div class="card-title">📊 上傳 Excel 報價單</div>
+        <div class="upload-zone" id="upload-zone-excel" onclick="document.getElementById('excel-input').click()">
+          <div class="upload-icon">📊</div>
+          <div class="upload-text">點擊選擇 Excel 或 CSV 檔案</div>
+          <div class="upload-hint">支援 .xlsx / .xls / .csv</div>
+        </div>
+        <div id="excel-preview" style="display:none; margin-top:12px;">
+          <div style="font-size:12px;color:var(--text-2);margin-bottom:8px;" id="excel-info"></div>
+          <div class="table-wrap" style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">
+            <table id="excel-preview-table" style="min-width:auto;">
+              <thead id="excel-preview-head"></thead>
+              <tbody id="excel-preview-body"></tbody>
+            </table>
+          </div>
+          <div style="margin-top:8px;" id="excel-sheet-selector"></div>
+        </div>
+      </div>
+
+      <!-- Word 上傳區 -->
+      <div class="card" id="ft-section-word" style="display:none">
+        <div class="card-title">📄 上傳 Word 報價單</div>
+        <div class="upload-zone" id="upload-zone-word" onclick="document.getElementById('word-input').click()">
+          <div class="upload-icon">📄</div>
+          <div class="upload-text">點擊選擇 Word 檔案</div>
+          <div class="upload-hint">支援 .docx</div>
+        </div>
+        <div id="word-preview" style="display:none; margin-top:12px;">
+          <div style="font-size:12px;color:var(--text-2);margin-bottom:8px;" id="word-info"></div>
+          <div id="word-content-preview"
+               style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+                      padding:12px;max-height:180px;overflow-y:auto;font-size:12px;
+                      color:var(--text);line-height:1.7;white-space:pre-wrap;"></div>
+        </div>
+      </div>
+
+      <!-- 欄位對應（Excel 解析後出現） -->
+      <div class="card" id="col-mapper" style="display:none">
+        <div class="card-title">🗂️ 欄位對應設定</div>
+        <p style="font-size:12px;color:var(--text-2);margin-bottom:12px;">指定哪一欄對應哪個欄位（設定會依廠商自動記憶）</p>
+        <div class="row-2" style="margin-bottom:10px;">
+          <div class="form-group" style="margin:0">
+            <label class="form-label">品項名稱欄 ★</label>
+            <select class="form-control" id="map-name"></select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">單位欄</label>
+            <select class="form-control" id="map-unit"></select>
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="form-group" style="margin:0">
+            <label class="form-label">價格欄 ★</label>
+            <select class="form-control" id="map-price"></select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">備註欄</label>
+            <select class="form-control" id="map-note"></select>
+          </div>
+        </div>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
+          <label style="font-size:12px;color:var(--text-2);display:flex;align-items:center;gap:6px;cursor:pointer;">
+            <input type="number" id="map-skip-rows" value="1" min="0" max="10"
+              style="width:48px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;
+                     padding:4px 8px;color:var(--text);font-size:12px;">
+            略過前幾列（標題列）
+          </label>
+        </div>
+      </div>
+
+      <!-- 通道一：基本資訊 + 匯入按鈕 -->
+      <div class="card" id="file-meta" style="display:none">
+        <div class="card-title">🏷️ 基本資訊</div>
+        <div class="row-2">
+          <div class="form-group">
+            <label class="form-label">廠商</label>
+            <select class="form-control" id="file-vendor" onchange="loadColMapMemory()">
+              <option>全富</option><option>陸陸肉</option><option>擘進</option>
+              <option>菜商</option><option>鴻璟立昌</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">月份</label>
+            <select class="form-control" id="file-month"></select>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="previewFileImport()">👁️ 預覽匯入品項</button>
+      </div>
+
+      <!-- 通道一：匯入預覽結果 -->
+      <div id="file-result-section" style="display:none">
+        <div class="section-header" style="margin-top:8px;">
+          <div class="section-title" style="font-size:16px;">匯入預覽</div>
+          <button class="btn btn-sm btn-outline" onclick="addOCRItem()">＋ 新增</button>
+        </div>
+        <div id="ocr-items-list"></div>
+        <button class="btn btn-primary btn-block" style="margin-top:4px;" onclick="confirmOCR()">
+          ✅ 確認並存入 Sheets
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         通道二：圖片 + AI 辨識（需要 API）
+         ═══════════════════════════════════════ -->
+    <div id="channel-image" style="display:none">
+
+      <!-- API Key 未設定提示 -->
+      <div id="img-api-warning" class="config-banner" style="display:none">
+        <span class="icon">⚠️</span>
+        <div>尚未設定 API Key，請前往 <strong>⚙️ 設定</strong> 頁填入 Google Gemini API Key 才能使用圖片辨識功能。</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📷 拍照 / 選擇圖片</div>
+        <div class="upload-zone" id="upload-zone-img" onclick="document.getElementById('img-input').click()">
+          <div class="upload-icon">📷</div>
+          <div class="upload-text">點擊拍照或選擇報價單圖片</div>
+          <div class="upload-hint">支援 JPG / PNG / HEIC / WebP</div>
+        </div>
+        <img id="preview-img" alt="預覽">
+      </div>
+
+      <!-- 通道二：基本資訊 + AI 辨識按鈕 -->
+      <div class="card" id="ocr-meta" style="display:none">
+        <div class="card-title">🏷️ 基本資訊</div>
+        <div class="row-2">
+          <div class="form-group">
+            <label class="form-label">廠商</label>
+            <select class="form-control" id="ocr-vendor">
+              <option>全富</option><option>陸陸肉</option><option>擘進</option>
+              <option>菜商</option><option>鴻璟立昌</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">月份</label>
+            <select class="form-control" id="ocr-month"></select>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" id="ocr-btn" onclick="runOCR()">
+          🤖 AI 辨識品項
+        </button>
+      </div>
+
+      <div id="ocr-result-section" style="display:none">
+        <div class="section-header" style="margin-top:8px;">
+          <div class="section-title" style="font-size:16px;">辨識結果</div>
+          <button class="btn btn-sm btn-outline" onclick="addOCRItem()">＋ 新增</button>
+        </div>
+        <div id="ocr-items-list-img"></div>
+        <button class="btn btn-primary btn-block" style="margin-top:4px;" onclick="confirmOCR('img')">
+          ✅ 確認並存入 Sheets
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ③ 廠商頁 -->
+  <div class="page" id="page-vendors">
+    <div class="section-header">
+      <div>
+        <div class="section-title">廠商管理</div>
+        <div class="section-sub">A/B/C/D 評級、聯絡資訊</div>
+      </div>
+    </div>
+    <div id="vendors-list">
+      <div class="loader"><div class="spinner"></div>載入中...</div>
+    </div>
+  </div>
+
+  <!-- ④ 待處理 -->
+  <div class="page" id="page-pending">
+    <div class="section-header">
+      <div>
+        <div class="section-title">待處理事項</div>
+        <div class="section-sub" id="pending-count-label">載入中...</div>
+      </div>
+      <button class="btn btn-sm btn-outline" onclick="loadPending()">↻ 重整</button>
+    </div>
+    <div id="pending-list">
+      <div class="loader"><div class="spinner"></div>載入中...</div>
+    </div>
+  </div>
+
+  <!-- ⑤ 設定 -->
+  <div class="page" id="page-settings">
+    <div class="section-header">
+      <div><div class="section-title">系統設定</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔗 GAS 端點</div>
+      <div class="form-group">
+        <label class="form-label">Google Apps Script Web App URL ★</label>
+        <input type="url" class="form-control" id="cfg-gas-url" placeholder="https://script.google.com/macros/s/...">
+      </div>
+      <button class="btn btn-outline btn-block" onclick="testConnection()">🔌 測試連線</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🤖 Claude API</div>
+      <div class="form-group">
+        <label class="form-label">Google Gemini API Key ★（存於本機 localStorage）</label>
+        <input type="password" class="form-control" id="cfg-api-key" placeholder="AIza...">
+        <div style="font-size:11px;color:var(--text-3);margin-top:6px;">
+          免費取得：<a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--gold);">aistudio.google.com/apikey</a>（用 Google 帳號登入，無需信用卡）
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">模型</label>
+        <select class="form-control" id="cfg-model">
+          <option value="gemini-2.0-flash" selected>gemini-2.0-flash（免費、快速，建議）</option>
+          <option value="gemini-1.5-flash-latest">gemini-1.5-flash-latest</option>
+          <option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest（更精準）</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="saveSettings()">💾 儲存設定</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔔 瀏覽器通知</div>
+      <button class="btn btn-outline btn-block" onclick="requestNotification()">啟用漲價通知</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🗄️ Sheets 初始化</div>
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:12px;">首次使用：建立 Sheets 分頁並匯入初始資料</p>
+      <button class="btn btn-outline btn-block" onclick="initSheets()">🚀 初始化 Google Sheets</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">ℹ️ 版本資訊</div>
+      <p style="font-size:12px;color:var(--text-3);">
+        報價查核系統 v1.0<br>
+        意享生態系 · 2026<br>
+        技術：HTML/GAS/Claude API<br>
+        部署：GitHub Pages
+      </p>
+    </div>
+  </div>
+
+</main>
+
+<!-- ============================================================
+     Bottom Tab Bar
+     ============================================================ -->
+<nav class="tab-bar">
+  <button class="tab-item active" onclick="switchPage('compare', this)">
+    <span class="tab-icon">📊</span>
+    <span>比對</span>
+  </button>
+  <button class="tab-item" onclick="switchPage('upload', this)">
+    <span class="tab-icon">📸</span>
+    <span>上傳</span>
+  </button>
+  <button class="tab-item" onclick="switchPage('vendors', this)">
+    <span class="tab-icon">🏪</span>
+    <span>廠商</span>
+  </button>
+  <button class="tab-item" onclick="switchPage('pending', this)">
+    <span class="tab-icon">⚠️</span>
+    <span>待處理</span>
+    <span class="tab-badge" id="pending-badge" style="display:none"></span>
+  </button>
+  <button class="tab-item" onclick="switchPage('settings', this)">
+    <span class="tab-icon">⚙️</span>
+    <span>設定</span>
+  </button>
+</nav>
+
+<!-- ============================================================
+     Toast Container
+     ============================================================ -->
+<div id="toast-container"></div>
+
+<!-- ============================================================
+     Edit Modal
+     ============================================================ -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="edit-modal-title">編輯品項</div>
+    <div id="edit-modal-body"></div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-outline btn-block" onclick="closeModal('edit-modal')">取消</button>
+      <button class="btn btn-primary btn-block" id="edit-modal-confirm">確認</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     JavaScript
+     ============================================================ -->
+<script>
+// ============================================================
+// Config
+// ============================================================
+let CONFIG = {
+  gasUrl:  localStorage.getItem('gasUrl')  || '',
+  apiKey:  localStorage.getItem('apiKey')  || '',
+  model:   localStorage.getItem('gasModel') || 'gemini-2.0-flash',
+};
+
+// Fill settings inputs on load
+document.getElementById('cfg-gas-url').value = CONFIG.gasUrl;
+document.getElementById('cfg-api-key').value = CONFIG.apiKey;
+document.getElementById('cfg-model').value   = CONFIG.model;
+
+function saveSettings() {
+  CONFIG.gasUrl = document.getElementById('cfg-gas-url').value.trim();
+  CONFIG.apiKey = document.getElementById('cfg-api-key').value.trim();
+  CONFIG.model  = document.getElementById('cfg-model').value;
+  localStorage.setItem('gasUrl',   CONFIG.gasUrl);
+  localStorage.setItem('apiKey',   CONFIG.apiKey);
+  localStorage.setItem('gasModel', CONFIG.model);
+  showToast('設定已儲存', 'success');
+  updateConnStatus();
+}
+
+function updateConnStatus() {
+  const dot = document.getElementById('conn-dot');
+  const lbl = document.getElementById('conn-label');
+  const banner = document.getElementById('config-banner');
+  if (CONFIG.gasUrl && CONFIG.apiKey) {
+    dot.className = 'status-dot connected';
+    lbl.textContent = '已設定';
+    banner && (banner.style.display = 'none');
+  } else {
+    dot.className = 'status-dot';
+    lbl.textContent = '未設定';
+    banner && (banner.style.display = 'flex');
+  }
+}
+updateConnStatus();
+
+// ============================================================
+// Navigation
+// ============================================================
+function switchPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  el.classList.add('active');
+
+  if (name === 'vendors') loadVendors();
+  if (name === 'pending') loadPending();
+}
+
+// ============================================================
+// 月份下拉選單（最近 18 個月）
+// ============================================================
+function prevMonthStr() {
+  const d = new Date();
+  d.setMonth(d.getMonth() - 1);
+  return d.toISOString().slice(0, 7);
+}
+function currMonthStr() {
+  return new Date().toISOString().slice(0, 7);
+}
+
+function buildMonthOptions(selectedValue) {
+  const months = [];
+  const now = new Date();
+  for (let i = 0; i < 36; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const label = `${d.getFullYear()} 年 ${d.getMonth()+1} 月`;
+    months.push({ val, label });
+  }
+  return months.map(m =>
+    `<option value="${m.val}" ${m.val === selectedValue ? 'selected' : ''}>${m.label}</option>`
+  ).join('');
+}
+
+function initMonthSelects() {
+  const curr = currMonthStr();
+  const prev = prevMonthStr();
+  document.getElementById('cmp-base').innerHTML   = buildMonthOptions(prev);
+  document.getElementById('cmp-target').innerHTML = buildMonthOptions(curr);
+  document.getElementById('file-month').innerHTML = buildMonthOptions(curr);
+  document.getElementById('ocr-month').innerHTML  = buildMonthOptions(curr);
+}
+initMonthSelects();
+
+// ============================================================
+// GAS API helper
+// ============================================================
+async function gasCall(action, params = {}) {
+  // 有 GAS URL → 打真實後端
+  if (CONFIG.gasUrl) {
+    const payload = { action, ...params };
+    const res = await fetch(CONFIG.gasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    return data;
+  }
+  // 沒有 GAS URL → 走本機模擬模式
+  return localDB(action, params);
+}
+
+// ============================================================
+// 本機模擬資料庫（localStorage）
+// ============================================================
+function localDB(action, params) {
+  const getAll = key => JSON.parse(localStorage.getItem(key) || '[]');
+  const setAll = (key, arr) => localStorage.setItem(key, JSON.stringify(arr));
+
+  if (action === 'addRecord') {
+    const records = getAll('local_records');
+    records.push({
+      vendor:    params.vendor,
+      store:     params.store || '兩店通用',
+      month:     params.month,
+      item_name: params.item_name,
+      unit:      params.unit || '',
+      price:     parseFloat(params.price) || 0,
+      note:      params.note || '',
+      status:    params.status || 'pending',
+      rowIndex:  records.length + 2,
+    });
+    setAll('local_records', records);
+    return { success: true };
+  }
+
+  if (action === 'getRecords') {
+    let records = getAll('local_records');
+    if (params.vendor) records = records.filter(r => r.vendor === params.vendor);
+    if (params.month)  records = records.filter(r => r.month  === params.month);
+    if (params.status) records = records.filter(r => r.status === params.status);
+    return { success: true, records };
+  }
+
+  if (action === 'updateRecord') {
+    const records = getAll('local_records');
+    const idx = records.findIndex(r => r.rowIndex === parseInt(params.rowIndex));
+    if (idx !== -1) Object.assign(records[idx], params);
+    setAll('local_records', records);
+    return { success: true };
+  }
+
+  if (action === 'deleteRecord') {
+    let records = getAll('local_records');
+    records = records.filter(r => r.rowIndex !== parseInt(params.rowIndex));
+    setAll('local_records', records);
+    return { success: true };
+  }
+
+  if (action === 'getPendingItems') {
+    const items = getAll('local_records').filter(r => r.status === 'pending');
+    return { success: true, items };
+  }
+
+  if (action === 'getVendors') {
+    const vendors = getAll('local_vendors');
+    if (!vendors.length) {
+      // 預設廠商清單
+      const defaults = [
+        { name:'全富',     category:'海鮮',    rating:'A', contact:'', note:'', rowIndex:2 },
+        { name:'陸陸肉',   category:'肉品',    rating:'A', contact:'', note:'', rowIndex:3 },
+        { name:'擘進',     category:'冷凍',    rating:'B', contact:'', note:'', rowIndex:4 },
+        { name:'菜商',     category:'蔬菜',    rating:'B', contact:'', note:'', rowIndex:5 },
+        { name:'鴻璟立昌', category:'乾貨耗材',rating:'C', contact:'', note:'', rowIndex:6 },
+      ];
+      setAll('local_vendors', defaults);
+      return { success: true, vendors: defaults };
+    }
+    return { success: true, vendors };
+  }
+
+  if (action === 'updateVendor') {
+    const vendors = getAll('local_vendors');
+    const idx = vendors.findIndex(v => v.rowIndex === parseInt(params.rowIndex));
+    if (idx !== -1) Object.assign(vendors[idx], params);
+    setAll('local_vendors', vendors);
+    return { success: true };
+  }
+
+  if (action === 'compareMonths') {
+    const { vendor, baseMonth, compareMonth } = params;
+    const all     = getAll('local_records');
+    const base    = all.filter(r => r.vendor === vendor && r.month === baseMonth    && r.status === 'confirmed');
+    const compare = all.filter(r => r.vendor === vendor && r.month === compareMonth && r.status === 'confirmed');
+    const baseMap = {};
+    base.forEach(r => baseMap[r.item_name] = r);
+    const results = [];
+    let alertCount = 0;
+    compare.forEach(curr => {
+      const prev = baseMap[curr.item_name];
+      if (!prev) { results.push({ item_name: curr.item_name, unit: curr.unit, prev_price: null, curr_price: curr.price, change_pct: null, status: 'new', note: curr.note }); return; }
+      const pct = prev.price > 0 ? ((curr.price - prev.price) / prev.price * 100).toFixed(2) : null;
+      const alert = pct != null && Math.abs(pct) > 5;
+      if (alert) alertCount++;
+      results.push({ item_name: curr.item_name, unit: curr.unit, prev_price: prev.price, curr_price: curr.price, change_pct: pct, alert, note: curr.note });
+    });
+    base.forEach(prev => {
+      if (!compare.find(r => r.item_name === prev.item_name))
+        results.push({ item_name: prev.item_name, unit: prev.unit, prev_price: prev.price, curr_price: null, change_pct: null, status: 'removed', note: prev.note });
+    });
+    results.sort((a,b) => (parseFloat(b.change_pct)||0) - (parseFloat(a.change_pct)||0));
+    return { success: true, vendor, baseMonth, compareMonth, results, alertCount };
+  }
+
+  if (action === 'exportCSV') {
+    const cmp = localDB('compareMonths', params);
+    const rows = [['品項','單位','上月價格','本月價格','漲跌幅(%)','備註']];
+    cmp.results.forEach(r => rows.push([r.item_name, r.unit, r.prev_price??'—', r.curr_price??'—', r.change_pct!=null?r.change_pct+'%':'—', r.note||'']));
+    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    return { success: true, csv, filename: `比對報告_${params.vendor}_${params.baseMonth}_vs_${params.compareMonth}.csv` };
+  }
+
+  if (action === 'initSheets') {
+    return { success: true, message: '本機模式：無需初始化，資料存於 localStorage' };
+  }
+
+  return { success: true };
+}
+
+// ============================================================
+// Compare
+// ============================================================
+let lastCompareResult = null;
+
+async function doCompare() {
+  const vendor    = document.getElementById('cmp-vendor').value;
+  const baseMonth = document.getElementById('cmp-base').value;
+  const cmpMonth  = document.getElementById('cmp-target').value;
+
+  if (!vendor)    return showToast('請選擇廠商', 'warning');
+  if (!baseMonth) return showToast('請選擇基準月', 'warning');
+  if (!cmpMonth)  return showToast('請選擇比對月', 'warning');
+  if (baseMonth >= cmpMonth) return showToast('比對月需晚於基準月', 'warning');
+
+  const resultEl = document.getElementById('compare-result');
+  resultEl.style.display = 'none';
+
+  showLoader('compare-tbody', '比對中...');
+  resultEl.style.display = 'block';
+
+  try {
+    const data = await gasCall('compareMonths', { vendor, baseMonth, compareMonth: cmpMonth });
+    lastCompareResult = data;
+    renderCompareResult(data);
+    if (data.alertCount > 0) {
+      triggerNotification(`⚠️ ${data.alertCount} 個品項漲幅超過 5%`, vendor);
+    }
+  } catch (e) {
+    showToast(e.message, 'error');
+    resultEl.style.display = 'none';
+  }
+}
+
+function renderCompareResult(data) {
+  const { results, vendor, baseMonth, compareMonth } = data;
+
+  // Summary
+  let alertCnt = 0, upCnt = 0, downCnt = 0, newCnt = 0;
+  results.forEach(r => {
+    const p = parseFloat(r.change_pct);
+    if (r.status === 'new') { newCnt++; return; }
+    if (r.status === 'removed') return;
+    if (p > 5)  { alertCnt++; upCnt++; }
+    else if (p > 0)  upCnt++;
+    else if (p < 0) downCnt++;
+  });
+
+  document.getElementById('compare-summary').innerHTML = `
+    <div class="summary-card">
+      <div class="summary-num red">${alertCnt}</div>
+      <div class="summary-label">⚠️ 漲超 5%</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-num" style="color:var(--red)">${upCnt}</div>
+      <div class="summary-label">漲價品項</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-num green">${downCnt}</div>
+      <div class="summary-label">降價品項</div>
+    </div>
+  `;
+
+  // Table
+  const tbody = document.getElementById('compare-tbody');
+  tbody.innerHTML = '';
+
+  if (results.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-3);">無比對資料</td></tr>`;
+    return;
+  }
+
+  results.forEach(r => {
+    const pct    = parseFloat(r.change_pct);
+    const isAlert = !isNaN(pct) && pct > 5;
+    const isNew   = r.status === 'new';
+    const isGone  = r.status === 'removed';
+
+    let changeHtml = '<span class="change-flat">—</span>';
+    if (!isNaN(pct)) {
+      const sign  = pct > 0 ? '▲' : '▼';
+      const cls   = pct > 0 ? 'change-up' : (pct < 0 ? 'change-down' : 'change-flat');
+      changeHtml  = `<span class="${cls}">${sign} ${Math.abs(pct)}%</span>`;
+      if (isAlert) changeHtml += ` <span class="badge badge-red">⚠️</span>`;
+    }
+    if (isNew)  changeHtml = `<span class="badge badge-gold">新品項</span>`;
+    if (isGone) changeHtml = `<span class="badge badge-gray">下架</span>`;
+
+    const tr = document.createElement('tr');
+    if (isAlert) tr.className = 'alert-row';
+    tr.innerHTML = `
+      <td style="font-weight:600;">${r.item_name}</td>
+      <td style="color:var(--text-2)">${r.unit || '—'}</td>
+      <td>${r.prev_price != null ? '$' + r.prev_price : '—'}</td>
+      <td style="font-weight:600">${r.curr_price != null ? '$' + r.curr_price : '—'}</td>
+      <td>${changeHtml}</td>
+      <td style="color:var(--text-2);font-size:12px">${r.note || ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function showLoader(tbodyId, msg) {
+  const el = document.getElementById(tbodyId);
+  if (el) el.innerHTML = `<tr><td colspan="99"><div class="loader"><div class="spinner"></div>${msg}</div></td></tr>`;
+}
+
+async function exportReport() {
+  if (!lastCompareResult) return showToast('尚無比對結果', 'warning');
+  try {
+    const vendor    = document.getElementById('cmp-vendor').value;
+    const baseMonth = document.getElementById('cmp-base').value;
+    const cmpMonth  = document.getElementById('cmp-target').value;
+    const data = await gasCall('exportCSV', { vendor, baseMonth, compareMonth: cmpMonth });
+
+    const bom  = '﻿';
+    const blob = new Blob([bom + data.csv], { type: 'text/csv;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = data.filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('CSV 已匯出', 'success');
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
+}
+
+// ============================================================
+// 通道切換
+// ============================================================
+let currentChannel  = 'file';   // 'file' | 'image'
+let currentFileType = 'excel';  // 'excel' | 'word'
+let currentUploadType = 'excel'; // 相容舊邏輯
+
+function switchChannel(ch, el) {
+  currentChannel = ch;
+  document.querySelectorAll('.channel-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('channel-file').style.display  = ch === 'file'  ? 'block' : 'none';
+  document.getElementById('channel-image').style.display = ch === 'image' ? 'block' : 'none';
+
+  // 圖片通道：檢查 API Key
+  if (ch === 'image') {
+    const warn = document.getElementById('img-api-warning');
+    warn.style.display = CONFIG.apiKey ? 'none' : 'flex';
+  }
+  // 重置結果
+  ocrItems = [];
+}
+
+function switchFileType(type, el) {
+  currentFileType   = type;
+  currentUploadType = type;
+  document.querySelectorAll('.upload-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('ft-section-excel').style.display = type === 'excel' ? 'block' : 'none';
+  document.getElementById('ft-section-word').style.display  = type === 'word'  ? 'block' : 'none';
+  // 重置
+  document.getElementById('col-mapper').style.display      = 'none';
+  document.getElementById('file-meta').style.display       = 'none';
+  document.getElementById('file-result-section').style.display = 'none';
+  ocrItems = [];
+}
+
+// 相容舊函式名（保留給 drag-drop 等地方）
+function switchUploadType(type, el) { switchFileType(type, el); }
+
+// ============================================================
+// OCR Upload — 狀態變數
+// ============================================================
+let ocrImageBase64  = null;
+let ocrImageMime    = 'image/jpeg';
+let ocrTextContent  = null;
+let ocrItems        = [];
+let excelWorkbook   = null;
+let activeSheetName = null;
+
+// ============================================================
+// File input 事件綁定（頁面載入後執行，input 在最頂層）
+// ============================================================
+document.getElementById('img-input').addEventListener('change', function() {
+  if (this.files[0]) handleImageFile(this.files[0]);
+});
+document.getElementById('excel-input').addEventListener('change', function() {
+  if (this.files[0]) handleExcelFile(this.files[0]);
+});
+document.getElementById('word-input').addEventListener('change', function() {
+  if (this.files[0]) handleWordFile(this.files[0]);
+});
+
+// ============================================================
+// 圖片處理
+// ============================================================
+function handleImageFile(file) {
+  const mimeMap = { 'image/png':'image/png', 'image/gif':'image/gif', 'image/webp':'image/webp' };
+  ocrImageMime = mimeMap[file.type] || 'image/jpeg';
+  const reader = new FileReader();
+  reader.onload = e => {
+    ocrImageBase64 = e.target.result.split(',')[1];
+    const prev = document.getElementById('preview-img');
+    prev.src = e.target.result;
+    prev.style.display = 'block';
+    showOcrMeta('image', file.name);
+  };
+  reader.readAsDataURL(file);
+}
+
+// Drag-over — 圖片區
+const zoneImg = document.getElementById('upload-zone-img');
+zoneImg.addEventListener('dragover', e => { e.preventDefault(); zoneImg.classList.add('drag-over'); });
+zoneImg.addEventListener('dragleave', () => zoneImg.classList.remove('drag-over'));
+zoneImg.addEventListener('drop', e => {
+  e.preventDefault(); zoneImg.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) handleImageFile(file);
+});
+
+// ============================================================
+// Excel 處理
+// ============================================================
+function handleExcelFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      excelWorkbook = XLSX.read(data, { type: 'array' });
+      const sheets = excelWorkbook.SheetNames;
+      activeSheetName = sheets[0];
+      renderSheetSelector(sheets);
+      renderExcelPreview(activeSheetName);
+      // 通道一：顯示欄位對應 + 基本資訊
+      renderColMapper(activeSheetName);
+      document.getElementById('file-meta').style.display = 'block';
+      // file-month 已由 initMonthSelects() 預設為當月
+    } catch(err) {
+      showToast('Excel 解析失敗：' + err.message, 'error');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function renderSheetSelector(sheets) {
+  const el = document.getElementById('excel-sheet-selector');
+  if (sheets.length <= 1) { el.innerHTML = ''; return; }
+  el.innerHTML = '<div style="font-size:11px;color:var(--text-3);margin-bottom:6px;">選擇工作表：</div>'
+    + sheets.map(s => `<button class="sheet-btn ${s===activeSheetName?'active':''}"
+        onclick="selectSheet('${escHtml(s)}')">${escHtml(s)}</button>`).join('');
+}
+
+function selectSheet(name) {
+  activeSheetName = name;
+  document.querySelectorAll('.sheet-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === name);
+  });
+  renderExcelPreview(name);
+}
+
+function renderExcelPreview(sheetName) {
+  const ws   = excelWorkbook.Sheets[sheetName];
+  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+  document.getElementById('excel-preview').style.display = 'block';
+  document.getElementById('excel-info').textContent =
+    `工作表「${sheetName}」 · ${rows.length} 列`;
+
+  // Header row
+  const head = document.getElementById('excel-preview-head');
+  const body = document.getElementById('excel-preview-body');
+  head.innerHTML = '';
+  body.innerHTML = '';
+
+  if (!rows.length) return;
+
+  // 最多顯示前 30 列
+  const preview = rows.slice(0, 30);
+  const colCount = Math.max(...preview.map(r => r.length));
+
+  head.innerHTML = '<tr>' + Array.from({length: colCount}, (_, i) =>
+    `<th>${String.fromCharCode(65 + i)}</th>`).join('') + '</tr>';
+
+  preview.forEach(row => {
+    const tr = document.createElement('tr');
+    for (let i = 0; i < colCount; i++) {
+      const td = document.createElement('td');
+      td.textContent = row[i] ?? '';
+      tr.appendChild(td);
+    }
+    body.appendChild(tr);
+  });
+}
+
+function excelToText(sheetName) {
+  const ws   = excelWorkbook.Sheets[sheetName];
+  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+  return rows.map(r => r.join('\t')).join('\n');
+}
+
+// ============================================================
+// 欄位對應 UI（通道一 Excel 專用）
+// ============================================================
+function renderColMapper(sheetName) {
+  const ws   = excelWorkbook.Sheets[sheetName];
+  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+  if (!rows.length) return;
+
+  // 取前兩列合併判斷欄標題
+  const headerRow = rows[0];
+  const colCount  = headerRow.length;
+
+  const noneOpt = '<option value="">（略）</option>';
+  const opts = headerRow.map((h, i) => {
+    const label = h ? `${colLabel(i)}欄：${h}` : `${colLabel(i)}欄`;
+    return `<option value="${i}">${label}</option>`;
+  }).join('');
+
+  // 嘗試自動猜欄位
+  const guess = guessColumns(headerRow);
+
+  const selName  = document.getElementById('map-name');
+  const selUnit  = document.getElementById('map-unit');
+  const selPrice = document.getElementById('map-price');
+  const selNote  = document.getElementById('map-note');
+
+  selName.innerHTML  = opts;
+  selUnit.innerHTML  = noneOpt + opts;
+  selPrice.innerHTML = opts;
+  selNote.innerHTML  = noneOpt + opts;
+
+  if (guess.name  != null) selName.value  = guess.name;
+  if (guess.unit  != null) selUnit.value  = guess.unit;
+  if (guess.price != null) selPrice.value = guess.price;
+  if (guess.note  != null) selNote.value  = guess.note;
+
+  document.getElementById('col-mapper').style.display = 'block';
+
+  // 載入記憶設定
+  loadColMapMemory();
+}
+
+function colLabel(i) {
+  // 0→A, 1→B, ...
+  return String.fromCharCode(65 + i);
+}
+
+function guessColumns(headers) {
+  const guess = { name: null, unit: null, price: null, note: null };
+  const nameKw  = ['品項','品名','名稱','item','name','商品'];
+  const unitKw  = ['單位','unit'];
+  const priceKw = ['價格','單價','price','金額','售價','客戶價'];
+  const noteKw  = ['備註','note','說明','規格','商品備註'];
+
+  headers.forEach((h, i) => {
+    const s = String(h).toLowerCase();
+    if (nameKw.some(k  => s.includes(k))  && guess.name  == null) guess.name  = i;
+    if (unitKw.some(k  => s.includes(k))  && guess.unit  == null) guess.unit  = i;
+    if (priceKw.some(k => s.includes(k))  && guess.price == null) guess.price = i;
+    if (noteKw.some(k  => s.includes(k))  && guess.note  == null) guess.note  = i;
+  });
+  return guess;
+}
+
+function saveColMapMemory() {
+  const vendor = document.getElementById('file-vendor').value;
+  const map = {
+    name:  document.getElementById('map-name').value,
+    unit:  document.getElementById('map-unit').value,
+    price: document.getElementById('map-price').value,
+    note:  document.getElementById('map-note').value,
+    skip:  document.getElementById('map-skip-rows').value,
+  };
+  localStorage.setItem('colmap_' + vendor, JSON.stringify(map));
+}
+
+function loadColMapMemory() {
+  const vendor = document.getElementById('file-vendor').value;
+  const saved  = localStorage.getItem('colmap_' + vendor);
+  if (!saved) return;
+  try {
+    const map = JSON.parse(saved);
+    if (map.name  != null) document.getElementById('map-name').value  = map.name;
+    if (map.unit  != null) document.getElementById('map-unit').value  = map.unit;
+    if (map.price != null) document.getElementById('map-price').value = map.price;
+    if (map.note  != null) document.getElementById('map-note').value  = map.note;
+    if (map.skip  != null) document.getElementById('map-skip-rows').value = map.skip;
+  } catch(_) {}
+}
+
+// ============================================================
+// 通道一：預覽匯入品項
+// ============================================================
+function previewFileImport() {
+  if (currentFileType === 'excel') {
+    if (!excelWorkbook) return showToast('請先上傳 Excel 檔案', 'warning');
+    previewExcelImport();
+  } else {
+    if (!ocrTextContent) return showToast('請先上傳 Word 檔案', 'warning');
+    // Word 通道：用 AI 辨識（若有 Key），否則顯示純文字讓手動填
+    previewWordManual();
+  }
+}
+
+function previewExcelImport() {
+  const nameCol  = parseInt(document.getElementById('map-name').value);
+  const unitCol  = document.getElementById('map-unit').value;
+  const priceCol = parseInt(document.getElementById('map-price').value);
+  const noteCol  = document.getElementById('map-note').value;
+  const skipRows = parseInt(document.getElementById('map-skip-rows').value) || 1;
+
+  if (isNaN(nameCol) || isNaN(priceCol))
+    return showToast('請選擇品項名稱欄與價格欄', 'warning');
+
+  // 儲存欄位記憶
+  saveColMapMemory();
+
+  const ws   = excelWorkbook.Sheets[activeSheetName];
+  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+  const dataRows = rows.slice(skipRows);
+
+  ocrItems = dataRows
+    .filter(row => row[nameCol] && String(row[nameCol]).trim())
+    .map(row => {
+      const rawPrice = unitCol !== '' ? row[parseInt(priceCol)] : row[priceCol];
+      const price    = parseFloat(String(rawPrice).replace(/[^0-9.]/g, '')) || null;
+      return {
+        item_name: String(row[nameCol]).trim(),
+        unit:      unitCol !== '' ? String(row[parseInt(unitCol)] || '').trim() : '',
+        price,
+        note:      noteCol !== '' ? String(row[parseInt(noteCol)] || '').trim() : '',
+      };
+    })
+    .filter(item => item.item_name);
+
+  if (!ocrItems.length) return showToast('未讀取到任何品項，請確認欄位設定', 'warning');
+
+  renderOCRItems('file-result-section', 'ocr-items-list');
+  document.getElementById('file-result-section').style.display = 'block';
+  showToast(`讀取完成，共 ${ocrItems.length} 個品項`, 'success');
+}
+
+function previewWordManual() {
+  // Word 沒有欄位概念，直接顯示一個空白輸入表讓手動填
+  ocrItems = [{ item_name: '', unit: '', price: null, note: '' }];
+  renderOCRItems('file-result-section', 'ocr-items-list');
+  document.getElementById('file-result-section').style.display = 'block';
+  showToast('請手動填入品項，或切換至「圖片通道」用 AI 辨識', 'warning');
+}
+
+// ============================================================
+// Word 處理
+// ============================================================
+function handleWordFile(file) {
+  const reader = new FileReader();
+  reader.onload = async e => {
+    try {
+      const result = await mammoth.extractRawText({ arrayBuffer: e.target.result });
+      ocrTextContent = result.value;
+      document.getElementById('word-preview').style.display = 'block';
+      document.getElementById('word-info').textContent = `${file.name} · ${ocrTextContent.length} 字元`;
+      document.getElementById('word-content-preview').textContent =
+        ocrTextContent.slice(0, 1200) + (ocrTextContent.length > 1200 ? '\n... (以下省略)' : '');
+      // 通道一 Word：顯示基本資訊（Word 用純文字，欄位對應不適用）
+      document.getElementById('col-mapper').style.display = 'none';
+      document.getElementById('file-meta').style.display  = 'block';
+      // file-month 已由 initMonthSelects() 預設為當月
+    } catch(err) {
+      showToast('Word 解析失敗：' + err.message, 'error');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// Drag-over — Excel
+const zoneExcel = document.getElementById('upload-zone-excel');
+zoneExcel.addEventListener('dragover', e => { e.preventDefault(); zoneExcel.classList.add('drag-over'); });
+zoneExcel.addEventListener('dragleave', () => zoneExcel.classList.remove('drag-over'));
+zoneExcel.addEventListener('drop', e => {
+  e.preventDefault(); zoneExcel.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handleExcelFile(file);
+});
+
+// Drag-over — Word
+const zoneWord = document.getElementById('upload-zone-word');
+zoneWord.addEventListener('dragover', e => { e.preventDefault(); zoneWord.classList.add('drag-over'); });
+zoneWord.addEventListener('dragleave', () => zoneWord.classList.remove('drag-over'));
+zoneWord.addEventListener('drop', e => {
+  e.preventDefault(); zoneWord.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handleWordFile(file);
+});
+
+// ============================================================
+// 共用：顯示 meta 區
+// ============================================================
+function showOcrMeta(type, filename, extra) {
+  document.getElementById('ocr-meta').style.display = 'block';
+  const hint = document.getElementById('ocr-source-hint');
+  const icons = { image:'📷', excel:'📊', word:'📄' };
+  hint.textContent = `${icons[type]} ${filename}${extra ? ' · ' + extra : ''}`;
+}
+
+// ============================================================
+// 自動偵測可用 Gemini 模型
+// ============================================================
+async function detectGeminiModel(apiKey) {
+  // 優先嘗試清單（依新舊排序）
+  const candidates = [
+    'gemini-2.0-flash',
+    'gemini-2.0-flash-lite',
+    'gemini-1.5-flash',
+    'gemini-1.5-flash-latest',
+    'gemini-1.5-flash-001',
+    'gemini-1.5-pro',
+    'gemini-1.5-pro-latest',
+    'gemini-pro',
+  ];
+
+  // 先嘗試用 /v1/models 列出實際可用模型
+  try {
+    const r = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`
+    );
+    const data = await r.json();
+    if (data.models && data.models.length > 0) {
+      // 從回傳清單中找第一個支援 generateContent 的 flash/pro 模型
+      const available = data.models
+        .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
+        .map(m => m.name.replace('models/', ''));
+      // 依 candidates 優先順序選
+      for (const c of candidates) {
+        if (available.some(a => a === c || a.startsWith(c))) return c;
+      }
+      // fallback：直接用第一個可用的
+      if (available.length > 0) return available[0];
+    }
+  } catch(_) {}
+
+  // 若 /v1/models 失敗，用 v1beta 再試一次
+  try {
+    const r = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
+    );
+    const data = await r.json();
+    if (data.models && data.models.length > 0) {
+      const available = data.models
+        .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
+        .map(m => m.name.replace('models/', ''));
+      for (const c of candidates) {
+        if (available.some(a => a === c || a.startsWith(c))) return c;
+      }
+      if (available.length > 0) return available[0];
+    }
+  } catch(_) {}
+
+  return null; // 無法偵測
+}
+
+// ============================================================
+// AI 辨識（統一入口）
+// ============================================================
+async function runOCR() {
+  if (!CONFIG.apiKey) return showToast('請先在設定頁填入 Google Gemini API Key', 'warning');
+
+  if (currentUploadType === 'image' && !ocrImageBase64)
+    return showToast('請先選擇圖片', 'warning');
+  if (currentUploadType === 'excel' && !excelWorkbook)
+    return showToast('請先選擇 Excel 檔案', 'warning');
+  if (currentUploadType === 'word' && !ocrTextContent)
+    return showToast('請先選擇 Word 檔案', 'warning');
+
+  const btn = document.getElementById('ocr-btn');
+  btn.disabled    = true;
+  btn.textContent = '🔍 偵測模型中...';
+
+  const PROMPT = `請辨識所有品項，以 JSON 陣列格式回傳，格式如下：
+[{"item_name":"品項名稱","unit":"單位","price":數字或null,"note":"備註或空字串"}]
+規則：
+- price 必須是數字；若為時價或看不清楚則填 null
+- 每個品項獨立一個物件
+- 忽略小計/合計/標題列
+- 只回傳 JSON，不要其他說明文字`;
+
+  try {
+    // 自動偵測可用模型（優先用設定的，若不可用則自動換）
+    let model = CONFIG.model;
+    let apiVer = 'v1';
+
+    // 組裝 parts
+    let parts = [];
+    if (currentUploadType === 'image') {
+      parts = [
+        { inline_data: { mime_type: ocrImageMime, data: ocrImageBase64 } },
+        { text: '這是一張廠商報價單圖片。' + PROMPT }
+      ];
+    } else if (currentUploadType === 'excel') {
+      const tableText = excelToText(activeSheetName);
+      parts = [{ text: `以下是廠商報價單的 Excel 內容（Tab 分隔）：\n\n${tableText}\n\n${PROMPT}` }];
+    } else {
+      parts = [{ text: `以下是廠商報價單的 Word 文件內容：\n\n${ocrTextContent}\n\n${PROMPT}` }];
+    }
+
+    const body = JSON.stringify({
+      contents: [{ parts }],
+      generationConfig: { temperature: 0.1, maxOutputTokens: 2048 }
+    });
+
+    btn.textContent = '🤖 辨識中...';
+
+    // 嘗試順序：v1 → v1beta，模型先用設定值，失敗再自動偵測
+    let result = null;
+    const tryList = [
+      { ver: 'v1',     m: model },
+      { ver: 'v1beta', m: model },
+    ];
+
+    for (const t of tryList) {
+      const url = `https://generativelanguage.googleapis.com/${t.ver}/models/${t.m}:generateContent?key=${CONFIG.apiKey}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body
+      });
+      const data = await res.json();
+
+      // 若模型不存在或配額問題，試下一個
+      if (data.error) {
+        const code = data.error.status || '';
+        // 配額超過 → 直接報錯，不繼續試
+        if (code === 'RESOURCE_EXHAUSTED') throw new Error('API 免費配額已用盡，請稍後再試或至 aistudio.google.com 查看用量');
+        continue; // 模型不存在 → 試下一個
+      }
+      result = data;
+      break;
+    }
+
+    // 若設定模型都失敗 → 自動偵測
+    if (!result) {
+      btn.textContent = '🔍 自動偵測模型...';
+      const detectedModel = await detectGeminiModel(CONFIG.apiKey);
+      if (!detectedModel) throw new Error('找不到可用的 Gemini 模型，請確認 API Key 是否正確，或至 aistudio.google.com 確認帳號狀態');
+
+      // 用偵測到的模型再試 v1 / v1beta
+      btn.textContent = `🤖 使用 ${detectedModel} 辨識...`;
+      for (const ver of ['v1', 'v1beta']) {
+        const url = `https://generativelanguage.googleapis.com/${ver}/models/${detectedModel}:generateContent?key=${CONFIG.apiKey}`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body
+        });
+        const data = await res.json();
+        if (!data.error) {
+          result = data;
+          // 更新設定讓下次直接用
+          CONFIG.model = detectedModel;
+          localStorage.setItem('gasModel', detectedModel);
+          showToast(`自動切換模型：${detectedModel}`, 'warning');
+          break;
+        }
+        if (data.error?.status === 'RESOURCE_EXHAUSTED')
+          throw new Error('API 免費配額已用盡，請稍後再試');
+      }
+    }
+
+    if (!result) throw new Error('所有 Gemini 模型均無法使用，請確認 API Key 與帳號狀態');
+    if (!result.candidates?.[0]?.content?.parts?.[0]?.text)
+      throw new Error('AI 無回傳內容，請重試');
+
+    const text  = result.candidates[0].content.parts[0].text.trim();
+    const match = text.match(/\[[\s\S]*\]/);
+    if (!match) throw new Error('AI 回傳格式異常，請重試');
+
+    ocrItems = JSON.parse(match[0]);
+    renderOCRItems(null, 'ocr-items-list-img');
+    document.getElementById('ocr-result-section').style.display = 'block';
+    showToast(`辨識完成，共 ${ocrItems.length} 個品項`, 'success');
+
+  } catch (e) {
+    showToast('辨識失敗：' + e.message, 'error');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = '🤖 AI 辨識品項';
+  }
+}
+
+// listId：渲染目標容器 ID（預設 ocr-items-list）
+function renderOCRItems(sectionId, listId) {
+  const id   = listId || (currentChannel === 'file' ? 'ocr-items-list' : 'ocr-items-list-img');
+  const list = document.getElementById(id);
+  if (!list) return;
+  list.innerHTML = '';
+  ocrItems.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'ocr-item-card';
+    div.innerHTML = `
+      <div class="item-actions">
+        <button class="btn-icon" onclick="removeOCRItem(${i},'${id}')" title="刪除">✕</button>
+      </div>
+      <div class="row-3" style="margin-bottom:8px;">
+        <div class="form-group" style="grid-column:1/3;margin:0">
+          <label class="form-label">品項名稱</label>
+          <input class="form-control" value="${escHtml(item.item_name)}" onchange="ocrItems[${i}].item_name=this.value">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">單位</label>
+          <input class="form-control" value="${escHtml(item.unit)}" onchange="ocrItems[${i}].unit=this.value">
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">單價</label>
+          <input class="form-control" type="number" value="${item.price ?? ''}" placeholder="時價" onchange="ocrItems[${i}].price=this.value?parseFloat(this.value):null">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">備註</label>
+          <input class="form-control" value="${escHtml(item.note)}" onchange="ocrItems[${i}].note=this.value">
+        </div>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function removeOCRItem(i, listId) {
+  ocrItems.splice(i, 1);
+  renderOCRItems(null, listId);
+}
+
+function addOCRItem() {
+  ocrItems.push({ item_name: '', unit: '', price: null, note: '' });
+  const id = currentChannel === 'file' ? 'ocr-items-list' : 'ocr-items-list-img';
+  renderOCRItems(null, id);
+  document.getElementById(id).lastElementChild?.scrollIntoView({ behavior: 'smooth' });
+}
+
+// channel: 'file'（通道一）| 'img'（通道二）
+async function confirmOCR(channel) {
+  if (!ocrItems.length) return showToast('無品項可存入', 'warning');
+
+  // 依通道取廠商/月份
+  const isFile  = !channel || channel === 'file';
+  const vendor  = document.getElementById(isFile ? 'file-vendor' : 'ocr-vendor').value;
+  const month   = document.getElementById(isFile ? 'file-month'  : 'ocr-month').value;
+
+  if (!vendor || !month) return showToast('請填入廠商與月份', 'warning');
+
+  try {
+    let saved = 0;
+    for (const item of ocrItems) {
+      if (!item.item_name) continue;
+      await gasCall('addRecord', {
+        vendor, month, store: '兩店通用',
+        item_name: item.item_name,
+        unit:  item.unit  || '',
+        price: item.price || 0,
+        note:  item.note  || '',
+        status: item.price ? 'confirmed' : 'pending'
+      });
+      saved++;
+    }
+    showToast(`✅ 已存入 ${saved} 筆記錄`, 'success');
+    ocrItems = [];
+
+    if (isFile) {
+      document.getElementById('file-result-section').style.display = 'none';
+    } else {
+      document.getElementById('ocr-result-section').style.display = 'none';
+      document.getElementById('preview-img').style.display = 'none';
+      ocrImageBase64 = null;
+    }
+    loadPendingBadge();
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
+}
+
+// ============================================================
+// Vendors
+// ============================================================
+const VENDOR_ICONS = { '全富':'🦐','陸陸肉':'🥩','擘進':'🧊','菜商':'🥦','鴻璟立昌':'🧂' };
+const VENDOR_COLORS = ['#e84a4a','#e8974a','#e8c84a','#4ae88a','#4a9ae8'];
+
+async function loadVendors() {
+  const list = document.getElementById('vendors-list');
+  list.innerHTML = `<div class="loader"><div class="spinner"></div>載入廠商資料...</div>`;
+  try {
+    const data = await gasCall('getVendors');
+    renderVendors(data.vendors);
+  } catch (e) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">${e.message}</div></div>`;
+  }
+}
+
+function renderVendors(vendors) {
+  const list = document.getElementById('vendors-list');
+  list.innerHTML = '';
+  if (!vendors.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">🏪</div><div class="empty-text">無廠商資料</div></div>`;
+    return;
+  }
+  vendors.forEach((v, i) => {
+    const card = document.createElement('div');
+    card.className = 'vendor-card';
+    card.innerHTML = `
+      <div class="vendor-avatar">${VENDOR_ICONS[v.name] || '🏪'}</div>
+      <div class="vendor-info">
+        <div class="vendor-name">${escHtml(v.name)}</div>
+        <div class="vendor-cat">${escHtml(v.category)}</div>
+        ${v.contact ? `<div style="font-size:11px;color:var(--text-3);margin-top:3px;">📞 ${escHtml(v.contact)}</div>` : ''}
+        ${v.note ? `<div style="font-size:11px;color:var(--gold);margin-top:3px;">${escHtml(v.note)}</div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+        <select class="vendor-rating-select rating-${(v.rating||'').toLowerCase()}"
+                data-row="${v.rowIndex}" onchange="updateVendorRating(this)">
+          <option ${v.rating==='A'?'selected':''}>A</option>
+          <option ${v.rating==='B'?'selected':''}>B</option>
+          <option ${v.rating==='C'?'selected':''}>C</option>
+          <option ${v.rating==='D'?'selected':''}>D</option>
+        </select>
+        <button class="btn btn-sm btn-outline" onclick="editVendor(${JSON.stringify(v).replace(/"/g,'&quot;')})">編輯</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+async function updateVendorRating(sel) {
+  const rowIndex = sel.dataset.row;
+  const rating   = sel.value;
+  sel.className  = `vendor-rating-select rating-${rating.toLowerCase()}`;
+  try {
+    await gasCall('updateVendor', { rowIndex, rating });
+    showToast('評級已更新', 'success');
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
+}
+
+function editVendor(v) {
+  document.getElementById('edit-modal-title').textContent = `編輯：${v.name}`;
+  document.getElementById('edit-modal-body').innerHTML = `
+    <div class="form-group">
+      <label class="form-label">聯絡方式</label>
+      <input class="form-control" id="ev-contact" value="${escHtml(v.contact || '')}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">備註</label>
+      <input class="form-control" id="ev-note" value="${escHtml(v.note || '')}">
+    </div>
+  `;
+  document.getElementById('edit-modal-confirm').onclick = async () => {
+    try {
+      await gasCall('updateVendor', {
+        rowIndex: v.rowIndex,
+        contact: document.getElementById('ev-contact').value,
+        note: document.getElementById('ev-note').value,
+      });
+      closeModal('edit-modal');
+      showToast('廠商資料已更新', 'success');
+      loadVendors();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  };
+  openModal('edit-modal');
+}
+
+// ============================================================
+// Pending
+// ============================================================
+async function loadPending() {
+  const list = document.getElementById('pending-list');
+  list.innerHTML = `<div class="loader"><div class="spinner"></div>載入待處理事項...</div>`;
+  try {
+    const data = await gasCall('getPendingItems');
+    document.getElementById('pending-count-label').textContent = `共 ${data.items.length} 筆待確認`;
+    renderPending(data.items);
+    updatePendingBadge(data.items.length);
+  } catch (e) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">${e.message}</div></div>`;
+  }
+}
+
+async function loadPendingBadge() {
+  try {
+    const data = await gasCall('getPendingItems');
+    updatePendingBadge(data.items.length);
+  } catch {}
+}
+
+function updatePendingBadge(n) {
+  const badge = document.getElementById('pending-badge');
+  if (n > 0) { badge.style.display = 'flex'; badge.textContent = n > 99 ? '99+' : n; }
+  else badge.style.display = 'none';
+}
+
+function renderPending(items) {
+  const list = document.getElementById('pending-list');
+  list.innerHTML = '';
+  if (!items.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">目前無待處理事項</div></div>`;
+    return;
+  }
+
+  const byVendor = {};
+  items.forEach(item => {
+    if (!byVendor[item.vendor]) byVendor[item.vendor] = [];
+    byVendor[item.vendor].push(item);
+  });
+
+  Object.entries(byVendor).forEach(([vendor, vitems]) => {
+    const header = document.createElement('div');
+    header.style.cssText = 'font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px;padding:0 2px;';
+    header.textContent = `${VENDOR_ICONS[vendor] || '🏪'} ${vendor}`;
+    list.appendChild(header);
+
+    vitems.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'pending-card';
+      card.innerHTML = `
+        <div class="vendor-dot" style="background:var(--gold)"></div>
+        <div class="item-info">
+          <div class="item-name">${escHtml(item.item_name)}</div>
+          <div class="item-meta">${escHtml(item.unit)} · ${escHtml(item.month)}</div>
+          ${item.note ? `<div class="item-note">💬 ${escHtml(item.note)}</div>` : ''}
+        </div>
+        <button class="resolve-btn" onclick="resolveItem(${item.rowIndex}, this)">確認</button>
+      `;
+      list.appendChild(card);
+    });
+  });
+}
+
+async function resolveItem(rowIndex, btn) {
+  btn.disabled = true;
+  btn.textContent = '...';
+  try {
+    await gasCall('updateRecord', { rowIndex, status: 'confirmed' });
+    btn.closest('.pending-card').style.opacity = '0.4';
+    showToast('已標記確認', 'success');
+    loadPendingBadge();
+  } catch (e) {
+    showToast(e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = '確認';
+  }
+}
+
+// ============================================================
+// Notifications
+// ============================================================
+async function requestNotification() {
+  if (!('Notification' in window)) return showToast('此瀏覽器不支援通知', 'warning');
+  const perm = await Notification.requestPermission();
+  if (perm === 'granted') showToast('通知已啟用', 'success');
+  else showToast('通知未授權', 'warning');
+}
+
+function triggerNotification(msg, title) {
+  if (Notification.permission === 'granted') {
+    new Notification(title || '報價異常', {
+      body: msg,
+      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect fill="%23e8c84a" width="32" height="32" rx="8"/><text y="24" x="8" font-size="20">意</text></svg>'
+    });
+  }
+}
+
+// ============================================================
+// Sheets Init
+// ============================================================
+async function initSheets() {
+  if (!CONFIG.gasUrl) return showToast('請先填入 GAS URL', 'warning');
+  try {
+    showToast('初始化中...', 'warning');
+    const data = await gasCall('initSheets');
+    showToast(data.message, 'success');
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
+}
+
+async function testConnection() {
+  if (!CONFIG.gasUrl) return showToast('請先填入 GAS URL', 'warning');
+  try {
+    showToast('測試中...', 'warning');
+    await gasCall('getVendors');
+    showToast('✅ 連線正常！Sheets 資料可讀取', 'success');
+    const dot = document.getElementById('conn-dot');
+    dot.className = 'status-dot connected';
+    document.getElementById('conn-label').textContent = '已連線';
+  } catch (e) {
+    showToast('連線失敗：' + e.message, 'error');
+  }
+}
+
+// ============================================================
+// Modal
+// ============================================================
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+});
+
+// ============================================================
+// Toast
+// ============================================================
+function showToast(msg, type = 'success') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icons = { success:'✅', error:'❌', warning:'⚠️' };
+  toast.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${escHtml(msg)}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+// ============================================================
+// Utils
+// ============================================================
+function escHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ============================================================
+// Init
+// ============================================================
+// Load pending badge on startup if GAS is configured
+if (CONFIG.gasUrl) {
+  loadPendingBadge();
+}
+</script>
+
+</body>
+</html>
