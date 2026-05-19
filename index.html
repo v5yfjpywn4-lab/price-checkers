@@ -616,6 +616,241 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
 .config-banner .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
 
 /* ============================================================
+   Dashboard 廠商卡片
+   ============================================================ */
+.dash-vendor-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.dash-vendor-card.has-alert { border-color: rgba(232,74,74,0.5); }
+.dash-vendor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+}
+.dash-vendor-header:active { background: var(--card-hover); }
+.dash-vendor-left { display: flex; align-items: center; gap: 10px; }
+.dash-vendor-name { font-weight: 600; font-size: 15px; color: var(--text); }
+.dash-vendor-meta { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.dash-vendor-right { display: flex; align-items: center; gap: 8px; }
+.dash-month-badge {
+  font-size: 11px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 8px;
+  color: var(--text-2);
+}
+.dash-alert-badge {
+  font-size: 11px;
+  background: var(--red-dim);
+  border: 1px solid rgba(232,74,74,0.4);
+  border-radius: 6px;
+  padding: 3px 8px;
+  color: var(--red);
+}
+.dash-chevron {
+  font-size: 12px;
+  color: var(--text-3);
+  transition: transform .25s;
+}
+.dash-vendor-card.open .dash-chevron { transform: rotate(180deg); }
+.dash-items-wrap {
+  display: none;
+  border-top: 1px solid var(--border);
+}
+.dash-vendor-card.open .dash-items-wrap { display: block; }
+.dash-items-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.dash-items-table th {
+  background: var(--bg3);
+  color: var(--text-3);
+  font-weight: 500;
+  font-size: 11px;
+  padding: 8px 12px;
+  text-align: left;
+  white-space: nowrap;
+}
+.dash-items-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: middle;
+}
+.dash-items-table tr:last-child td { border-bottom: none; }
+.dash-items-table tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+.dash-price { font-variant-numeric: tabular-nums; font-weight: 500; }
+.dash-pending { font-size: 10px; color: var(--gold); background: var(--gold-glow); border-radius: 4px; padding: 2px 6px; }
+.dash-no-data { text-align:center; color:var(--text-3); font-size:13px; padding:20px; }
+
+/* ============================================================
+   Chat 問答頁
+   ============================================================ */
+.chat-quick-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+.chat-quick-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-2);
+  font-size: 12px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: inherit;
+}
+.chat-quick-btn:hover, .chat-quick-btn:active {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: var(--gold-glow);
+}
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 200px;
+  max-height: calc(100vh - 340px);
+  overflow-y: auto;
+  margin-bottom: 12px;
+  padding-bottom: 4px;
+}
+.chat-bubble {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.chat-bubble-user {
+  flex-direction: row-reverse;
+}
+.chat-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--gold-glow);
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.chat-bubble-user .chat-avatar {
+  background: var(--bg3);
+  border-color: var(--border);
+  color: var(--text-2);
+}
+.chat-content {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  border-top-left-radius: 4px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.7;
+  max-width: calc(100% - 46px);
+}
+.chat-bubble-user .chat-content {
+  background: var(--gold-glow);
+  border-color: rgba(232,200,74,0.25);
+  border-top-left-radius: 14px;
+  border-top-right-radius: 4px;
+  color: var(--text);
+}
+.chat-content p { margin: 0 0 6px; }
+.chat-content p:last-child { margin-bottom: 0; }
+.chat-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 12px;
+}
+.chat-content th {
+  background: var(--bg3);
+  color: var(--text-2);
+  font-weight: 600;
+  padding: 6px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.chat-content td {
+  padding: 7px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: var(--text);
+}
+.chat-content tr:last-child td { border-bottom: none; }
+.chat-content .up   { color: var(--red); }
+.chat-content .down { color: var(--green); }
+.chat-thinking {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 4px 0;
+}
+.chat-thinking span {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  animation: thinking .9s infinite;
+}
+.chat-thinking span:nth-child(2) { animation-delay: .15s; }
+.chat-thinking span:nth-child(3) { animation-delay: .3s; }
+@keyframes thinking {
+  0%,80%,100% { opacity:.2; transform:scale(.8); }
+  40% { opacity:1; transform:scale(1); }
+}
+.chat-input-wrap {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 10px 10px 10px 14px;
+  position: sticky;
+  bottom: calc(var(--tab-h) + 8px);
+}
+.chat-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  resize: none;
+  line-height: 1.5;
+  max-height: 120px;
+}
+.chat-input::placeholder { color: var(--text-3); }
+.chat-send-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: none;
+  color: #0a0a0f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity .2s;
+}
+.chat-send-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ============================================================
    Channel Tabs（通道選擇）
    ============================================================ */
 .channel-tabs {
@@ -775,6 +1010,18 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
         <strong>本機測試模式</strong>｜資料暫存於瀏覽器，功能完整可測試。<br>
         正式使用請至 <strong>⚙️ 設定</strong> 填入 GAS URL 串接 Google Sheets。
       </div>
+    </div>
+
+    <!-- ── Dashboard：各廠商最新月份報價 ── -->
+    <div class="section-header" style="margin-top:4px;">
+      <div>
+        <div class="section-title" style="font-size:15px;">📋 各廠商最新報價</div>
+        <div class="section-sub">點擊廠商卡片展開品項清單</div>
+      </div>
+      <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" onclick="loadDashboard()">↻ 更新</button>
+    </div>
+    <div id="dashboard-container">
+      <div class="loader"><div class="spinner"></div>載入中...</div>
     </div>
 
     <div class="card">
@@ -1052,6 +1299,56 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
     </div>
   </div>
 
+  <!-- ⑥ 問答 -->
+  <div class="page" id="page-chat">
+    <div class="section-header">
+      <div>
+        <div class="section-title">AI 問答</div>
+        <div class="section-sub">用自然語言查詢報價資料</div>
+      </div>
+      <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" onclick="clearChat()">清除</button>
+    </div>
+
+    <!-- 快速問題範本 -->
+    <div class="chat-quick-wrap">
+      <button class="chat-quick-btn" onclick="askQuick('幫我整理過去三個月牛小排的價格趨勢')">牛小排近三月趨勢</button>
+      <button class="chat-quick-btn" onclick="askQuick('哪些品項在最近一個月漲幅超過5%？')">近月漲幅 >5%</button>
+      <button class="chat-quick-btn" onclick="askQuick('全富廠商最新一個月所有品項報價')">全富最新報價</button>
+      <button class="chat-quick-btn" onclick="askQuick('有哪些品項狀態是待確認？')">待確認品項</button>
+      <button class="chat-quick-btn" onclick="askQuick('比較鮭魚和干貝近三個月的價格變化')">鮭魚 vs 干貝</button>
+      <button class="chat-quick-btn" onclick="askQuick('所有廠商中單價最高的前十個品項')">單價 TOP 10</button>
+    </div>
+
+    <!-- 對話記錄 -->
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-bubble chat-bubble-ai">
+        <div class="chat-avatar">AI</div>
+        <div class="chat-content">
+          <p>你好！我已載入所有報價資料。你可以直接問我：</p>
+          <ul style="margin:8px 0 0 16px;color:var(--text-2);font-size:13px;line-height:1.8;">
+            <li>某品項的歷史價格走勢</li>
+            <li>某廠商的最新報價清單</li>
+            <li>哪些品項有異常漲幅</li>
+            <li>跨廠商的同類品項比價</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 輸入區 -->
+    <div class="chat-input-wrap">
+      <textarea class="chat-input" id="chat-input" placeholder="例：幫我整理這三個月牛五花的價格…" rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+      <button class="chat-send-btn" id="chat-send-btn" onclick="sendChat()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </div>
+
   <!-- ⑤ 設定 -->
   <div class="page" id="page-settings">
     <div class="section-header">
@@ -1131,6 +1428,10 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
     <span class="tab-icon">⚠️</span>
     <span>待處理</span>
     <span class="tab-badge" id="pending-badge" style="display:none"></span>
+  </button>
+  <button class="tab-item" onclick="switchPage('chat', this)">
+    <span class="tab-icon">💬</span>
+    <span>問答</span>
   </button>
   <button class="tab-item" onclick="switchPage('settings', this)">
     <span class="tab-icon">⚙️</span>
@@ -2173,6 +2474,275 @@ async function confirmOCR(channel) {
 const VENDOR_ICONS = { '全富':'🦐','陸陸肉':'🥩','擘進':'🧊','菜商':'🥦','鴻璟立昌':'🧂' };
 const VENDOR_COLORS = ['#e84a4a','#e8974a','#e8c84a','#4ae88a','#4a9ae8'];
 
+// ============================================================
+// Chat 問答功能
+// ============================================================
+let chatHistory = []; // 多輪對話記憶
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const question = input.value.trim();
+  if (!question) return;
+  input.value = '';
+  input.style.height = 'auto';
+  await askQuestion(question);
+}
+
+function askQuick(q) {
+  // 先切換到問答頁
+  const tabs = document.querySelectorAll('.tab-item');
+  tabs.forEach(t => t.classList.remove('active'));
+  const chatTab = Array.from(tabs).find(t => t.textContent.includes('問答'));
+  if (chatTab) chatTab.classList.add('active');
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-chat').classList.add('active');
+  // 填入問題並送出
+  document.getElementById('chat-input').value = q;
+  sendChat();
+}
+
+function clearChat() {
+  chatHistory = [];
+  document.getElementById('chat-messages').innerHTML = `
+    <div class="chat-bubble chat-bubble-ai">
+      <div class="chat-avatar">AI</div>
+      <div class="chat-content">
+        <p>對話已清除。有什麼想問的，請繼續！</p>
+      </div>
+    </div>`;
+}
+
+function appendUserBubble(text) {
+  const wrap = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'chat-bubble chat-bubble-user';
+  div.innerHTML = `
+    <div class="chat-avatar">我</div>
+    <div class="chat-content"><p>${text.replace(/\n/g,'<br>')}</p></div>`;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+  return div;
+}
+
+function appendThinking() {
+  const wrap = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'chat-bubble chat-bubble-ai';
+  div.innerHTML = `
+    <div class="chat-avatar">AI</div>
+    <div class="chat-content">
+      <div class="chat-thinking"><span></span><span></span><span></span></div>
+    </div>`;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+  return div;
+}
+
+function renderAIContent(markdown) {
+  // 解析 markdown → HTML（支援表格、粗體、換行）
+  let html = markdown
+    // 粗體
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    // 表格
+    .replace(/^\|(.+)\|$/gm, row => row) // 先保留
+    // 換行
+    .replace(/\n/g, '\n');
+
+  // 偵測並轉換 markdown 表格
+  const tableRegex = /(\|.+\|\n\|[-| :]+\|\n(?:\|.+\|\n?)+)/g;
+  html = html.replace(tableRegex, (match) => {
+    const rows = match.trim().split('\n');
+    const headers = rows[0].split('|').filter(c => c.trim()).map(c => `<th>${c.trim()}</th>`).join('');
+    const bodyRows = rows.slice(2).map(row => {
+      const cells = row.split('|').filter(c => c.trim() !== undefined).slice(1,-1);
+      return '<tr>' + cells.map(c => {
+        const txt = c.trim();
+        const cls = txt.includes('↑') || txt.includes('+') ? ' class="up"'
+                  : txt.includes('↓') || txt.includes('-') && txt.match(/\d/) ? ' class="down"' : '';
+        return `<td${cls}>${txt}</td>`;
+      }).join('') + '</tr>';
+    }).join('');
+    return `<table><thead><tr>${headers}</tr></thead><tbody>${bodyRows}</tbody></table>`;
+  });
+
+  // 剩餘文字轉 <p>
+  const parts = html.split(/(<table[\s\S]*?<\/table>)/);
+  return parts.map(part => {
+    if (part.startsWith('<table')) return part;
+    return part.split('\n').filter(l => l.trim()).map(l => `<p>${l}</p>`).join('');
+  }).join('');
+}
+
+async function askQuestion(question) {
+  if (!CONFIG.apiKey) {
+    showToast('請先在設定頁填入 Gemini API Key', 'warning');
+    return;
+  }
+
+  // 顯示使用者問題
+  appendUserBubble(question);
+  const thinkingBubble = appendThinking();
+
+  // 禁用送出
+  const btn = document.getElementById('chat-send-btn');
+  btn.disabled = true;
+
+  try {
+    // 取得所有報價資料
+    const res = await gasCall('getRecords', {});
+    const records = res.records || [];
+
+    // 壓縮資料為 JSON 給 AI（只傳需要的欄位）
+    const dataSnippet = records.map(r => ({
+      廠商: r.vendor, 門市: r.store, 月份: r.month,
+      品項: r.item_name, 單位: r.unit,
+      單價: r.price, 備註: r.note, 狀態: r.status
+    }));
+
+    const systemPrompt = `你是意享餐廳集團的報價查核 AI 助理。
+你的任務是根據以下報價資料庫，用繁體中文回答主管的問題。
+
+規則：
+1. 回答要精準、簡潔，直接給結論
+2. 有數字比較時，必須用 Markdown 表格呈現
+3. 漲價用 ↑ 符號，降價用 ↓，持平用 —
+4. 表格欄位：月份｜單價｜漲跌幅（如適用）
+5. 最後附上一句簡短的分析結論
+
+報價資料（JSON）：
+${JSON.stringify(dataSnippet, null, 0)}`;
+
+    // 組裝對話歷史（最多保留最近 6 輪）
+    const recentHistory = chatHistory.slice(-12);
+    const messages = [
+      ...recentHistory,
+      { role: 'user', parts: [{ text: question }] }
+    ];
+
+    const payload = {
+      system_instruction: { parts: [{ text: systemPrompt }] },
+      contents: messages
+    };
+
+    const model = CONFIG.model || 'gemini-2.0-flash';
+    const apiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${CONFIG.apiKey}`,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
+    );
+    const apiData = await apiRes.json();
+
+    if (apiData.error) throw new Error(apiData.error.message);
+    const answer = apiData.candidates?.[0]?.content?.parts?.[0]?.text || '無法取得回覆';
+
+    // 更新對話歷史
+    chatHistory.push({ role: 'user', parts: [{ text: question }] });
+    chatHistory.push({ role: 'model', parts: [{ text: answer }] });
+
+    // 替換 thinking bubble 為真實回覆
+    thinkingBubble.querySelector('.chat-content').innerHTML = renderAIContent(answer);
+    document.getElementById('chat-messages').scrollTop = 9999;
+
+  } catch(e) {
+    thinkingBubble.querySelector('.chat-content').innerHTML =
+      `<p style="color:var(--red);">錯誤：${e.message}</p>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ============================================================
+// Dashboard：各廠商最新報價快速預覽
+// ============================================================
+async function loadDashboard() {
+  const container = document.getElementById('dashboard-container');
+  container.innerHTML = `<div class="loader"><div class="spinner"></div>載入中...</div>`;
+  try {
+    // 取所有記錄
+    const res = await gasCall('getRecords', {});
+    const records = res.records || [];
+
+    if (!records.length) {
+      container.innerHTML = `<div class="dash-no-data">尚無報價資料，請先上傳報價單</div>`;
+      return;
+    }
+
+    // 取得所有廠商（依照資料中出現的）
+    const vendors = [...new Set(records.map(r => r.vendor))];
+
+    let html = '';
+    vendors.forEach((vendor, vi) => {
+      const vendorRecords = records.filter(r => r.vendor === vendor);
+
+      // 找該廠商最新月份
+      const months = [...new Set(vendorRecords.map(r => r.month))].sort().reverse();
+      const latestMonth = months[0];
+      if (!latestMonth) return;
+
+      const items = vendorRecords.filter(r => r.month === latestMonth);
+      const confirmedItems = items.filter(r => r.status === 'confirmed');
+      const pendingItems   = items.filter(r => r.status === 'pending');
+      const alertItems     = items.filter(r => r.note && (r.note.includes('漲') || r.note.includes('縮水') || r.note.includes('告知')));
+      const hasAlert = alertItems.length > 0;
+
+      const colorDot = VENDOR_COLORS[vi % VENDOR_COLORS.length];
+
+      html += `
+      <div class="dash-vendor-card ${hasAlert ? 'has-alert' : ''}" id="dash-card-${vi}">
+        <div class="dash-vendor-header" onclick="toggleDashCard(${vi})">
+          <div class="dash-vendor-left">
+            <div style="width:8px;height:8px;border-radius:50%;background:${colorDot};flex-shrink:0;"></div>
+            <div>
+              <div class="dash-vendor-name">${vendor}</div>
+              <div class="dash-vendor-meta">${items.length} 品項｜${pendingItems.length > 0 ? pendingItems.length + ' 待確認' : '全數確認'}</div>
+            </div>
+          </div>
+          <div class="dash-vendor-right">
+            <span class="dash-month-badge">${latestMonth}</span>
+            ${hasAlert ? `<span class="dash-alert-badge">⚠️ ${alertItems.length} 異常</span>` : ''}
+            <span class="dash-chevron">▼</span>
+          </div>
+        </div>
+        <div class="dash-items-wrap">
+          <div style="overflow-x:auto;">
+            <table class="dash-items-table">
+              <thead>
+                <tr>
+                  <th>品項</th>
+                  <th>單位</th>
+                  <th>單價</th>
+                  <th>備註</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${items.map(item => `
+                  <tr>
+                    <td>${item.item_name}</td>
+                    <td style="color:var(--text-2)">${item.unit || '—'}</td>
+                    <td class="dash-price">${item.price ? '$' + Number(item.price).toLocaleString() : '<span style="color:var(--text-3)">時價</span>'}</td>
+                    <td>
+                      ${item.status === 'pending' ? '<span class="dash-pending">待確認</span> ' : ''}
+                      <span style="color:var(--text-2);font-size:12px;">${item.note || ''}</span>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>`;
+    });
+
+    container.innerHTML = html || `<div class="dash-no-data">尚無報價資料</div>`;
+  } catch(e) {
+    container.innerHTML = `<div class="dash-no-data" style="color:var(--red);">載入失敗：${e.message}</div>`;
+  }
+}
+
+function toggleDashCard(vi) {
+  const card = document.getElementById(`dash-card-${vi}`);
+  card.classList.toggle('open');
+}
+
 async function loadVendors() {
   const list = document.getElementById('vendors-list');
   list.innerHTML = `<div class="loader"><div class="spinner"></div>載入廠商資料...</div>`;
@@ -2427,6 +2997,8 @@ function escHtml(str) {
 if (CONFIG.gasUrl) {
   loadPendingBadge();
 }
+// 啟動時載入 Dashboard（本機模式也可用）
+loadDashboard();
 </script>
 
 </body>
