@@ -2,3004 +2,1407 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="theme-color" content="#0a0a0f">
-<title>報價查核系統 | 意享生態系</title>
-
-<!-- Open Graph -->
-<meta property="og:title" content="意享報價查核系統">
-<meta property="og:description" content="廠商報價單OCR辨識、月份漲跌比對、異常預警">
-<meta property="og:type" content="website">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>意享報價查核系統</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-<!-- SheetJS for Excel parsing -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<!-- mammoth.js for Word parsing -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 <style>
-/* ============================================================
-   CSS Variables & Reset
-   ============================================================ */
 :root {
-  --bg:          #0a0a0f;
-  --bg2:         #111118;
-  --bg3:         #1a1a28;
-  --card:        #16161f;
-  --card-hover:  #1e1e2e;
-  --border:      #2a2a3e;
-  --gold:        #e8c84a;
-  --gold-dim:    #b89d32;
-  --gold-glow:   rgba(232,200,74,0.15);
-  --red:         #e84a4a;
-  --red-dim:     rgba(232,74,74,0.15);
-  --green:       #4ae88a;
-  --green-dim:   rgba(74,232,138,0.12);
-  --text:        #e8e8f0;
-  --text-2:      #9090a8;
-  --text-3:      #5a5a72;
-  --radius:      12px;
-  --radius-sm:   8px;
-  --shadow:      0 4px 24px rgba(0,0,0,0.4);
-  --nav-h:       60px;
-  --tab-h:       56px;
+  --bg: #0a0a0f;
+  --card: #16161f;
+  --card2: #1e1e2a;
+  --border: #2a2a3e;
+  --gold: #e8c84a;
+  --gold-dim: #a8922f;
+  --text: #e8e8f0;
+  --text-dim: #888899;
+  --red: #e84a4a;
+  --green: #4ae88a;
+  --blue: #4a8ae8;
+  --tab-h: 64px;
+  --nav-h: 56px;
+  --radius: 12px;
+  --radius-sm: 8px;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-serif;font-size:15px;}
+a{color:var(--gold);}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
-body {
-  font-family: 'Noto Sans TC', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100dvh;
-  overflow-x: hidden;
-}
-button { font-family: inherit; cursor: pointer; border: none; outline: none; }
-input, select, textarea { font-family: inherit; outline: none; }
-a { color: inherit; text-decoration: none; }
+#nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;z-index:100;gap:12px;}
+#nav .logo{width:36px;height:36px;border-radius:50%;background:var(--gold);color:#000;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+#nav .title{font-weight:700;font-size:16px;flex:1;}
+#status-dot{width:10px;height:10px;border-radius:50%;background:var(--text-dim);flex-shrink:0;transition:background .3s;}
+#status-dot.online{background:var(--green);}
+#status-dot.offline{background:var(--red);}
 
-/* ============================================================
-   Top Nav
-   ============================================================ */
-.top-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: var(--nav-h);
-  background: rgba(10,10,15,0.92);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-  z-index: 100;
-}
-.nav-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.nav-logo {
-  width: 32px; height: 32px;
-  background: var(--gold);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; font-weight: 700; color: #000;
-}
-.nav-title { font-size: 15px; font-weight: 700; color: var(--gold); letter-spacing: 0.5px; }
-.nav-sub { font-size: 11px; color: var(--text-3); margin-top: 1px; }
-.nav-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--text-3);
-}
-.status-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--text-3);
-  animation: pulse-dot 2s infinite;
-}
-.status-dot.connected { background: var(--green); }
-@keyframes pulse-dot {
-  0%,100% { opacity: 1; } 50% { opacity: 0.4; }
-}
+#tabbar{position:fixed;bottom:0;left:0;right:0;height:var(--tab-h);background:var(--card);border-top:1px solid var(--border);display:flex;z-index:100;}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;color:var(--text-dim);font-size:11px;cursor:pointer;padding:4px 0;position:relative;transition:color .2s;}
+.tab-btn.active{color:var(--gold);}
+.tab-btn .tab-icon{font-size:20px;line-height:1;}
+.tab-badge{position:absolute;top:4px;right:calc(50% - 16px);background:var(--red);color:#fff;font-size:10px;min-width:16px;height:16px;border-radius:8px;display:none;align-items:center;justify-content:center;padding:0 3px;}
+.tab-badge.show{display:flex;}
 
-/* ============================================================
-   Bottom Tab Bar
-   ============================================================ */
-.tab-bar {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: var(--tab-h);
-  background: rgba(10,10,15,0.95);
-  backdrop-filter: blur(16px);
-  border-top: 1px solid var(--border);
-  display: flex;
-  z-index: 100;
-  padding-bottom: env(safe-area-inset-bottom);
-}
-.tab-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  padding: 6px 0;
-  color: var(--text-3);
-  font-size: 10px;
-  font-weight: 500;
-  transition: color 0.2s;
-  position: relative;
-  cursor: pointer;
-  background: none;
-}
-.tab-item.active { color: var(--gold); }
-.tab-item.active::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 20%; right: 20%;
-  height: 2px;
-  background: var(--gold);
-  border-radius: 0 0 4px 4px;
-}
-.tab-icon { font-size: 20px; line-height: 1; }
-.tab-badge {
-  position: absolute;
-  top: 5px; right: calc(50% - 14px);
-  background: var(--red);
-  color: #fff;
-  font-size: 9px;
-  font-weight: 700;
-  min-width: 16px;
-  height: 16px;
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  padding: 0 4px;
-}
+#pages{position:fixed;top:var(--nav-h);bottom:var(--tab-h);left:0;right:0;overflow:hidden;}
+.page{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;padding:16px;display:none;}
+.page.active{display:block;}
 
-/* ============================================================
-   Main Content
-   ============================================================ */
-.main {
-  margin-top: var(--nav-h);
-  margin-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom));
-  min-height: calc(100dvh - var(--nav-h) - var(--tab-h));
-}
-.page { display: none; padding: 16px; }
-.page.active { display: block; }
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+.card.warn{border-color:var(--red);}
+.card-title{font-weight:700;font-size:14px;margin-bottom:8px;}
 
-/* ============================================================
-   Cards
-   ============================================================ */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin-bottom: 12px;
-}
-.card-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--gold);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:var(--radius-sm);padding:10px 18px;font-size:14px;font-family:inherit;cursor:pointer;transition:opacity .2s;}
+.btn:active{opacity:.7;}
+.btn-gold{background:var(--gold);color:#000;font-weight:700;}
+.btn-outline{background:none;border:1px solid var(--border);color:var(--text);}
+.btn-red{background:var(--red);color:#fff;font-weight:700;}
+.btn-green{background:var(--green);color:#000;font-weight:700;}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn-block{width:100%;}
 
-/* ============================================================
-   Form Controls
-   ============================================================ */
-.form-group { margin-bottom: 12px; }
-.form-label {
-  display: block;
-  font-size: 12px;
-  color: var(--text-2);
-  margin-bottom: 6px;
-  font-weight: 500;
-}
-.form-control {
-  width: 100%;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  color: var(--text);
-  font-size: 14px;
-  transition: border-color 0.2s;
-}
-.form-control:focus { border-color: var(--gold); }
-.form-control option { background: var(--bg3); }
-select.form-control { cursor: pointer; }
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:4px;}
+.input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:14px;font-family:inherit;}
+.input:focus{outline:none;border-color:var(--gold);}
+select.input{cursor:pointer;}
 
-.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:var(--card2);color:var(--text-dim);font-weight:500;padding:8px 10px;text-align:left;white-space:nowrap;}
+td{padding:8px 10px;border-top:1px solid var(--border);vertical-align:middle;}
+tr:hover td{background:rgba(255,255,255,.03);}
+.td-up{color:var(--red);font-weight:700;}
+.td-down{color:var(--green);font-weight:700;}
 
-/* ============================================================
-   Buttons
-   ============================================================ */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 18px;
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-.btn-primary {
-  background: var(--gold);
-  color: #000;
-}
-.btn-primary:active { transform: scale(0.97); background: var(--gold-dim); }
-.btn-outline {
-  background: transparent;
-  color: var(--gold);
-  border: 1px solid var(--gold);
-}
-.btn-outline:active { background: var(--gold-glow); }
-.btn-danger {
-  background: var(--red-dim);
-  color: var(--red);
-  border: 1px solid rgba(232,74,74,0.3);
-}
-.btn-sm { padding: 6px 12px; font-size: 12px; }
-.btn-block { width: 100%; }
+#toast-wrap{position:fixed;bottom:calc(var(--tab-h) + 12px);left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;width:calc(100% - 32px);max-width:400px;}
+.toast{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;color:var(--text);text-align:center;animation:toastIn .3s ease;pointer-events:none;}
+.toast.ok{border-color:var(--green);}
+.toast.err{border-color:var(--red);}
+@keyframes toastIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 
-/* ============================================================
-   Table
-   ============================================================ */
-.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  min-width: 480px;
-}
-thead th {
-  background: var(--bg3);
-  color: var(--text-2);
-  font-weight: 600;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 10px 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-tbody td {
-  padding: 10px 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  color: var(--text);
-}
-tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover { background: rgba(255,255,255,0.02); }
+#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:flex-end;}
+#modal-overlay.open{display:flex;}
+#modal-box{background:var(--card);border-top:1px solid var(--border);border-radius:var(--radius) var(--radius) 0 0;padding:20px 16px;width:100%;max-height:85vh;overflow-y:auto;animation:slideUp .3s ease;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+#modal-title{font-weight:700;font-size:16px;margin-bottom:16px;}
+#modal-close{float:right;background:none;border:none;color:var(--text-dim);font-size:22px;cursor:pointer;line-height:1;}
 
-/* ============================================================
-   Badge / Tag
-   ============================================================ */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: 100px;
-  font-size: 11px;
-  font-weight: 600;
-}
-.badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(232,200,74,0.3); }
-.badge-red  { background: var(--red-dim);   color: var(--red);  border: 1px solid rgba(232,74,74,0.3); }
-.badge-green{ background: var(--green-dim); color: var(--green);border: 1px solid rgba(74,232,138,0.3);}
-.badge-gray { background: rgba(255,255,255,0.06); color: var(--text-2); border: 1px solid var(--border); }
+.vendor-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;display:flex;align-items:flex-start;gap:12px;}
+.vendor-icon{font-size:36px;line-height:1;flex-shrink:0;}
+.vendor-info{flex:1;min-width:0;}
+.vendor-name{font-weight:700;font-size:15px;}
+.vendor-cat{font-size:12px;color:var(--text-dim);margin-bottom:4px;}
+.vendor-contact{font-size:12px;color:var(--text-dim);}
+.vendor-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end;}
+.rating-select{background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:4px 8px;cursor:pointer;}
 
-/* ============================================================
-   Change indicator
-   ============================================================ */
-.change-up   { color: var(--red);   font-weight: 700; }
-.change-down { color: var(--green); font-weight: 700; }
-.change-flat { color: var(--text-2); }
+#chat-messages{display:flex;flex-direction:column;gap:12px;padding-bottom:8px;}
+.bubble-wrap{display:flex;gap:8px;}
+.bubble-wrap.user{flex-direction:row-reverse;}
+.bubble{max-width:82%;padding:10px 14px;border-radius:var(--radius);font-size:14px;line-height:1.6;word-break:break-word;}
+.bubble.ai{background:var(--card2);border:1px solid var(--border);}
+.bubble.user{background:var(--gold);color:#000;font-weight:500;}
+.bubble table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px;}
+.bubble table th{background:rgba(255,255,255,.1);padding:5px 8px;border:1px solid rgba(255,255,255,.15);}
+.bubble table td{padding:5px 8px;border:1px solid rgba(255,255,255,.1);}
+.typing-dots{display:inline-flex;gap:4px;padding:4px 0;}
+.typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--text-dim);animation:dotBounce 1.2s infinite;}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes dotBounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-6px);}}
+#chat-input-bar{position:sticky;bottom:0;background:var(--bg);padding-top:8px;}
 
-.change-bar {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.alert-row td { background: rgba(232,74,74,0.06); }
+.compare-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;}
+.compare-card.warn{border-color:var(--red);}
+.compare-card-header{display:flex;align-items:center;padding:14px 16px;cursor:pointer;gap:10px;}
+.compare-card-header .ci{font-size:26px;}
+.compare-card-header .info{flex:1;}
+.compare-card-header .vendor-n{font-weight:700;}
+.compare-card-header .month-tag{font-size:11px;color:var(--text-dim);}
+.compare-card-header .chevron{color:var(--text-dim);transition:transform .2s;}
+.compare-card.open .chevron{transform:rotate(180deg);}
+.compare-card-body{display:none;border-top:1px solid var(--border);padding:12px 16px;}
+.compare-card.open .compare-card-body{display:block;}
+.item-row{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;gap:8px;}
+.item-row:last-child{border-bottom:none;}
+.item-note{font-size:11px;color:var(--red);margin-top:2px;}
 
-/* ============================================================
-   Upload Zone
-   ============================================================ */
-.upload-zone {
-  border: 2px dashed var(--border);
-  border-radius: var(--radius);
-  padding: 32px 16px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  user-select: none;
-}
-.upload-zone:hover { border-color: var(--gold-dim); }
-.upload-zone.drag-over {
-  border-color: var(--gold);
-  background: var(--gold-glow);
-}
-/* input 隱藏但保留在 DOM，由 JS onclick 觸發 */
-.upload-zone input[type=file] {
-  display: none;
-}
-.upload-icon { font-size: 40px; margin-bottom: 10px; }
-.upload-text { color: var(--text-2); font-size: 13px; }
-.upload-hint { color: var(--text-3); font-size: 11px; margin-top: 6px; }
+.pending-group{margin-bottom:16px;}
+.pending-group-title{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:8px;}
+.pending-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--card2);border-radius:var(--radius-sm);margin-bottom:6px;}
+.pending-item .pname{flex:1;font-size:13px;}
+.pending-item .pprice{font-size:13px;color:var(--gold);white-space:nowrap;}
 
-#preview-img {
-  width: 100%;
-  max-height: 260px;
-  object-fit: contain;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  margin-bottom: 12px;
-  display: none;
-}
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:32px 16px;text-align:center;cursor:pointer;transition:border-color .2s;}
+.upload-zone:hover,.upload-zone:active{border-color:var(--gold);}
+.upload-zone .uicon{font-size:40px;margin-bottom:8px;}
+.upload-zone .ulabel{font-size:14px;color:var(--text-dim);}
+.preview-table-wrap{max-height:260px;overflow:auto;border-radius:var(--radius-sm);border:1px solid var(--border);margin-top:12px;}
+.col-map-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 
-/* ============================================================
-   OCR Result Editor
-   ============================================================ */
-.ocr-item-card {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 12px;
-  margin-bottom: 10px;
-  position: relative;
-}
-.ocr-item-card .item-actions {
-  position: absolute;
-  top: 8px; right: 8px;
-  display: flex; gap: 6px;
-}
-.btn-icon {
-  width: 28px; height: 28px;
-  border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  background: rgba(255,255,255,0.06);
-  color: var(--text-2);
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s;
-}
-.btn-icon:hover { background: var(--red-dim); color: var(--red); }
+.qq-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.qq-btn{background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-size:12px;color:var(--text);cursor:pointer;transition:border-color .2s,color .2s;}
+.qq-btn:hover{border-color:var(--gold);color:var(--gold);}
 
-/* ============================================================
-   Rating badges
-   ============================================================ */
-.rating-a { color: var(--green); font-weight: 700; }
-.rating-b { color: var(--gold);  font-weight: 700; }
-.rating-c { color: #e8974a;      font-weight: 700; }
-.rating-d { color: var(--red);   font-weight: 700; }
+.setting-section{margin-bottom:24px;}
+.setting-section h3{font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.version-info{font-size:12px;color:var(--text-dim);text-align:center;margin-top:16px;}
 
-/* ============================================================
-   Loader
-   ============================================================ */
-.loader {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  gap: 12px;
-  color: var(--text-2);
-  font-size: 13px;
-}
-.spinner {
-  width: 32px; height: 32px;
-  border: 3px solid var(--border);
-  border-top-color: var(--gold);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 
-/* ============================================================
-   Toast
-   ============================================================ */
-#toast-container {
-  position: fixed;
-  bottom: calc(var(--tab-h) + 16px + env(safe-area-inset-bottom));
-  left: 16px; right: 16px;
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  pointer-events: none;
-}
-.toast {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 12px 16px;
-  font-size: 13px;
-  box-shadow: var(--shadow);
-  animation: toast-in 0.3s ease;
-  display: flex; align-items: center; gap: 10px;
-}
-.toast.success { border-left: 3px solid var(--green); }
-.toast.error   { border-left: 3px solid var(--red); }
-.toast.warning { border-left: 3px solid var(--gold); }
-@keyframes toast-in { from { transform: translateY(20px); opacity: 0; } to { transform: none; opacity: 1; } }
-
-/* ============================================================
-   Empty state
-   ============================================================ */
-.empty {
-  text-align: center;
-  padding: 48px 24px;
-  color: var(--text-3);
-}
-.empty-icon { font-size: 40px; margin-bottom: 12px; }
-.empty-text { font-size: 14px; }
-
-/* ============================================================
-   Section header
-   ============================================================ */
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-.section-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text);
-}
-.section-sub {
-  font-size: 12px;
-  color: var(--text-3);
-  margin-top: 2px;
-}
-
-/* ============================================================
-   Summary Cards (比對頁)
-   ============================================================ */
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 14px;
-}
-.summary-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 12px;
-  text-align: center;
-}
-.summary-num { font-size: 24px; font-weight: 700; }
-.summary-label { font-size: 10px; color: var(--text-3); margin-top: 2px; font-weight: 500; }
-.summary-num.red   { color: var(--red); }
-.summary-num.green { color: var(--green); }
-.summary-num.gold  { color: var(--gold); }
-
-/* ============================================================
-   Pending item card
-   ============================================================ */
-.pending-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.pending-card .vendor-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.pending-card .item-info { flex: 1; min-width: 0; }
-.pending-card .item-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pending-card .item-meta { font-size: 11px; color: var(--text-2); margin-top: 3px; }
-.pending-card .item-note { font-size: 11px; color: var(--gold); margin-top: 3px; }
-.pending-card .resolve-btn {
-  flex-shrink: 0;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  color: var(--text-2);
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 12px;
-  cursor: pointer;
-}
-.pending-card .resolve-btn:active { background: var(--green-dim); color: var(--green); border-color: var(--green); }
-
-/* ============================================================
-   Vendor card
-   ============================================================ */
-.vendor-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.vendor-avatar {
-  width: 48px; height: 48px;
-  background: var(--bg3);
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  flex-shrink: 0;
-}
-.vendor-info { flex: 1; min-width: 0; }
-.vendor-name { font-size: 16px; font-weight: 700; }
-.vendor-cat  { font-size: 12px; color: var(--text-2); margin-top: 2px; }
-.vendor-rating-select {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 700;
-  padding: 6px 10px;
-  cursor: pointer;
-}
-
-/* ============================================================
-   Modal
-   ============================================================ */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(4px);
-  z-index: 200;
-  display: none;
-  align-items: flex-end;
-  justify-content: center;
-}
-.modal-overlay.open { display: flex; }
-.modal-sheet {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 20px 20px 0 0;
-  width: 100%;
-  max-width: 600px;
-  max-height: 92dvh;
-  overflow-y: auto;
-  padding: 24px 20px;
-  padding-bottom: calc(24px + env(safe-area-inset-bottom));
-}
-.modal-handle {
-  width: 36px; height: 4px;
-  background: var(--border);
-  border-radius: 2px;
-  margin: 0 auto 20px;
-}
-.modal-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 20px;
-  color: var(--gold);
-}
-
-/* ============================================================
-   Config warning
-   ============================================================ */
-.config-banner {
-  background: linear-gradient(135deg, rgba(232,200,74,0.12), rgba(232,200,74,0.04));
-  border: 1px solid rgba(232,200,74,0.3);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  margin-bottom: 16px;
-  font-size: 13px;
-  color: var(--gold);
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-}
-.config-banner .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
-
-/* ============================================================
-   Dashboard 廠商卡片
-   ============================================================ */
-.dash-vendor-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin-bottom: 10px;
-  overflow: hidden;
-  transition: border-color .2s;
-}
-.dash-vendor-card.has-alert { border-color: rgba(232,74,74,0.5); }
-.dash-vendor-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px;
-  cursor: pointer;
-  user-select: none;
-}
-.dash-vendor-header:active { background: var(--card-hover); }
-.dash-vendor-left { display: flex; align-items: center; gap: 10px; }
-.dash-vendor-name { font-weight: 600; font-size: 15px; color: var(--text); }
-.dash-vendor-meta { font-size: 11px; color: var(--text-3); margin-top: 2px; }
-.dash-vendor-right { display: flex; align-items: center; gap: 8px; }
-.dash-month-badge {
-  font-size: 11px;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 3px 8px;
-  color: var(--text-2);
-}
-.dash-alert-badge {
-  font-size: 11px;
-  background: var(--red-dim);
-  border: 1px solid rgba(232,74,74,0.4);
-  border-radius: 6px;
-  padding: 3px 8px;
-  color: var(--red);
-}
-.dash-chevron {
-  font-size: 12px;
-  color: var(--text-3);
-  transition: transform .25s;
-}
-.dash-vendor-card.open .dash-chevron { transform: rotate(180deg); }
-.dash-items-wrap {
-  display: none;
-  border-top: 1px solid var(--border);
-}
-.dash-vendor-card.open .dash-items-wrap { display: block; }
-.dash-items-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.dash-items-table th {
-  background: var(--bg3);
-  color: var(--text-3);
-  font-weight: 500;
-  font-size: 11px;
-  padding: 8px 12px;
-  text-align: left;
-  white-space: nowrap;
-}
-.dash-items-table td {
-  padding: 9px 12px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text);
-  vertical-align: middle;
-}
-.dash-items-table tr:last-child td { border-bottom: none; }
-.dash-items-table tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
-.dash-price { font-variant-numeric: tabular-nums; font-weight: 500; }
-.dash-pending { font-size: 10px; color: var(--gold); background: var(--gold-glow); border-radius: 4px; padding: 2px 6px; }
-.dash-no-data { text-align:center; color:var(--text-3); font-size:13px; padding:20px; }
-
-/* ============================================================
-   Chat 問答頁
-   ============================================================ */
-.chat-quick-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin-bottom: 14px;
-}
-.chat-quick-btn {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  color: var(--text-2);
-  font-size: 12px;
-  padding: 5px 12px;
-  cursor: pointer;
-  transition: all .2s;
-  font-family: inherit;
-}
-.chat-quick-btn:hover, .chat-quick-btn:active {
-  border-color: var(--gold);
-  color: var(--gold);
-  background: var(--gold-glow);
-}
-.chat-messages {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-height: 200px;
-  max-height: calc(100vh - 340px);
-  overflow-y: auto;
-  margin-bottom: 12px;
-  padding-bottom: 4px;
-}
-.chat-bubble {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-}
-.chat-bubble-user {
-  flex-direction: row-reverse;
-}
-.chat-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: var(--gold-glow);
-  border: 1px solid var(--gold-dim);
-  color: var(--gold);
-  font-size: 10px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.chat-bubble-user .chat-avatar {
-  background: var(--bg3);
-  border-color: var(--border);
-  color: var(--text-2);
-}
-.chat-content {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  border-top-left-radius: 4px;
-  padding: 12px 14px;
-  font-size: 13px;
-  color: var(--text);
-  line-height: 1.7;
-  max-width: calc(100% - 46px);
-}
-.chat-bubble-user .chat-content {
-  background: var(--gold-glow);
-  border-color: rgba(232,200,74,0.25);
-  border-top-left-radius: 14px;
-  border-top-right-radius: 4px;
-  color: var(--text);
-}
-.chat-content p { margin: 0 0 6px; }
-.chat-content p:last-child { margin-bottom: 0; }
-.chat-content table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  font-size: 12px;
-}
-.chat-content th {
-  background: var(--bg3);
-  color: var(--text-2);
-  font-weight: 600;
-  padding: 6px 10px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-.chat-content td {
-  padding: 7px 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  color: var(--text);
-}
-.chat-content tr:last-child td { border-bottom: none; }
-.chat-content .up   { color: var(--red); }
-.chat-content .down { color: var(--green); }
-.chat-thinking {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  padding: 4px 0;
-}
-.chat-thinking span {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--gold-dim);
-  animation: thinking .9s infinite;
-}
-.chat-thinking span:nth-child(2) { animation-delay: .15s; }
-.chat-thinking span:nth-child(3) { animation-delay: .3s; }
-@keyframes thinking {
-  0%,80%,100% { opacity:.2; transform:scale(.8); }
-  40% { opacity:1; transform:scale(1); }
-}
-.chat-input-wrap {
-  display: flex;
-  gap: 10px;
-  align-items: flex-end;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 10px 10px 10px 14px;
-  position: sticky;
-  bottom: calc(var(--tab-h) + 8px);
-}
-.chat-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--text);
-  font-size: 14px;
-  font-family: inherit;
-  resize: none;
-  line-height: 1.5;
-  max-height: 120px;
-}
-.chat-input::placeholder { color: var(--text-3); }
-.chat-send-btn {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  background: var(--gold);
-  border: none;
-  color: #0a0a0f;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: opacity .2s;
-}
-.chat-send-btn:disabled { opacity: .4; cursor: not-allowed; }
-
-/* ============================================================
-   Channel Tabs（通道選擇）
-   ============================================================ */
-.channel-tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-.channel-tab {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 12px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.channel-tab.active {
-  border-color: var(--gold);
-  background: var(--gold-glow);
-}
-.channel-tab:active { transform: scale(0.97); }
-.ch-icon { font-size: 28px; margin-bottom: 6px; }
-.ch-label { font-size: 14px; font-weight: 700; color: var(--text); }
-.ch-sub { font-size: 11px; color: var(--text-3); margin-top: 3px; }
-.channel-tab.active .ch-label { color: var(--gold); }
-.channel-tab.active .ch-sub   { color: var(--gold-dim); }
-
-/* ============================================================
-   Upload Type Tabs
-   ============================================================ */
-.upload-type-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.upload-tab {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 8px;
-  border-radius: var(--radius-sm);
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--text-2);
-  font-size: 13px;
-  font-weight: 600;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-.upload-tab.active {
-  background: var(--gold-glow);
-  border-color: rgba(232,200,74,0.4);
-  color: var(--gold);
-}
-.upload-tab:active { transform: scale(0.97); }
-
-/* Excel preview table overrides */
-#excel-preview-table {
-  font-size: 12px;
-  min-width: auto;
-}
-#excel-preview-table thead th {
-  background: var(--bg);
-  font-size: 11px;
-  padding: 7px 10px;
-  white-space: nowrap;
-}
-#excel-preview-table tbody td {
-  padding: 6px 10px;
-  white-space: nowrap;
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Sheet selector buttons */
-.sheet-btn {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  margin: 0 4px 4px 0;
-  border-radius: 100px;
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  color: var(--text-2);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.sheet-btn.active {
-  background: var(--gold-glow);
-  border-color: rgba(232,200,74,0.4);
-  color: var(--gold);
-}
-
-/* ============================================================
-   Responsive
-   ============================================================ */
-@media (min-width: 640px) {
-  .page { padding: 24px; }
-  .summary-grid { grid-template-columns: repeat(4, 1fr); }
-}
-@media (min-width: 960px) {
-  .main { max-width: 800px; margin-left: auto; margin-right: auto; }
-  .tab-bar { max-width: 800px; left: 50%; transform: translateX(-50%); }
-  .top-nav { max-width: 100%; }
-}
+.flex-row{display:flex;gap:8px;}
+.flex-1{flex:1;}
+.mt8{margin-top:8px;}
+.mt12{margin-top:12px;}
+.mt16{margin-top:16px;}
+.section-sep{border:none;border-top:1px solid var(--border);margin:20px 0;}
 </style>
 </head>
-
 <body>
 
-<!-- File inputs — 最頂層，絕對不在任何 display:none 容器內 -->
-<input type="file" id="img-input"   accept="image/*"         style="display:none">
+<input type="file" id="img-input" accept="image/*" capture="environment" style="display:none">
 <input type="file" id="excel-input" accept=".xlsx,.xls,.csv" style="display:none">
-<input type="file" id="word-input"  accept=".docx"           style="display:none">
+<input type="file" id="word-input" accept=".docx,.doc" style="display:none">
 
-<!-- ============================================================
-     Top Nav
-     ============================================================ -->
-<nav class="top-nav">
-  <div class="nav-brand">
-    <div class="nav-logo">意</div>
-    <div>
-      <div class="nav-title">報價查核系統</div>
-      <div class="nav-sub">意享生態系 · 廠商管理</div>
-    </div>
-  </div>
-  <div class="nav-status">
-    <div class="status-dot" id="conn-dot"></div>
-    <span id="conn-label">連線中...</span>
-  </div>
-</nav>
+<div id="nav">
+  <div class="logo">意</div>
+  <div class="title">報價查核系統</div>
+  <div id="status-dot" title="連線狀態"></div>
+</div>
 
-<!-- ============================================================
-     Main
-     ============================================================ -->
-<main class="main">
+<div id="pages">
 
-  <!-- ① 比對頁 -->
+  <!-- 比對 -->
   <div class="page active" id="page-compare">
-    <div class="section-header">
-      <div>
-        <div class="section-title">月份比對</div>
-        <div class="section-sub">選擇廠商與月份，自動計算漲跌幅</div>
-      </div>
-    </div>
-
-    <!-- 設定未完成提示 -->
-    <div class="config-banner" id="config-banner">
-      <span class="icon">⚠️</span>
-      <div>
-        <strong>本機測試模式</strong>｜資料暫存於瀏覽器，功能完整可測試。<br>
-        正式使用請至 <strong>⚙️ 設定</strong> 填入 GAS URL 串接 Google Sheets。
-      </div>
-    </div>
-
-    <!-- ── Dashboard：各廠商最新月份報價 ── -->
-    <div class="section-header" style="margin-top:4px;">
-      <div>
-        <div class="section-title" style="font-size:15px;">📋 各廠商最新報價</div>
-        <div class="section-sub">點擊廠商卡片展開品項清單</div>
-      </div>
-      <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" onclick="loadDashboard()">↻ 更新</button>
-    </div>
-    <div id="dashboard-container">
-      <div class="loader"><div class="spinner"></div>載入中...</div>
-    </div>
-
+    <div style="font-size:13px;color:var(--text-dim);margin-bottom:12px;font-weight:500;">廠商報價總覽</div>
+    <div id="dashboard-cards"></div>
+    <hr class="section-sep">
     <div class="card">
-      <div class="card-title">📊 查詢條件</div>
-      <div class="form-group">
-        <label class="form-label">廠商</label>
-        <select class="form-control" id="cmp-vendor">
-          <option value="">請選擇廠商</option>
-          <option>全富</option>
-          <option>陸陸肉</option>
-          <option>擘進</option>
-          <option>菜商</option>
-          <option>鴻璟立昌</option>
-        </select>
+      <div class="card-title">月份比對</div>
+      <div class="field">
+        <label>廠商</label>
+        <select class="input" id="cmp-vendor"></select>
       </div>
-      <div class="row-2">
-        <div class="form-group">
-          <label class="form-label">基準月（上月）</label>
-          <select class="form-control" id="cmp-base"></select>
+      <div class="flex-row">
+        <div class="field flex-1">
+          <label>基準月</label>
+          <select class="input" id="cmp-base"></select>
         </div>
-        <div class="form-group">
-          <label class="form-label">比對月（本月）</label>
-          <select class="form-control" id="cmp-target"></select>
+        <div class="field flex-1">
+          <label>比對月</label>
+          <select class="input" id="cmp-target"></select>
         </div>
       </div>
-      <button class="btn btn-primary btn-block" onclick="doCompare()">🔍 開始比對</button>
-    </div>
-
-    <div id="compare-result" style="display:none">
-      <div class="summary-grid" id="compare-summary"></div>
-      <div class="card" style="padding:0; overflow:hidden;">
-        <div class="table-wrap">
-          <table id="compare-table">
-            <thead>
-              <tr>
-                <th>品項</th>
-                <th>單位</th>
-                <th>上月 $</th>
-                <th>本月 $</th>
-                <th>漲跌</th>
-                <th>備註</th>
-              </tr>
-            </thead>
-            <tbody id="compare-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:12px;">
-        <button class="btn btn-outline btn-block" onclick="exportReport()">📥 匯出 CSV</button>
+      <div class="flex-row">
+        <button class="btn btn-gold flex-1" onclick="doCompare()">比對</button>
+        <button class="btn btn-outline btn-sm" id="cmp-export-btn" onclick="exportCompareCSV()" style="display:none">匯出CSV</button>
       </div>
     </div>
+    <div id="compare-result"></div>
   </div>
 
-  <!-- ② 上傳頁 -->
+  <!-- 上傳 -->
   <div class="page" id="page-upload">
-    <div class="section-header">
-      <div>
-        <div class="section-title">上傳報價單</div>
-        <div class="section-sub">選擇通道上傳</div>
+    <div class="card">
+      <div class="card-title">通道一：Excel / Word（不需要 API）</div>
+      <div class="field">
+        <label>廠商</label>
+        <select class="input" id="up-vendor"></select>
+      </div>
+      <div class="field">
+        <label>月份</label>
+        <select class="input" id="up-month"></select>
+      </div>
+      <div class="flex-row mt8">
+        <div class="upload-zone flex-1" onclick="document.getElementById('excel-input').click()">
+          <div class="uicon">📊</div>
+          <div class="ulabel">上傳 Excel</div>
+        </div>
+        <div class="upload-zone flex-1" onclick="document.getElementById('word-input').click()">
+          <div class="uicon">📝</div>
+          <div class="ulabel">上傳 Word</div>
+        </div>
+      </div>
+      <div id="col-map-area" style="display:none;margin-top:14px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">欄位對應設定</div>
+        <div class="col-map-row">
+          <div class="field"><label>品項欄</label><select class="input" id="map-item"></select></div>
+          <div class="field"><label>單位欄</label><select class="input" id="map-unit"></select></div>
+        </div>
+        <div class="col-map-row">
+          <div class="field"><label>價格欄</label><select class="input" id="map-price"></select></div>
+          <div class="field"><label>備註欄</label><select class="input" id="map-note"></select></div>
+        </div>
+      </div>
+      <div id="excel-preview-wrap" style="display:none">
+        <div class="preview-table-wrap" id="excel-preview-table"></div>
+        <div class="flex-row mt8">
+          <button class="btn btn-gold flex-1" onclick="confirmExcelImport()">確認匯入</button>
+          <button class="btn btn-outline btn-sm" onclick="clearExcelPreview()">清除</button>
+        </div>
+      </div>
+      <div id="word-preview" style="display:none;margin-top:12px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">Word 解析內容</div>
+        <div id="word-text" style="background:var(--card2);border-radius:var(--radius-sm);padding:12px;font-size:12px;max-height:200px;overflow-y:auto;white-space:pre-wrap;border:1px solid var(--border);"></div>
+        <button class="btn btn-outline btn-sm mt8" onclick="clearWordPreview()">清除</button>
       </div>
     </div>
-
-    <!-- 通道選擇 -->
-    <div class="channel-tabs">
-      <button class="channel-tab active" id="ch-tab-file" onclick="switchChannel('file', this)">
-        <div class="ch-icon">📊</div>
-        <div class="ch-label">Excel / Word</div>
-        <div class="ch-sub">不需要 API · 直接匯入</div>
-      </button>
-      <button class="channel-tab" id="ch-tab-image" onclick="switchChannel('image', this)">
-        <div class="ch-icon">📷</div>
-        <div class="ch-label">圖片拍照</div>
-        <div class="ch-sub">需要 API Key</div>
-      </button>
-    </div>
-
-    <!-- ═══════════════════════════════════════
-         通道一：Excel / Word（無需 API）
-         ═══════════════════════════════════════ -->
-    <div id="channel-file">
-
-      <!-- 格式切換 -->
-      <div class="upload-type-tabs" style="margin-bottom:12px;">
-        <button class="upload-tab active" id="ft-excel" onclick="switchFileType('excel', this)">
-          <span>📊</span> Excel / CSV
-        </button>
-        <button class="upload-tab" id="ft-word" onclick="switchFileType('word', this)">
-          <span>📄</span> Word
-        </button>
+    <div class="card">
+      <div class="card-title">通道二：圖片 + AI（需要 Gemini API Key）</div>
+      <div id="no-api-warn" style="font-size:12px;color:var(--text-dim);background:rgba(232,74,74,.08);border:1px solid rgba(232,74,74,.3);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:10px;">尚未設定 Gemini API Key，請至設定頁面輸入。</div>
+      <div class="field">
+        <label>廠商（AI 通道）</label>
+        <select class="input" id="ai-vendor"></select>
       </div>
-
-      <!-- Excel 上傳區 -->
-      <div class="card" id="ft-section-excel">
-        <div class="card-title">📊 上傳 Excel 報價單</div>
-        <div class="upload-zone" id="upload-zone-excel" onclick="document.getElementById('excel-input').click()">
-          <div class="upload-icon">📊</div>
-          <div class="upload-text">點擊選擇 Excel 或 CSV 檔案</div>
-          <div class="upload-hint">支援 .xlsx / .xls / .csv</div>
-        </div>
-        <div id="excel-preview" style="display:none; margin-top:12px;">
-          <div style="font-size:12px;color:var(--text-2);margin-bottom:8px;" id="excel-info"></div>
-          <div class="table-wrap" style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">
-            <table id="excel-preview-table" style="min-width:auto;">
-              <thead id="excel-preview-head"></thead>
-              <tbody id="excel-preview-body"></tbody>
-            </table>
-          </div>
-          <div style="margin-top:8px;" id="excel-sheet-selector"></div>
+      <div class="field">
+        <label>月份（AI 通道）</label>
+        <select class="input" id="ai-month"></select>
+      </div>
+      <div class="upload-zone" onclick="document.getElementById('img-input').click()">
+        <div class="uicon">📸</div>
+        <div class="ulabel">拍照或選取圖片</div>
+      </div>
+      <div id="img-preview-wrap" style="display:none;margin-top:12px;">
+        <img id="img-preview" style="max-width:100%;border-radius:var(--radius-sm);max-height:200px;object-fit:contain;display:block;">
+        <div class="flex-row mt8">
+          <button class="btn btn-gold flex-1" onclick="runGeminiOCR()">AI 辨識</button>
+          <button class="btn btn-outline btn-sm" onclick="clearImgPreview()">清除</button>
         </div>
       </div>
-
-      <!-- Word 上傳區 -->
-      <div class="card" id="ft-section-word" style="display:none">
-        <div class="card-title">📄 上傳 Word 報價單</div>
-        <div class="upload-zone" id="upload-zone-word" onclick="document.getElementById('word-input').click()">
-          <div class="upload-icon">📄</div>
-          <div class="upload-text">點擊選擇 Word 檔案</div>
-          <div class="upload-hint">支援 .docx</div>
-        </div>
-        <div id="word-preview" style="display:none; margin-top:12px;">
-          <div style="font-size:12px;color:var(--text-2);margin-bottom:8px;" id="word-info"></div>
-          <div id="word-content-preview"
-               style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;
-                      padding:12px;max-height:180px;overflow-y:auto;font-size:12px;
-                      color:var(--text);line-height:1.7;white-space:pre-wrap;"></div>
-        </div>
+      <div id="ai-result-wrap" style="display:none;margin-top:12px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">AI 辨識結果（可編輯）</div>
+        <textarea class="input" id="ai-result-text" rows="8" style="font-size:12px;font-family:monospace;white-space:pre;"></textarea>
+        <button class="btn btn-gold btn-block mt8" onclick="confirmAiImport()">確認匯入</button>
       </div>
-
-      <!-- 欄位對應（Excel 解析後出現） -->
-      <div class="card" id="col-mapper" style="display:none">
-        <div class="card-title">🗂️ 欄位對應設定</div>
-        <p style="font-size:12px;color:var(--text-2);margin-bottom:12px;">指定哪一欄對應哪個欄位（設定會依廠商自動記憶）</p>
-        <div class="row-2" style="margin-bottom:10px;">
-          <div class="form-group" style="margin:0">
-            <label class="form-label">品項名稱欄 ★</label>
-            <select class="form-control" id="map-name"></select>
-          </div>
-          <div class="form-group" style="margin:0">
-            <label class="form-label">單位欄</label>
-            <select class="form-control" id="map-unit"></select>
-          </div>
-        </div>
-        <div class="row-2">
-          <div class="form-group" style="margin:0">
-            <label class="form-label">價格欄 ★</label>
-            <select class="form-control" id="map-price"></select>
-          </div>
-          <div class="form-group" style="margin:0">
-            <label class="form-label">備註欄</label>
-            <select class="form-control" id="map-note"></select>
-          </div>
-        </div>
-        <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
-          <label style="font-size:12px;color:var(--text-2);display:flex;align-items:center;gap:6px;cursor:pointer;">
-            <input type="number" id="map-skip-rows" value="1" min="0" max="10"
-              style="width:48px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;
-                     padding:4px 8px;color:var(--text);font-size:12px;">
-            略過前幾列（標題列）
-          </label>
-        </div>
-      </div>
-
-      <!-- 通道一：基本資訊 + 匯入按鈕 -->
-      <div class="card" id="file-meta" style="display:none">
-        <div class="card-title">🏷️ 基本資訊</div>
-        <div class="row-2">
-          <div class="form-group">
-            <label class="form-label">廠商</label>
-            <select class="form-control" id="file-vendor" onchange="loadColMapMemory()">
-              <option>全富</option><option>陸陸肉</option><option>擘進</option>
-              <option>菜商</option><option>鴻璟立昌</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">月份</label>
-            <select class="form-control" id="file-month"></select>
-          </div>
-        </div>
-        <button class="btn btn-primary btn-block" onclick="previewFileImport()">👁️ 預覽匯入品項</button>
-      </div>
-
-      <!-- 通道一：匯入預覽結果 -->
-      <div id="file-result-section" style="display:none">
-        <div class="section-header" style="margin-top:8px;">
-          <div class="section-title" style="font-size:16px;">匯入預覽</div>
-          <button class="btn btn-sm btn-outline" onclick="addOCRItem()">＋ 新增</button>
-        </div>
-        <div id="ocr-items-list"></div>
-        <button class="btn btn-primary btn-block" style="margin-top:4px;" onclick="confirmOCR()">
-          ✅ 確認並存入 Sheets
-        </button>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════════
-         通道二：圖片 + AI 辨識（需要 API）
-         ═══════════════════════════════════════ -->
-    <div id="channel-image" style="display:none">
-
-      <!-- API Key 未設定提示 -->
-      <div id="img-api-warning" class="config-banner" style="display:none">
-        <span class="icon">⚠️</span>
-        <div>尚未設定 API Key，請前往 <strong>⚙️ 設定</strong> 頁填入 Google Gemini API Key 才能使用圖片辨識功能。</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📷 拍照 / 選擇圖片</div>
-        <div class="upload-zone" id="upload-zone-img" onclick="document.getElementById('img-input').click()">
-          <div class="upload-icon">📷</div>
-          <div class="upload-text">點擊拍照或選擇報價單圖片</div>
-          <div class="upload-hint">支援 JPG / PNG / HEIC / WebP</div>
-        </div>
-        <img id="preview-img" alt="預覽">
-      </div>
-
-      <!-- 通道二：基本資訊 + AI 辨識按鈕 -->
-      <div class="card" id="ocr-meta" style="display:none">
-        <div class="card-title">🏷️ 基本資訊</div>
-        <div class="row-2">
-          <div class="form-group">
-            <label class="form-label">廠商</label>
-            <select class="form-control" id="ocr-vendor">
-              <option>全富</option><option>陸陸肉</option><option>擘進</option>
-              <option>菜商</option><option>鴻璟立昌</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">月份</label>
-            <select class="form-control" id="ocr-month"></select>
-          </div>
-        </div>
-        <button class="btn btn-primary btn-block" id="ocr-btn" onclick="runOCR()">
-          🤖 AI 辨識品項
-        </button>
-      </div>
-
-      <div id="ocr-result-section" style="display:none">
-        <div class="section-header" style="margin-top:8px;">
-          <div class="section-title" style="font-size:16px;">辨識結果</div>
-          <button class="btn btn-sm btn-outline" onclick="addOCRItem()">＋ 新增</button>
-        </div>
-        <div id="ocr-items-list-img"></div>
-        <button class="btn btn-primary btn-block" style="margin-top:4px;" onclick="confirmOCR('img')">
-          ✅ 確認並存入 Sheets
-        </button>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ③ 廠商頁 -->
-  <div class="page" id="page-vendors">
-    <div class="section-header">
-      <div>
-        <div class="section-title">廠商管理</div>
-        <div class="section-sub">A/B/C/D 評級、聯絡資訊</div>
-      </div>
-    </div>
-    <div id="vendors-list">
-      <div class="loader"><div class="spinner"></div>載入中...</div>
     </div>
   </div>
 
-  <!-- ④ 待處理 -->
+  <!-- 廠商 -->
+  <div class="page" id="page-vendor">
+    <div id="vendor-cards"></div>
+  </div>
+
+  <!-- 待處理 -->
   <div class="page" id="page-pending">
-    <div class="section-header">
-      <div>
-        <div class="section-title">待處理事項</div>
-        <div class="section-sub" id="pending-count-label">載入中...</div>
-      </div>
-      <button class="btn btn-sm btn-outline" onclick="loadPending()">↻ 重整</button>
+    <div id="pending-content"></div>
+  </div>
+
+  <!-- 問答 -->
+  <div class="page" id="page-chat" style="display:none;flex-direction:column;padding-bottom:0;overflow:hidden;">
+    <div class="qq-wrap" id="qq-wrap">
+      <button class="qq-btn" onclick="sendQuickQ('牛小排近三個月的單價趨勢如何？')">牛小排近三月趨勢</button>
+      <button class="qq-btn" onclick="sendQuickQ('近一個月哪些品項漲幅超過5%？')">近月漲幅&gt;5%</button>
+      <button class="qq-btn" onclick="sendQuickQ('全富最新一期的所有報價品項是什麼？')">全富最新報價</button>
+      <button class="qq-btn" onclick="sendQuickQ('目前有哪些待確認的品項？')">待確認品項</button>
+      <button class="qq-btn" onclick="sendQuickQ('請比較鮭魚和干貝的歷史單價趨勢。')">鮭魚vs干貝</button>
+      <button class="qq-btn" onclick="sendQuickQ('請列出所有品項中單價最高的前10名。')">單價TOP10</button>
     </div>
-    <div id="pending-list">
-      <div class="loader"><div class="spinner"></div>載入中...</div>
+    <div id="chat-messages" style="flex:1;overflow-y:auto;"></div>
+    <div id="chat-input-bar">
+      <div class="flex-row">
+        <textarea class="input" id="chat-input" placeholder="輸入問題... (Enter送出，Shift+Enter換行)" rows="1" style="flex:1;resize:none;min-height:44px;max-height:120px;"></textarea>
+        <button class="btn btn-gold" onclick="sendChat()" style="align-self:flex-end;height:44px;white-space:nowrap;">送出</button>
+        <button class="btn btn-outline btn-sm" onclick="clearChat()" style="align-self:flex-end;height:44px;">清除</button>
+      </div>
     </div>
   </div>
 
-  <!-- ⑥ 問答 -->
-  <div class="page" id="page-chat">
-    <div class="section-header">
-      <div>
-        <div class="section-title">AI 問答</div>
-        <div class="section-sub">用自然語言查詢報價資料</div>
-      </div>
-      <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" onclick="clearChat()">清除</button>
-    </div>
-
-    <!-- 快速問題範本 -->
-    <div class="chat-quick-wrap">
-      <button class="chat-quick-btn" onclick="askQuick('幫我整理過去三個月牛小排的價格趨勢')">牛小排近三月趨勢</button>
-      <button class="chat-quick-btn" onclick="askQuick('哪些品項在最近一個月漲幅超過5%？')">近月漲幅 >5%</button>
-      <button class="chat-quick-btn" onclick="askQuick('全富廠商最新一個月所有品項報價')">全富最新報價</button>
-      <button class="chat-quick-btn" onclick="askQuick('有哪些品項狀態是待確認？')">待確認品項</button>
-      <button class="chat-quick-btn" onclick="askQuick('比較鮭魚和干貝近三個月的價格變化')">鮭魚 vs 干貝</button>
-      <button class="chat-quick-btn" onclick="askQuick('所有廠商中單價最高的前十個品項')">單價 TOP 10</button>
-    </div>
-
-    <!-- 對話記錄 -->
-    <div class="chat-messages" id="chat-messages">
-      <div class="chat-bubble chat-bubble-ai">
-        <div class="chat-avatar">AI</div>
-        <div class="chat-content">
-          <p>你好！我已載入所有報價資料。你可以直接問我：</p>
-          <ul style="margin:8px 0 0 16px;color:var(--text-2);font-size:13px;line-height:1.8;">
-            <li>某品項的歷史價格走勢</li>
-            <li>某廠商的最新報價清單</li>
-            <li>哪些品項有異常漲幅</li>
-            <li>跨廠商的同類品項比價</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- 輸入區 -->
-    <div class="chat-input-wrap">
-      <textarea class="chat-input" id="chat-input" placeholder="例：幫我整理這三個月牛五花的價格…" rows="1"
-        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
-        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
-      <button class="chat-send-btn" id="chat-send-btn" onclick="sendChat()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="22" y1="2" x2="11" y2="13"></line>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- ⑤ 設定 -->
+  <!-- 設定 -->
   <div class="page" id="page-settings">
-    <div class="section-header">
-      <div><div class="section-title">系統設定</div></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">🔗 GAS 端點</div>
-      <div class="form-group">
-        <label class="form-label">Google Apps Script Web App URL ★</label>
-        <input type="url" class="form-control" id="cfg-gas-url" placeholder="https://script.google.com/macros/s/...">
+    <div class="setting-section">
+      <h3>後端連線</h3>
+      <div class="field">
+        <label>Google Apps Script URL</label>
+        <input class="input" type="url" id="gas-url-input" placeholder="https://script.google.com/macros/s/...">
       </div>
-      <button class="btn btn-outline btn-block" onclick="testConnection()">🔌 測試連線</button>
-    </div>
-
-    <div class="card">
-      <div class="card-title">🤖 Claude API</div>
-      <div class="form-group">
-        <label class="form-label">Google Gemini API Key ★（存於本機 localStorage）</label>
-        <input type="password" class="form-control" id="cfg-api-key" placeholder="AIza...">
-        <div style="font-size:11px;color:var(--text-3);margin-top:6px;">
-          免費取得：<a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--gold);">aistudio.google.com/apikey</a>（用 Google 帳號登入，無需信用卡）
-        </div>
+      <div class="flex-row">
+        <button class="btn btn-outline flex-1" onclick="testConnection()">測試連線</button>
+        <button class="btn btn-gold flex-1" onclick="saveSettings()">儲存設定</button>
       </div>
-      <div class="form-group">
-        <label class="form-label">模型</label>
-        <select class="form-control" id="cfg-model">
-          <option value="gemini-2.0-flash" selected>gemini-2.0-flash（免費、快速，建議）</option>
-          <option value="gemini-1.5-flash-latest">gemini-1.5-flash-latest</option>
-          <option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest（更精準）</option>
+    </div>
+    <div class="setting-section">
+      <h3>AI 設定（Gemini）</h3>
+      <div class="field">
+        <label>Gemini API Key</label>
+        <input class="input" type="password" id="gemini-key-input" placeholder="AIza...">
+      </div>
+      <div class="field">
+        <label>模型</label>
+        <select class="input" id="gemini-model-input">
+          <option value="gemini-2.0-flash">gemini-2.0-flash（預設）</option>
+          <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+          <option value="gemini-1.5-pro">gemini-1.5-pro</option>
         </select>
       </div>
-      <button class="btn btn-primary btn-block" onclick="saveSettings()">💾 儲存設定</button>
+      <button class="btn btn-gold btn-block" onclick="saveSettings()">儲存 AI 設定</button>
     </div>
-
-    <div class="card">
-      <div class="card-title">🔔 瀏覽器通知</div>
-      <button class="btn btn-outline btn-block" onclick="requestNotification()">啟用漲價通知</button>
+    <div class="setting-section">
+      <h3>系統操作</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn btn-outline btn-block" onclick="enableNotifications()">啟用通知</button>
+        <button class="btn btn-outline btn-block" onclick="initSheets()">初始化 Google Sheets</button>
+      </div>
     </div>
-
-    <div class="card">
-      <div class="card-title">🗄️ Sheets 初始化</div>
-      <p style="font-size:13px;color:var(--text-2);margin-bottom:12px;">首次使用：建立 Sheets 分頁並匯入初始資料</p>
-      <button class="btn btn-outline btn-block" onclick="initSheets()">🚀 初始化 Google Sheets</button>
-    </div>
-
-    <div class="card">
-      <div class="card-title">ℹ️ 版本資訊</div>
-      <p style="font-size:12px;color:var(--text-3);">
-        報價查核系統 v1.0<br>
-        意享生態系 · 2026<br>
-        技術：HTML/GAS/Claude API<br>
-        部署：GitHub Pages
-      </p>
-    </div>
+    <div class="version-info">意享報價查核系統 v1.0.0 &nbsp;|&nbsp; 2026-05</div>
   </div>
 
-</main>
+</div>
 
-<!-- ============================================================
-     Bottom Tab Bar
-     ============================================================ -->
-<nav class="tab-bar">
-  <button class="tab-item active" onclick="switchPage('compare', this)">
-    <span class="tab-icon">📊</span>
-    <span>比對</span>
+<div id="tabbar">
+  <button class="tab-btn active" onclick="switchTab(this,'compare')">
+    <span class="tab-icon">📊</span><span>比對</span>
   </button>
-  <button class="tab-item" onclick="switchPage('upload', this)">
-    <span class="tab-icon">📸</span>
-    <span>上傳</span>
+  <button class="tab-btn" onclick="switchTab(this,'upload')">
+    <span class="tab-icon">📸</span><span>上傳</span>
   </button>
-  <button class="tab-item" onclick="switchPage('vendors', this)">
-    <span class="tab-icon">🏪</span>
-    <span>廠商</span>
+  <button class="tab-btn" onclick="switchTab(this,'vendor')">
+    <span class="tab-icon">🏪</span><span>廠商</span>
   </button>
-  <button class="tab-item" onclick="switchPage('pending', this)">
-    <span class="tab-icon">⚠️</span>
-    <span>待處理</span>
-    <span class="tab-badge" id="pending-badge" style="display:none"></span>
+  <button class="tab-btn" onclick="switchTab(this,'pending')">
+    <span class="tab-icon">⚠️</span><span>待處理</span>
+    <span class="tab-badge" id="pending-badge">0</span>
   </button>
-  <button class="tab-item" onclick="switchPage('chat', this)">
-    <span class="tab-icon">💬</span>
-    <span>問答</span>
+  <button class="tab-btn" onclick="switchTab(this,'chat')">
+    <span class="tab-icon">💬</span><span>問答</span>
   </button>
-  <button class="tab-item" onclick="switchPage('settings', this)">
-    <span class="tab-icon">⚙️</span>
-    <span>設定</span>
+  <button class="tab-btn" onclick="switchTab(this,'settings')">
+    <span class="tab-icon">⚙️</span><span>設定</span>
   </button>
-</nav>
+</div>
 
-<!-- ============================================================
-     Toast Container
-     ============================================================ -->
-<div id="toast-container"></div>
+<div id="toast-wrap"></div>
 
-<!-- ============================================================
-     Edit Modal
-     ============================================================ -->
-<div class="modal-overlay" id="edit-modal">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="edit-modal-title">編輯品項</div>
-    <div id="edit-modal-body"></div>
-    <div style="display:flex;gap:10px;margin-top:16px;">
-      <button class="btn btn-outline btn-block" onclick="closeModal('edit-modal')">取消</button>
-      <button class="btn btn-primary btn-block" id="edit-modal-confirm">確認</button>
-    </div>
+<div id="modal-overlay" onclick="maybeCloseModal(event)">
+  <div id="modal-box">
+    <button id="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-title"></div>
+    <div id="modal-content"></div>
   </div>
 </div>
 
-<!-- ============================================================
-     JavaScript
-     ============================================================ -->
 <script>
 // ============================================================
-// Config
+// CONFIG
 // ============================================================
-let CONFIG = {
-  gasUrl:  localStorage.getItem('gasUrl')  || '',
-  apiKey:  localStorage.getItem('apiKey')  || '',
-  model:   localStorage.getItem('gasModel') || 'gemini-2.0-flash',
+var CONFIG = {
+  gasUrl: localStorage.getItem('gasUrl') || '',
+  geminiKey: localStorage.getItem('geminiKey') || '',
+  geminiModel: localStorage.getItem('geminiModel') || 'gemini-2.0-flash',
+  stores: ['新店', '林口'],
 };
 
-// Fill settings inputs on load
-document.getElementById('cfg-gas-url').value = CONFIG.gasUrl;
-document.getElementById('cfg-api-key').value = CONFIG.apiKey;
-document.getElementById('cfg-model').value   = CONFIG.model;
-
-function saveSettings() {
-  CONFIG.gasUrl = document.getElementById('cfg-gas-url').value.trim();
-  CONFIG.apiKey = document.getElementById('cfg-api-key').value.trim();
-  CONFIG.model  = document.getElementById('cfg-model').value;
-  localStorage.setItem('gasUrl',   CONFIG.gasUrl);
-  localStorage.setItem('apiKey',   CONFIG.apiKey);
-  localStorage.setItem('gasModel', CONFIG.model);
-  showToast('設定已儲存', 'success');
-  updateConnStatus();
-}
-
-function updateConnStatus() {
-  const dot = document.getElementById('conn-dot');
-  const lbl = document.getElementById('conn-label');
-  const banner = document.getElementById('config-banner');
-  if (CONFIG.gasUrl && CONFIG.apiKey) {
-    dot.className = 'status-dot connected';
-    lbl.textContent = '已設定';
-    banner && (banner.style.display = 'none');
-  } else {
-    dot.className = 'status-dot';
-    lbl.textContent = '未設定';
-    banner && (banner.style.display = 'flex');
-  }
-}
-updateConnStatus();
+var VENDORS_DEFAULT = [
+  { name: '全富',     category: '海鮮',   icon: '🦐', rating: 'A', contact: '', note: '', rowIndex: 0 },
+  { name: '陸陸肉',  category: '肉品',   icon: '🥩', rating: 'A', contact: '', note: '', rowIndex: 1 },
+  { name: '擘進',    category: '冷凍',   icon: '🧊', rating: 'B', contact: '', note: '', rowIndex: 2 },
+  { name: '菜商',    category: '蔬菜',   icon: '🥦', rating: 'A', contact: '', note: '', rowIndex: 3 },
+  { name: '鴻璟立昌', category: '乾貨耗材', icon: '🧂', rating: 'B', contact: '', note: '', rowIndex: 4 },
+];
 
 // ============================================================
-// Navigation
+// UTILS
 // ============================================================
-function switchPage(name, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  el.classList.add('active');
-
-  if (name === 'vendors') loadVendors();
-  if (name === 'pending') loadPending();
+function escHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 }
 
-// ============================================================
-// 月份下拉選單（最近 18 個月）
-// ============================================================
-function prevMonthStr() {
-  const d = new Date();
-  d.setMonth(d.getMonth() - 1);
-  return d.toISOString().slice(0, 7);
-}
-function currMonthStr() {
-  return new Date().toISOString().slice(0, 7);
-}
-
-function buildMonthOptions(selectedValue) {
-  const months = [];
-  const now = new Date();
-  for (let i = 0; i < 36; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    const label = `${d.getFullYear()} 年 ${d.getMonth()+1} 月`;
-    months.push({ val, label });
-  }
-  return months.map(m =>
-    `<option value="${m.val}" ${m.val === selectedValue ? 'selected' : ''}>${m.label}</option>`
-  ).join('');
+function toast(msg, type) {
+  var wrap = document.getElementById('toast-wrap');
+  var el = document.createElement('div');
+  el.className = 'toast' + (type ? ' '+type : '');
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(function() {
+    el.style.opacity = '0';
+    el.style.transition = 'opacity .3s';
+    setTimeout(function(){ el.remove(); }, 300);
+  }, 3500);
 }
 
-function initMonthSelects() {
-  const curr = currMonthStr();
-  const prev = prevMonthStr();
-  document.getElementById('cmp-base').innerHTML   = buildMonthOptions(prev);
-  document.getElementById('cmp-target').innerHTML = buildMonthOptions(curr);
-  document.getElementById('file-month').innerHTML = buildMonthOptions(curr);
-  document.getElementById('ocr-month').innerHTML  = buildMonthOptions(curr);
-}
-initMonthSelects();
-
-// ============================================================
-// GAS API helper
-// ============================================================
-async function gasCall(action, params = {}) {
-  // 有 GAS URL → 打真實後端
-  if (CONFIG.gasUrl) {
-    const payload = { action, ...params };
-    const res = await fetch(CONFIG.gasUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    return data;
-  }
-  // 沒有 GAS URL → 走本機模擬模式
-  return localDB(action, params);
+function showModal(title, html) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('open');
 }
 
-// ============================================================
-// 本機模擬資料庫（localStorage）
-// ============================================================
-function localDB(action, params) {
-  const getAll = key => JSON.parse(localStorage.getItem(key) || '[]');
-  const setAll = (key, arr) => localStorage.setItem(key, JSON.stringify(arr));
-
-  if (action === 'addRecord') {
-    const records = getAll('local_records');
-    records.push({
-      vendor:    params.vendor,
-      store:     params.store || '兩店通用',
-      month:     params.month,
-      item_name: params.item_name,
-      unit:      params.unit || '',
-      price:     parseFloat(params.price) || 0,
-      note:      params.note || '',
-      status:    params.status || 'pending',
-      rowIndex:  records.length + 2,
-    });
-    setAll('local_records', records);
-    return { success: true };
-  }
-
-  if (action === 'getRecords') {
-    let records = getAll('local_records');
-    if (params.vendor) records = records.filter(r => r.vendor === params.vendor);
-    if (params.month)  records = records.filter(r => r.month  === params.month);
-    if (params.status) records = records.filter(r => r.status === params.status);
-    return { success: true, records };
-  }
-
-  if (action === 'updateRecord') {
-    const records = getAll('local_records');
-    const idx = records.findIndex(r => r.rowIndex === parseInt(params.rowIndex));
-    if (idx !== -1) Object.assign(records[idx], params);
-    setAll('local_records', records);
-    return { success: true };
-  }
-
-  if (action === 'deleteRecord') {
-    let records = getAll('local_records');
-    records = records.filter(r => r.rowIndex !== parseInt(params.rowIndex));
-    setAll('local_records', records);
-    return { success: true };
-  }
-
-  if (action === 'getPendingItems') {
-    const items = getAll('local_records').filter(r => r.status === 'pending');
-    return { success: true, items };
-  }
-
-  if (action === 'getVendors') {
-    const vendors = getAll('local_vendors');
-    if (!vendors.length) {
-      // 預設廠商清單
-      const defaults = [
-        { name:'全富',     category:'海鮮',    rating:'A', contact:'', note:'', rowIndex:2 },
-        { name:'陸陸肉',   category:'肉品',    rating:'A', contact:'', note:'', rowIndex:3 },
-        { name:'擘進',     category:'冷凍',    rating:'B', contact:'', note:'', rowIndex:4 },
-        { name:'菜商',     category:'蔬菜',    rating:'B', contact:'', note:'', rowIndex:5 },
-        { name:'鴻璟立昌', category:'乾貨耗材',rating:'C', contact:'', note:'', rowIndex:6 },
-      ];
-      setAll('local_vendors', defaults);
-      return { success: true, vendors: defaults };
-    }
-    return { success: true, vendors };
-  }
-
-  if (action === 'updateVendor') {
-    const vendors = getAll('local_vendors');
-    const idx = vendors.findIndex(v => v.rowIndex === parseInt(params.rowIndex));
-    if (idx !== -1) Object.assign(vendors[idx], params);
-    setAll('local_vendors', vendors);
-    return { success: true };
-  }
-
-  if (action === 'compareMonths') {
-    const { vendor, baseMonth, compareMonth } = params;
-    const all     = getAll('local_records');
-    const base    = all.filter(r => r.vendor === vendor && r.month === baseMonth    && r.status === 'confirmed');
-    const compare = all.filter(r => r.vendor === vendor && r.month === compareMonth && r.status === 'confirmed');
-    const baseMap = {};
-    base.forEach(r => baseMap[r.item_name] = r);
-    const results = [];
-    let alertCount = 0;
-    compare.forEach(curr => {
-      const prev = baseMap[curr.item_name];
-      if (!prev) { results.push({ item_name: curr.item_name, unit: curr.unit, prev_price: null, curr_price: curr.price, change_pct: null, status: 'new', note: curr.note }); return; }
-      const pct = prev.price > 0 ? ((curr.price - prev.price) / prev.price * 100).toFixed(2) : null;
-      const alert = pct != null && Math.abs(pct) > 5;
-      if (alert) alertCount++;
-      results.push({ item_name: curr.item_name, unit: curr.unit, prev_price: prev.price, curr_price: curr.price, change_pct: pct, alert, note: curr.note });
-    });
-    base.forEach(prev => {
-      if (!compare.find(r => r.item_name === prev.item_name))
-        results.push({ item_name: prev.item_name, unit: prev.unit, prev_price: prev.price, curr_price: null, change_pct: null, status: 'removed', note: prev.note });
-    });
-    results.sort((a,b) => (parseFloat(b.change_pct)||0) - (parseFloat(a.change_pct)||0));
-    return { success: true, vendor, baseMonth, compareMonth, results, alertCount };
-  }
-
-  if (action === 'exportCSV') {
-    const cmp = localDB('compareMonths', params);
-    const rows = [['品項','單位','上月價格','本月價格','漲跌幅(%)','備註']];
-    cmp.results.forEach(r => rows.push([r.item_name, r.unit, r.prev_price??'—', r.curr_price??'—', r.change_pct!=null?r.change_pct+'%':'—', r.note||'']));
-    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-    return { success: true, csv, filename: `比對報告_${params.vendor}_${params.baseMonth}_vs_${params.compareMonth}.csv` };
-  }
-
-  if (action === 'initSheets') {
-    return { success: true, message: '本機模式：無需初始化，資料存於 localStorage' };
-  }
-
-  return { success: true };
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
 }
 
-// ============================================================
-// Compare
-// ============================================================
-let lastCompareResult = null;
-
-async function doCompare() {
-  const vendor    = document.getElementById('cmp-vendor').value;
-  const baseMonth = document.getElementById('cmp-base').value;
-  const cmpMonth  = document.getElementById('cmp-target').value;
-
-  if (!vendor)    return showToast('請選擇廠商', 'warning');
-  if (!baseMonth) return showToast('請選擇基準月', 'warning');
-  if (!cmpMonth)  return showToast('請選擇比對月', 'warning');
-  if (baseMonth >= cmpMonth) return showToast('比對月需晚於基準月', 'warning');
-
-  const resultEl = document.getElementById('compare-result');
-  resultEl.style.display = 'none';
-
-  showLoader('compare-tbody', '比對中...');
-  resultEl.style.display = 'block';
-
-  try {
-    const data = await gasCall('compareMonths', { vendor, baseMonth, compareMonth: cmpMonth });
-    lastCompareResult = data;
-    renderCompareResult(data);
-    if (data.alertCount > 0) {
-      triggerNotification(`⚠️ ${data.alertCount} 個品項漲幅超過 5%`, vendor);
-    }
-  } catch (e) {
-    showToast(e.message, 'error');
-    resultEl.style.display = 'none';
-  }
+function maybeCloseModal(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
 }
 
-function renderCompareResult(data) {
-  const { results, vendor, baseMonth, compareMonth } = data;
+function genMonths(n) {
+  n = n || 36;
+  var months = [];
+  var now = new Date();
+  for (var i = 0; i < n; i++) {
+    var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    var val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    var label = d.getFullYear() + '年' + (d.getMonth()+1) + '月';
+    months.push({val:val, label:label});
+  }
+  return months;
+}
 
-  // Summary
-  let alertCnt = 0, upCnt = 0, downCnt = 0, newCnt = 0;
-  results.forEach(r => {
-    const p = parseFloat(r.change_pct);
-    if (r.status === 'new') { newCnt++; return; }
-    if (r.status === 'removed') return;
-    if (p > 5)  { alertCnt++; upCnt++; }
-    else if (p > 0)  upCnt++;
-    else if (p < 0) downCnt++;
+function fillMonthSelect(selId) {
+  var sel = document.getElementById(selId);
+  if (!sel) return;
+  sel.innerHTML = '';
+  genMonths().forEach(function(m) {
+    var o = document.createElement('option');
+    o.value = m.val;
+    o.textContent = m.label;
+    sel.appendChild(o);
   });
+}
 
-  document.getElementById('compare-summary').innerHTML = `
-    <div class="summary-card">
-      <div class="summary-num red">${alertCnt}</div>
-      <div class="summary-label">⚠️ 漲超 5%</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-num" style="color:var(--red)">${upCnt}</div>
-      <div class="summary-label">漲價品項</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-num green">${downCnt}</div>
-      <div class="summary-label">降價品項</div>
-    </div>
-  `;
+// ============================================================
+// DATA LAYER
+// ============================================================
+function getRecordsLocal() {
+  try { return JSON.parse(localStorage.getItem('local_records') || '[]'); }
+  catch(e) { return []; }
+}
+function saveRecordsLocal(arr) {
+  localStorage.setItem('local_records', JSON.stringify(arr));
+}
+function getVendorsLocal() {
+  try {
+    var v = JSON.parse(localStorage.getItem('local_vendors') || 'null');
+    if (v && v.length) return v;
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(VENDORS_DEFAULT));
+}
+function saveVendorsLocal(arr) {
+  localStorage.setItem('local_vendors', JSON.stringify(arr));
+}
+function isLocalMode() { return !CONFIG.gasUrl; }
 
-  // Table
-  const tbody = document.getElementById('compare-tbody');
-  tbody.innerHTML = '';
+async function callGAS(params) {
+  var res = await fetch(CONFIG.gasUrl, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(params),
+    redirect: 'follow',
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  var data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
 
-  if (results.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-3);">無比對資料</td></tr>`;
+async function getRecords() {
+  if (isLocalMode()) return getRecordsLocal();
+  var d = await callGAS({action:'getRecords'});
+  return d.records || [];
+}
+
+async function addRecord(rec) {
+  if (isLocalMode()) {
+    var arr = getRecordsLocal();
+    rec.rowIndex = arr.length;
+    arr.push(rec);
+    saveRecordsLocal(arr);
     return;
   }
-
-  results.forEach(r => {
-    const pct    = parseFloat(r.change_pct);
-    const isAlert = !isNaN(pct) && pct > 5;
-    const isNew   = r.status === 'new';
-    const isGone  = r.status === 'removed';
-
-    let changeHtml = '<span class="change-flat">—</span>';
-    if (!isNaN(pct)) {
-      const sign  = pct > 0 ? '▲' : '▼';
-      const cls   = pct > 0 ? 'change-up' : (pct < 0 ? 'change-down' : 'change-flat');
-      changeHtml  = `<span class="${cls}">${sign} ${Math.abs(pct)}%</span>`;
-      if (isAlert) changeHtml += ` <span class="badge badge-red">⚠️</span>`;
-    }
-    if (isNew)  changeHtml = `<span class="badge badge-gold">新品項</span>`;
-    if (isGone) changeHtml = `<span class="badge badge-gray">下架</span>`;
-
-    const tr = document.createElement('tr');
-    if (isAlert) tr.className = 'alert-row';
-    tr.innerHTML = `
-      <td style="font-weight:600;">${r.item_name}</td>
-      <td style="color:var(--text-2)">${r.unit || '—'}</td>
-      <td>${r.prev_price != null ? '$' + r.prev_price : '—'}</td>
-      <td style="font-weight:600">${r.curr_price != null ? '$' + r.curr_price : '—'}</td>
-      <td>${changeHtml}</td>
-      <td style="color:var(--text-2);font-size:12px">${r.note || ''}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+  await callGAS({action:'addRecord', record:rec});
 }
 
-function showLoader(tbodyId, msg) {
-  const el = document.getElementById(tbodyId);
-  if (el) el.innerHTML = `<tr><td colspan="99"><div class="loader"><div class="spinner"></div>${msg}</div></td></tr>`;
+async function updateRecord(rec) {
+  if (isLocalMode()) {
+    var arr = getRecordsLocal();
+    var idx = arr.findIndex(function(r){ return r.rowIndex === rec.rowIndex; });
+    if (idx >= 0) arr[idx] = rec;
+    saveRecordsLocal(arr);
+    return;
+  }
+  await callGAS({action:'updateRecord', record:rec});
 }
 
-async function exportReport() {
-  if (!lastCompareResult) return showToast('尚無比對結果', 'warning');
+async function getVendors() {
+  if (isLocalMode()) return getVendorsLocal();
+  var d = await callGAS({action:'getVendors'});
+  return d.vendors || [];
+}
+
+async function updateVendor(v) {
+  if (isLocalMode()) {
+    var arr = getVendorsLocal();
+    var idx = arr.findIndex(function(x){ return x.name === v.name; });
+    if (idx >= 0) arr[idx] = v; else arr.push(v);
+    saveVendorsLocal(arr);
+    return;
+  }
+  await callGAS({action:'updateVendor', vendor:v});
+}
+
+// ============================================================
+// STATUS
+// ============================================================
+async function checkStatus() {
+  var dot = document.getElementById('status-dot');
+  if (isLocalMode()) {
+    dot.className = '';
+    dot.title = '本機模式（無 GAS URL）';
+    return;
+  }
   try {
-    const vendor    = document.getElementById('cmp-vendor').value;
-    const baseMonth = document.getElementById('cmp-base').value;
-    const cmpMonth  = document.getElementById('cmp-target').value;
-    const data = await gasCall('exportCSV', { vendor, baseMonth, compareMonth: cmpMonth });
-
-    const bom  = '﻿';
-    const blob = new Blob([bom + data.csv], { type: 'text/csv;charset=utf-8' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = data.filename;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('CSV 已匯出', 'success');
-  } catch (e) {
-    showToast(e.message, 'error');
+    await callGAS({action:'ping'});
+    dot.className = 'online';
+    dot.title = '已連線';
+  } catch(e) {
+    dot.className = 'offline';
+    dot.title = '無法連線';
   }
 }
 
 // ============================================================
-// 通道切換
+// TAB SWITCH
 // ============================================================
-let currentChannel  = 'file';   // 'file' | 'image'
-let currentFileType = 'excel';  // 'excel' | 'word'
-let currentUploadType = 'excel'; // 相容舊邏輯
+var currentPage = 'compare';
 
-function switchChannel(ch, el) {
-  currentChannel = ch;
-  document.querySelectorAll('.channel-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('channel-file').style.display  = ch === 'file'  ? 'block' : 'none';
-  document.getElementById('channel-image').style.display = ch === 'image' ? 'block' : 'none';
+function switchTab(btn, pageId) {
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
 
-  // 圖片通道：檢查 API Key
-  if (ch === 'image') {
-    const warn = document.getElementById('img-api-warning');
-    warn.style.display = CONFIG.apiKey ? 'none' : 'flex';
+  document.querySelectorAll('.page').forEach(function(p){
+    p.classList.remove('active');
+    p.style.display = 'none';
+  });
+
+  var page = document.getElementById('page-' + pageId);
+  page.style.display = (pageId === 'chat') ? 'flex' : 'block';
+  page.classList.add('active');
+  currentPage = pageId;
+
+  if (pageId === 'compare') renderDashboard();
+  if (pageId === 'vendor')  renderVendors();
+  if (pageId === 'pending') renderPending();
+  if (pageId === 'settings') loadSettingsUI();
+}
+
+// ============================================================
+// VENDOR SELECTS
+// ============================================================
+async function fillVendorSelects() {
+  var vendors = await getVendors();
+  ['cmp-vendor','up-vendor','ai-vendor'].forEach(function(id) {
+    var sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = '';
+    vendors.forEach(function(v) {
+      var o = document.createElement('option');
+      o.value = v.name;
+      o.textContent = v.name;
+      sel.appendChild(o);
+    });
+  });
+}
+
+// ============================================================
+// COMPARE / DASHBOARD
+// ============================================================
+var lastCompareData = null;
+
+async function renderDashboard() {
+  var wrap = document.getElementById('dashboard-cards');
+  wrap.innerHTML = '<div style="color:var(--text-dim);font-size:13px;text-align:center;padding:20px;">載入中...</div>';
+  try {
+    var records = await getRecords();
+    var vendors = await getVendors();
+    var vendorMap = {};
+    vendors.forEach(function(v){ vendorMap[v.name] = v; });
+
+    var byVendor = {};
+    records.forEach(function(r) {
+      if (!byVendor[r.vendor]) byVendor[r.vendor] = {};
+      if (!byVendor[r.vendor][r.month]) byVendor[r.vendor][r.month] = [];
+      byVendor[r.vendor][r.month].push(r);
+    });
+
+    if (Object.keys(byVendor).length === 0) {
+      wrap.innerHTML = '<div class="card"><div style="color:var(--text-dim);font-size:13px;text-align:center;padding:12px;">尚無報價資料，請先至上傳頁匯入。</div></div>';
+      return;
+    }
+
+    var html = '';
+    Object.keys(byVendor).forEach(function(vname) {
+      var months = Object.keys(byVendor[vname]).sort().reverse();
+      var latestMonth = months[0];
+      var items = byVendor[vname][latestMonth];
+      var hasWarn = items.some(function(i){ return i.note && i.note.trim(); });
+      var vi = vendorMap[vname] || {};
+      var icon = vi.icon || '🏪';
+
+      var itemRows = items.map(function(i) {
+        return '<div class="item-row">' +
+          '<div><span>' + escHtml(i.item_name) + '</span>' +
+          '<span style="color:var(--text-dim);font-size:11px;margin-left:6px;">' + escHtml(i.unit) + '</span>' +
+          (i.note ? '<div class="item-note">' + escHtml(i.note) + '</div>' : '') +
+          '</div>' +
+          '<span style="color:var(--gold);white-space:nowrap;">$' + escHtml(i.price) + '</span>' +
+          '</div>';
+      }).join('');
+
+      html += '<div class="compare-card' + (hasWarn ? ' warn' : '') + '" id="dcard-' + escHtml(vname) + '">' +
+        '<div class="compare-card-header" onclick="toggleDCard(\'' + escHtml(vname) + '\')">' +
+        '<span class="ci">' + icon + '</span>' +
+        '<div class="info"><div class="vendor-n">' + escHtml(vname) + '</div>' +
+        '<div class="month-tag">' + escHtml(latestMonth) + ' &middot; ' + items.length + ' 項' + (hasWarn ? ' &middot; ⚠️ 有備註' : '') + '</div></div>' +
+        '<span class="chevron">▼</span></div>' +
+        '<div class="compare-card-body">' + itemRows + '</div>' +
+        '</div>';
+    });
+    wrap.innerHTML = html;
+  } catch(e) {
+    wrap.innerHTML = '<div class="card"><div style="color:var(--red);">載入失敗：' + escHtml(e.message) + '</div></div>';
   }
-  // 重置結果
-  ocrItems = [];
 }
 
-function switchFileType(type, el) {
-  currentFileType   = type;
-  currentUploadType = type;
-  document.querySelectorAll('.upload-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('ft-section-excel').style.display = type === 'excel' ? 'block' : 'none';
-  document.getElementById('ft-section-word').style.display  = type === 'word'  ? 'block' : 'none';
-  // 重置
-  document.getElementById('col-mapper').style.display      = 'none';
-  document.getElementById('file-meta').style.display       = 'none';
-  document.getElementById('file-result-section').style.display = 'none';
-  ocrItems = [];
+function toggleDCard(vname) {
+  var el = document.getElementById('dcard-' + vname);
+  if (el) el.classList.toggle('open');
 }
 
-// 相容舊函式名（保留給 drag-drop 等地方）
-function switchUploadType(type, el) { switchFileType(type, el); }
+async function doCompare() {
+  var vendor = document.getElementById('cmp-vendor').value;
+  var base   = document.getElementById('cmp-base').value;
+  var target = document.getElementById('cmp-target').value;
+  var wrap   = document.getElementById('compare-result');
+  if (!vendor || !base || !target) { toast('請選擇廠商與月份','err'); return; }
+  if (base === target) { toast('基準月與比對月不能相同','err'); return; }
+  wrap.innerHTML = '<div style="color:var(--text-dim);font-size:13px;margin-top:8px;text-align:center;">比對中...</div>';
+  try {
+    var baseItems, targetItems;
+    if (isLocalMode()) {
+      var records = await getRecords();
+      baseItems   = records.filter(function(r){ return r.vendor===vendor && r.month===base; });
+      targetItems = records.filter(function(r){ return r.vendor===vendor && r.month===target; });
+    } else {
+      var d = await callGAS({action:'compareMonths', vendor:vendor, baseMonth:base, targetMonth:target});
+      baseItems   = d.base   || [];
+      targetItems = d.target || [];
+    }
 
-// ============================================================
-// OCR Upload — 狀態變數
-// ============================================================
-let ocrImageBase64  = null;
-let ocrImageMime    = 'image/jpeg';
-let ocrTextContent  = null;
-let ocrItems        = [];
-let excelWorkbook   = null;
-let activeSheetName = null;
+    if (baseItems.length===0 && targetItems.length===0) {
+      wrap.innerHTML = '<div class="card"><div style="color:var(--text-dim);">此廠商在所選月份無資料。</div></div>';
+      return;
+    }
 
-// ============================================================
-// File input 事件綁定（頁面載入後執行，input 在最頂層）
-// ============================================================
-document.getElementById('img-input').addEventListener('change', function() {
-  if (this.files[0]) handleImageFile(this.files[0]);
-});
-document.getElementById('excel-input').addEventListener('change', function() {
-  if (this.files[0]) handleExcelFile(this.files[0]);
-});
-document.getElementById('word-input').addEventListener('change', function() {
-  if (this.files[0]) handleWordFile(this.files[0]);
-});
+    var baseMap={}, targetMap={};
+    baseItems.forEach(function(r){ baseMap[r.item_name]=r; });
+    targetItems.forEach(function(r){ targetMap[r.item_name]=r; });
+    var allItems = [];
+    Object.keys(baseMap).forEach(function(k){ if(allItems.indexOf(k)<0) allItems.push(k); });
+    Object.keys(targetMap).forEach(function(k){ if(allItems.indexOf(k)<0) allItems.push(k); });
+    allItems.sort();
 
-// ============================================================
-// 圖片處理
-// ============================================================
-function handleImageFile(file) {
-  const mimeMap = { 'image/png':'image/png', 'image/gif':'image/gif', 'image/webp':'image/webp' };
-  ocrImageMime = mimeMap[file.type] || 'image/jpeg';
-  const reader = new FileReader();
-  reader.onload = e => {
-    ocrImageBase64 = e.target.result.split(',')[1];
-    const prev = document.getElementById('preview-img');
-    prev.src = e.target.result;
-    prev.style.display = 'block';
-    showOcrMeta('image', file.name);
-  };
-  reader.readAsDataURL(file);
+    var rows = '';
+    var tableData = [];
+    allItems.forEach(function(name) {
+      var b = baseMap[name];
+      var t = targetMap[name];
+      var bp = b ? (parseFloat(b.price)||0) : null;
+      var tp = t ? (parseFloat(t.price)||0) : null;
+      var diffStr = '—', cls = '';
+      if (bp!==null && tp!==null) {
+        if (bp!==0) {
+          var pct = ((tp-bp)/bp*100).toFixed(1);
+          if (tp > bp)      { cls='td-up';   diffStr = '↑'+Math.abs(pct)+'%'; }
+          else if (tp < bp) { cls='td-down'; diffStr = '↓'+Math.abs(pct)+'%'; }
+        }
+      } else if (bp===null) { diffStr='新增'; }
+        else if (tp===null) { diffStr='已移除'; }
+
+      var alertBg = (cls==='td-up' && parseFloat(diffStr)>5) ? 'background:rgba(232,74,74,.08);' : '';
+      rows += '<tr style="' + alertBg + '">' +
+        '<td>' + escHtml(name) + '</td>' +
+        '<td>' + escHtml((b||t||{}).unit||'') + '</td>' +
+        '<td>' + (bp!==null ? '$'+bp : '—') + '</td>' +
+        '<td>' + (tp!==null ? '$'+tp : '—') + '</td>' +
+        '<td class="' + cls + '">' + diffStr + '</td>' +
+        '</tr>';
+      tableData.push({name:name, unit:(b||t||{}).unit||'', base:bp, target:tp, diff:diffStr});
+    });
+
+    lastCompareData = {vendor:vendor, base:base, target:target, tableData:tableData};
+    document.getElementById('cmp-export-btn').style.display = '';
+
+    wrap.innerHTML = '<div class="card" style="padding:0;">' +
+      '<div style="padding:12px 16px;font-size:13px;font-weight:700;">' + escHtml(vendor) + ' | ' + escHtml(base) + ' vs ' + escHtml(target) + '</div>' +
+      '<div class="tbl-wrap"><table>' +
+      '<thead><tr><th>品項</th><th>單位</th><th>' + escHtml(base) + '</th><th>' + escHtml(target) + '</th><th>漲跌</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody></table></div></div>';
+  } catch(e) {
+    wrap.innerHTML = '<div class="card"><div style="color:var(--red);">比對失敗：' + escHtml(e.message) + '</div></div>';
+  }
 }
 
-// Drag-over — 圖片區
-const zoneImg = document.getElementById('upload-zone-img');
-zoneImg.addEventListener('dragover', e => { e.preventDefault(); zoneImg.classList.add('drag-over'); });
-zoneImg.addEventListener('dragleave', () => zoneImg.classList.remove('drag-over'));
-zoneImg.addEventListener('drop', e => {
-  e.preventDefault(); zoneImg.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) handleImageFile(file);
-});
+function exportCompareCSV() {
+  if (!lastCompareData) return;
+  var vendor = lastCompareData.vendor, base = lastCompareData.base, target = lastCompareData.target;
+  var csv = '﻿品項,單位,' + base + ',' + target + ',漲跌\n';
+  lastCompareData.tableData.forEach(function(r) {
+    csv += [r.name, r.unit, r.base!=null?r.base:'', r.target!=null?r.target:'', r.diff]
+      .map(function(v){ return '"' + String(v).replace(/"/g,'""') + '"'; }).join(',') + '\n';
+  });
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = vendor + '_' + base + '_vs_' + target + '.csv';
+  a.click();
+  toast('已匯出 CSV', 'ok');
+}
 
 // ============================================================
-// Excel 處理
+// VENDOR PAGE
 // ============================================================
-function handleExcelFile(file) {
-  const reader = new FileReader();
-  reader.onload = e => {
+async function renderVendors() {
+  var wrap = document.getElementById('vendor-cards');
+  wrap.innerHTML = '<div style="color:var(--text-dim);font-size:13px;text-align:center;padding:20px;">載入中...</div>';
+  try {
+    var vendors = await getVendors();
+    var html = '';
+    vendors.forEach(function(v) {
+      html += '<div class="vendor-card">' +
+        '<div class="vendor-icon">' + (v.icon||'🏪') + '</div>' +
+        '<div class="vendor-info">' +
+        '<div class="vendor-name">' + escHtml(v.name) + '</div>' +
+        '<div class="vendor-cat">' + escHtml(v.category) + '</div>' +
+        (v.contact ? '<div class="vendor-contact">📞 ' + escHtml(v.contact) + '</div>' : '') +
+        (v.note ? '<div class="vendor-contact" style="margin-top:3px;">📝 ' + escHtml(v.note) + '</div>' : '') +
+        '</div>' +
+        '<div class="vendor-actions">' +
+        '<select class="rating-select" onchange="changeRating(\'' + escHtml(v.name) + '\',this.value)">' +
+        ['A','B','C','D'].map(function(r){ return '<option value="'+r+'"'+(v.rating===r?' selected':'')+'>'+r+'級</option>'; }).join('') +
+        '</select>' +
+        '<button class="btn btn-outline btn-sm" onclick="editVendor(\'' + escHtml(v.name) + '\')">編輯</button>' +
+        '</div></div>';
+    });
+    wrap.innerHTML = html;
+  } catch(e) {
+    wrap.innerHTML = '<div style="color:var(--red);">載入失敗：' + escHtml(e.message) + '</div>';
+  }
+}
+
+async function changeRating(name, rating) {
+  try {
+    var vendors = await getVendors();
+    var v = vendors.find(function(x){ return x.name===name; });
+    if (!v) return;
+    v.rating = rating;
+    await updateVendor(v);
+    toast(name + ' 評級已更新為 ' + rating, 'ok');
+  } catch(e) {
+    toast('更新失敗：' + e.message, 'err');
+  }
+}
+
+async function editVendor(name) {
+  var vendors = await getVendors();
+  var v = vendors.find(function(x){ return x.name===name; }) || {name:name,category:'',icon:'',rating:'A',contact:'',note:'',rowIndex:0};
+  var html =
+    '<div class="field"><label>名稱</label><input class="input" id="ev-name" value="' + escHtml(v.name) + '"></div>' +
+    '<div class="field"><label>分類</label><input class="input" id="ev-cat" value="' + escHtml(v.category) + '"></div>' +
+    '<div class="field"><label>圖示（Emoji）</label><input class="input" id="ev-icon" value="' + escHtml(v.icon||'') + '"></div>' +
+    '<div class="field"><label>評級</label><select class="input" id="ev-rating">' +
+    ['A','B','C','D'].map(function(r){ return '<option value="'+r+'"'+(v.rating===r?' selected':'')+'>'+r+'級</option>'; }).join('') +
+    '</select></div>' +
+    '<div class="field"><label>聯絡方式</label><input class="input" id="ev-contact" value="' + escHtml(v.contact||'') + '"></div>' +
+    '<div class="field"><label>備註</label><textarea class="input" id="ev-note" rows="3">' + escHtml(v.note||'') + '</textarea></div>' +
+    '<button class="btn btn-gold btn-block" onclick="saveVendorEdit(\'' + escHtml(name) + '\')">儲存</button>';
+  showModal('編輯廠商：' + name, html);
+}
+
+async function saveVendorEdit(origName) {
+  try {
+    var vendors = await getVendors();
+    var idx = vendors.findIndex(function(x){ return x.name===origName; });
+    var v = idx>=0 ? JSON.parse(JSON.stringify(vendors[idx])) : {rowIndex:vendors.length};
+    v.name     = document.getElementById('ev-name').value.trim();
+    v.category = document.getElementById('ev-cat').value.trim();
+    v.icon     = document.getElementById('ev-icon').value.trim();
+    v.rating   = document.getElementById('ev-rating').value;
+    v.contact  = document.getElementById('ev-contact').value.trim();
+    v.note     = document.getElementById('ev-note').value.trim();
+    await updateVendor(v);
+    closeModal();
+    toast('廠商資料已儲存', 'ok');
+    renderVendors();
+    fillVendorSelects();
+  } catch(e) {
+    toast('儲存失敗：' + e.message, 'err');
+  }
+}
+
+// ============================================================
+// PENDING PAGE
+// ============================================================
+function updatePendingBadge(n) {
+  var badge = document.getElementById('pending-badge');
+  badge.textContent = n;
+  if (n>0) badge.classList.add('show');
+  else badge.classList.remove('show');
+}
+
+async function renderPending() {
+  var wrap = document.getElementById('pending-content');
+  wrap.innerHTML = '<div style="color:var(--text-dim);font-size:13px;text-align:center;padding:20px;">載入中...</div>';
+  try {
+    var records;
+    if (isLocalMode()) {
+      var all = await getRecords();
+      records = all.filter(function(r){ return r.status==='pending'; });
+    } else {
+      var d = await callGAS({action:'getPendingItems'});
+      records = d.records || [];
+    }
+    updatePendingBadge(records.length);
+
+    if (records.length===0) {
+      wrap.innerHTML = '<div class="card"><div style="color:var(--text-dim);text-align:center;font-size:13px;padding:12px;">目前沒有待處理項目 ✓</div></div>';
+      return;
+    }
+
+    var byVendor = {};
+    records.forEach(function(r) {
+      if (!byVendor[r.vendor]) byVendor[r.vendor] = [];
+      byVendor[r.vendor].push(r);
+    });
+
+    var html = '';
+    Object.keys(byVendor).forEach(function(v) {
+      html += '<div class="pending-group"><div class="pending-group-title">' + escHtml(v) + '</div>';
+      byVendor[v].forEach(function(r) {
+        html += '<div class="pending-item">' +
+          '<div class="pname"><div style="font-weight:500;">' + escHtml(r.item_name) + '</div>' +
+          '<div style="font-size:11px;color:var(--text-dim);">' + escHtml(r.month) + ' · ' + escHtml(r.unit||'') + (r.store?' · '+escHtml(r.store):'') + '</div>' +
+          (r.note ? '<div style="font-size:11px;color:var(--red);">' + escHtml(r.note) + '</div>' : '') +
+          '</div>' +
+          '<div class="pprice">$' + escHtml(r.price) + '</div>' +
+          '<button class="btn btn-green btn-sm" onclick="confirmItem(' + r.rowIndex + ')">確認</button>' +
+          '</div>';
+      });
+      html += '</div>';
+    });
+    wrap.innerHTML = html;
+  } catch(e) {
+    wrap.innerHTML = '<div style="color:var(--red);">載入失敗：' + escHtml(e.message) + '</div>';
+  }
+}
+
+async function confirmItem(rowIndex) {
+  try {
+    var records = await getRecords();
+    var rec = records.find(function(r){ return r.rowIndex===rowIndex; });
+    if (!rec) { toast('找不到此項目','err'); return; }
+    rec.status = 'confirmed';
+    await updateRecord(rec);
+    toast('已確認', 'ok');
+    renderPending();
+  } catch(e) {
+    toast('確認失敗：' + e.message, 'err');
+  }
+}
+
+async function refreshPendingBadge() {
+  try {
+    var records = await getRecords();
+    updatePendingBadge(records.filter(function(r){ return r.status==='pending'; }).length);
+  } catch(e) {}
+}
+
+// ============================================================
+// UPLOAD — EXCEL
+// ============================================================
+var excelData = null;
+
+document.getElementById('excel-input').addEventListener('change', function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
     try {
-      const data = new Uint8Array(e.target.result);
-      excelWorkbook = XLSX.read(data, { type: 'array' });
-      const sheets = excelWorkbook.SheetNames;
-      activeSheetName = sheets[0];
-      renderSheetSelector(sheets);
-      renderExcelPreview(activeSheetName);
-      // 通道一：顯示欄位對應 + 基本資訊
-      renderColMapper(activeSheetName);
-      document.getElementById('file-meta').style.display = 'block';
-      // file-month 已由 initMonthSelects() 預設為當月
+      var wb = XLSX.read(ev.target.result, {type:'binary'});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var json = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+      if (!json || json.length < 2) { toast('檔案無資料','err'); return; }
+      var headers = json[0].map(String);
+      var rows = json.slice(1).filter(function(r){ return r.some(function(c){ return c!==''; }); });
+      excelData = {headers:headers, rows:rows};
+      renderExcelPreview(headers, rows);
+      fillColMap(headers);
+      loadColMapMemory(document.getElementById('up-vendor').value, headers);
     } catch(err) {
-      showToast('Excel 解析失敗：' + err.message, 'error');
+      toast('Excel 解析失敗：' + err.message, 'err');
     }
   };
-  reader.readAsArrayBuffer(file);
+  reader.readAsBinaryString(file);
+  this.value = '';
+});
+
+function renderExcelPreview(headers, rows) {
+  var show = Math.min(rows.length, 20);
+  var html = '<table><thead><tr>' + headers.map(function(h){ return '<th>'+escHtml(h)+'</th>'; }).join('') + '</tr></thead><tbody>';
+  for (var i=0; i<show; i++) {
+    html += '<tr>' + rows[i].map(function(c){ return '<td>'+escHtml(c)+'</td>'; }).join('') + '</tr>';
+  }
+  if (rows.length > show) html += '<tr><td colspan="' + headers.length + '" style="color:var(--text-dim);text-align:center;">...還有 '+(rows.length-show)+' 行</td></tr>';
+  html += '</tbody></table>';
+  document.getElementById('excel-preview-table').innerHTML = html;
+  document.getElementById('excel-preview-wrap').style.display = '';
 }
 
-function renderSheetSelector(sheets) {
-  const el = document.getElementById('excel-sheet-selector');
-  if (sheets.length <= 1) { el.innerHTML = ''; return; }
-  el.innerHTML = '<div style="font-size:11px;color:var(--text-3);margin-bottom:6px;">選擇工作表：</div>'
-    + sheets.map(s => `<button class="sheet-btn ${s===activeSheetName?'active':''}"
-        onclick="selectSheet('${escHtml(s)}')">${escHtml(s)}</button>`).join('');
-}
-
-function selectSheet(name) {
-  activeSheetName = name;
-  document.querySelectorAll('.sheet-btn').forEach(b => {
-    b.classList.toggle('active', b.textContent === name);
+function fillColMap(headers) {
+  ['map-item','map-unit','map-price','map-note'].forEach(function(id) {
+    var sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">(無)</option>';
+    headers.forEach(function(h, i) {
+      var o = document.createElement('option');
+      o.value = i; o.textContent = h;
+      sel.appendChild(o);
+    });
   });
-  renderExcelPreview(name);
+  document.getElementById('col-map-area').style.display = '';
 }
 
-function renderExcelPreview(sheetName) {
-  const ws   = excelWorkbook.Sheets[sheetName];
-  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-
-  document.getElementById('excel-preview').style.display = 'block';
-  document.getElementById('excel-info').textContent =
-    `工作表「${sheetName}」 · ${rows.length} 列`;
-
-  // Header row
-  const head = document.getElementById('excel-preview-head');
-  const body = document.getElementById('excel-preview-body');
-  head.innerHTML = '';
-  body.innerHTML = '';
-
-  if (!rows.length) return;
-
-  // 最多顯示前 30 列
-  const preview = rows.slice(0, 30);
-  const colCount = Math.max(...preview.map(r => r.length));
-
-  head.innerHTML = '<tr>' + Array.from({length: colCount}, (_, i) =>
-    `<th>${String.fromCharCode(65 + i)}</th>`).join('') + '</tr>';
-
-  preview.forEach(row => {
-    const tr = document.createElement('tr');
-    for (let i = 0; i < colCount; i++) {
-      const td = document.createElement('td');
-      td.textContent = row[i] ?? '';
-      tr.appendChild(td);
+function loadColMapMemory(vendor, headers) {
+  try {
+    var mem = JSON.parse(localStorage.getItem('colmap_' + vendor) || 'null');
+    if (mem) {
+      setMapSel('map-item',  mem.item);
+      setMapSel('map-unit',  mem.unit);
+      setMapSel('map-price', mem.price);
+      setMapSel('map-note',  mem.note);
+      return;
     }
-    body.appendChild(tr);
+  } catch(e) {}
+  // Auto-detect
+  headers.forEach(function(h, i) {
+    var hl = h.toLowerCase();
+    if (/品名|品項|名稱|item/.test(hl))   setMapSel('map-item',  i);
+    else if (/單位|unit/.test(hl))         setMapSel('map-unit',  i);
+    else if (/價格|單價|price/.test(hl))   setMapSel('map-price', i);
+    else if (/備註|note|remark/.test(hl))  setMapSel('map-note',  i);
   });
 }
 
-function excelToText(sheetName) {
-  const ws   = excelWorkbook.Sheets[sheetName];
-  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-  return rows.map(r => r.join('\t')).join('\n');
+function setMapSel(id, val) {
+  var sel = document.getElementById(id);
+  if (sel && val!=null && val!=='') sel.value = val;
 }
 
-// ============================================================
-// 欄位對應 UI（通道一 Excel 專用）
-// ============================================================
-function renderColMapper(sheetName) {
-  const ws   = excelWorkbook.Sheets[sheetName];
-  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-  if (!rows.length) return;
-
-  // 取前兩列合併判斷欄標題
-  const headerRow = rows[0];
-  const colCount  = headerRow.length;
-
-  const noneOpt = '<option value="">（略）</option>';
-  const opts = headerRow.map((h, i) => {
-    const label = h ? `${colLabel(i)}欄：${h}` : `${colLabel(i)}欄`;
-    return `<option value="${i}">${label}</option>`;
-  }).join('');
-
-  // 嘗試自動猜欄位
-  const guess = guessColumns(headerRow);
-
-  const selName  = document.getElementById('map-name');
-  const selUnit  = document.getElementById('map-unit');
-  const selPrice = document.getElementById('map-price');
-  const selNote  = document.getElementById('map-note');
-
-  selName.innerHTML  = opts;
-  selUnit.innerHTML  = noneOpt + opts;
-  selPrice.innerHTML = opts;
-  selNote.innerHTML  = noneOpt + opts;
-
-  if (guess.name  != null) selName.value  = guess.name;
-  if (guess.unit  != null) selUnit.value  = guess.unit;
-  if (guess.price != null) selPrice.value = guess.price;
-  if (guess.note  != null) selNote.value  = guess.note;
-
-  document.getElementById('col-mapper').style.display = 'block';
-
-  // 載入記憶設定
-  loadColMapMemory();
-}
-
-function colLabel(i) {
-  // 0→A, 1→B, ...
-  return String.fromCharCode(65 + i);
-}
-
-function guessColumns(headers) {
-  const guess = { name: null, unit: null, price: null, note: null };
-  const nameKw  = ['品項','品名','名稱','item','name','商品'];
-  const unitKw  = ['單位','unit'];
-  const priceKw = ['價格','單價','price','金額','售價','客戶價'];
-  const noteKw  = ['備註','note','說明','規格','商品備註'];
-
-  headers.forEach((h, i) => {
-    const s = String(h).toLowerCase();
-    if (nameKw.some(k  => s.includes(k))  && guess.name  == null) guess.name  = i;
-    if (unitKw.some(k  => s.includes(k))  && guess.unit  == null) guess.unit  = i;
-    if (priceKw.some(k => s.includes(k))  && guess.price == null) guess.price = i;
-    if (noteKw.some(k  => s.includes(k))  && guess.note  == null) guess.note  = i;
-  });
-  return guess;
-}
-
-function saveColMapMemory() {
-  const vendor = document.getElementById('file-vendor').value;
-  const map = {
-    name:  document.getElementById('map-name').value,
+function saveColMapMemory(vendor) {
+  var mem = {
+    item:  document.getElementById('map-item').value,
     unit:  document.getElementById('map-unit').value,
     price: document.getElementById('map-price').value,
     note:  document.getElementById('map-note').value,
-    skip:  document.getElementById('map-skip-rows').value,
   };
-  localStorage.setItem('colmap_' + vendor, JSON.stringify(map));
+  localStorage.setItem('colmap_' + vendor, JSON.stringify(mem));
 }
 
-function loadColMapMemory() {
-  const vendor = document.getElementById('file-vendor').value;
-  const saved  = localStorage.getItem('colmap_' + vendor);
-  if (!saved) return;
+async function confirmExcelImport() {
+  if (!excelData) return;
+  var vendor = document.getElementById('up-vendor').value;
+  var month  = document.getElementById('up-month').value;
+  var iI = parseInt(document.getElementById('map-item').value);
+  var iU = document.getElementById('map-unit').value;
+  var iP = parseInt(document.getElementById('map-price').value);
+  var iN = document.getElementById('map-note').value;
+  if (!vendor || !month)    { toast('請選擇廠商與月份','err'); return; }
+  if (isNaN(iI) || isNaN(iP)) { toast('請設定品項與價格欄位','err'); return; }
+  saveColMapMemory(vendor);
+  var records = excelData.rows.map(function(r) {
+    return {
+      vendor:    vendor,
+      month:     month,
+      store:     CONFIG.stores[0],
+      item_name: String(r[iI]||'').trim(),
+      unit:      iU!=='' ? String(r[parseInt(iU)]||'').trim() : '',
+      price:     String(r[iP]||'').trim(),
+      note:      iN!=='' ? String(r[parseInt(iN)]||'').trim() : '',
+      status:    'pending',
+    };
+  }).filter(function(r){ return r.item_name; });
+  if (records.length===0) { toast('沒有有效資料','err'); return; }
   try {
-    const map = JSON.parse(saved);
-    if (map.name  != null) document.getElementById('map-name').value  = map.name;
-    if (map.unit  != null) document.getElementById('map-unit').value  = map.unit;
-    if (map.price != null) document.getElementById('map-price').value = map.price;
-    if (map.note  != null) document.getElementById('map-note').value  = map.note;
-    if (map.skip  != null) document.getElementById('map-skip-rows').value = map.skip;
-  } catch(_) {}
-}
-
-// ============================================================
-// 通道一：預覽匯入品項
-// ============================================================
-function previewFileImport() {
-  if (currentFileType === 'excel') {
-    if (!excelWorkbook) return showToast('請先上傳 Excel 檔案', 'warning');
-    previewExcelImport();
-  } else {
-    if (!ocrTextContent) return showToast('請先上傳 Word 檔案', 'warning');
-    // Word 通道：用 AI 辨識（若有 Key），否則顯示純文字讓手動填
-    previewWordManual();
+    for (var i=0; i<records.length; i++) await addRecord(records[i]);
+    toast('已匯入 ' + records.length + ' 筆資料', 'ok');
+    clearExcelPreview();
+    refreshPendingBadge();
+  } catch(e) {
+    toast('匯入失敗：' + e.message, 'err');
   }
 }
 
-function previewExcelImport() {
-  const nameCol  = parseInt(document.getElementById('map-name').value);
-  const unitCol  = document.getElementById('map-unit').value;
-  const priceCol = parseInt(document.getElementById('map-price').value);
-  const noteCol  = document.getElementById('map-note').value;
-  const skipRows = parseInt(document.getElementById('map-skip-rows').value) || 1;
-
-  if (isNaN(nameCol) || isNaN(priceCol))
-    return showToast('請選擇品項名稱欄與價格欄', 'warning');
-
-  // 儲存欄位記憶
-  saveColMapMemory();
-
-  const ws   = excelWorkbook.Sheets[activeSheetName];
-  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-  const dataRows = rows.slice(skipRows);
-
-  ocrItems = dataRows
-    .filter(row => row[nameCol] && String(row[nameCol]).trim())
-    .map(row => {
-      const rawPrice = unitCol !== '' ? row[parseInt(priceCol)] : row[priceCol];
-      const price    = parseFloat(String(rawPrice).replace(/[^0-9.]/g, '')) || null;
-      return {
-        item_name: String(row[nameCol]).trim(),
-        unit:      unitCol !== '' ? String(row[parseInt(unitCol)] || '').trim() : '',
-        price,
-        note:      noteCol !== '' ? String(row[parseInt(noteCol)] || '').trim() : '',
-      };
-    })
-    .filter(item => item.item_name);
-
-  if (!ocrItems.length) return showToast('未讀取到任何品項，請確認欄位設定', 'warning');
-
-  renderOCRItems('file-result-section', 'ocr-items-list');
-  document.getElementById('file-result-section').style.display = 'block';
-  showToast(`讀取完成，共 ${ocrItems.length} 個品項`, 'success');
-}
-
-function previewWordManual() {
-  // Word 沒有欄位概念，直接顯示一個空白輸入表讓手動填
-  ocrItems = [{ item_name: '', unit: '', price: null, note: '' }];
-  renderOCRItems('file-result-section', 'ocr-items-list');
-  document.getElementById('file-result-section').style.display = 'block';
-  showToast('請手動填入品項，或切換至「圖片通道」用 AI 辨識', 'warning');
+function clearExcelPreview() {
+  excelData = null;
+  document.getElementById('excel-preview-wrap').style.display = 'none';
+  document.getElementById('col-map-area').style.display = 'none';
+  document.getElementById('excel-preview-table').innerHTML = '';
 }
 
 // ============================================================
-// Word 處理
+// UPLOAD — WORD
 // ============================================================
-function handleWordFile(file) {
-  const reader = new FileReader();
-  reader.onload = async e => {
-    try {
-      const result = await mammoth.extractRawText({ arrayBuffer: e.target.result });
-      ocrTextContent = result.value;
-      document.getElementById('word-preview').style.display = 'block';
-      document.getElementById('word-info').textContent = `${file.name} · ${ocrTextContent.length} 字元`;
-      document.getElementById('word-content-preview').textContent =
-        ocrTextContent.slice(0, 1200) + (ocrTextContent.length > 1200 ? '\n... (以下省略)' : '');
-      // 通道一 Word：顯示基本資訊（Word 用純文字，欄位對應不適用）
-      document.getElementById('col-mapper').style.display = 'none';
-      document.getElementById('file-meta').style.display  = 'block';
-      // file-month 已由 initMonthSelects() 預設為當月
-    } catch(err) {
-      showToast('Word 解析失敗：' + err.message, 'error');
-    }
+document.getElementById('word-input').addEventListener('change', function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    mammoth.extractRawText({arrayBuffer: ev.target.result}).then(function(res) {
+      document.getElementById('word-text').textContent = res.value || '（無文字內容）';
+      document.getElementById('word-preview').style.display = '';
+      toast('Word 解析完成', 'ok');
+    }).catch(function(err) {
+      toast('Word 解析失敗：' + err.message, 'err');
+    });
   };
   reader.readAsArrayBuffer(file);
-}
-
-// Drag-over — Excel
-const zoneExcel = document.getElementById('upload-zone-excel');
-zoneExcel.addEventListener('dragover', e => { e.preventDefault(); zoneExcel.classList.add('drag-over'); });
-zoneExcel.addEventListener('dragleave', () => zoneExcel.classList.remove('drag-over'));
-zoneExcel.addEventListener('drop', e => {
-  e.preventDefault(); zoneExcel.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file) handleExcelFile(file);
+  this.value = '';
 });
 
-// Drag-over — Word
-const zoneWord = document.getElementById('upload-zone-word');
-zoneWord.addEventListener('dragover', e => { e.preventDefault(); zoneWord.classList.add('drag-over'); });
-zoneWord.addEventListener('dragleave', () => zoneWord.classList.remove('drag-over'));
-zoneWord.addEventListener('drop', e => {
-  e.preventDefault(); zoneWord.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file) handleWordFile(file);
+function clearWordPreview() {
+  document.getElementById('word-preview').style.display = 'none';
+  document.getElementById('word-text').textContent = '';
+}
+
+// ============================================================
+// UPLOAD — IMAGE + AI
+// ============================================================
+document.getElementById('img-input').addEventListener('change', function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    document.getElementById('img-preview').src = ev.target.result;
+    document.getElementById('img-preview-wrap').style.display = '';
+  };
+  reader.readAsDataURL(file);
+  this.value = '';
 });
 
-// ============================================================
-// 共用：顯示 meta 區
-// ============================================================
-function showOcrMeta(type, filename, extra) {
-  document.getElementById('ocr-meta').style.display = 'block';
-  const hint = document.getElementById('ocr-source-hint');
-  const icons = { image:'📷', excel:'📊', word:'📄' };
-  hint.textContent = `${icons[type]} ${filename}${extra ? ' · ' + extra : ''}`;
+function clearImgPreview() {
+  document.getElementById('img-preview-wrap').style.display = 'none';
+  document.getElementById('img-preview').src = '';
+  document.getElementById('ai-result-wrap').style.display = 'none';
+  document.getElementById('ai-result-text').value = '';
 }
 
-// ============================================================
-// 自動偵測可用 Gemini 模型
-// ============================================================
-async function detectGeminiModel(apiKey) {
-  // 優先嘗試清單（依新舊排序）
-  const candidates = [
-    'gemini-2.0-flash',
-    'gemini-2.0-flash-lite',
-    'gemini-1.5-flash',
-    'gemini-1.5-flash-latest',
-    'gemini-1.5-flash-001',
-    'gemini-1.5-pro',
-    'gemini-1.5-pro-latest',
-    'gemini-pro',
-  ];
-
-  // 先嘗試用 /v1/models 列出實際可用模型
+async function runGeminiOCR() {
+  if (!CONFIG.geminiKey) { toast('請先設定 Gemini API Key','err'); return; }
+  var imgEl = document.getElementById('img-preview');
+  var src = imgEl.src;
+  if (!src || src === window.location.href) { toast('請先選取圖片','err'); return; }
+  var base64 = src.split(',')[1];
+  var mimeMatch = src.match(/data:([^;]+);/);
+  var mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+  toast('AI 辨識中...', '');
   try {
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`
-    );
-    const data = await r.json();
-    if (data.models && data.models.length > 0) {
-      // 從回傳清單中找第一個支援 generateContent 的 flash/pro 模型
-      const available = data.models
-        .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
-        .map(m => m.name.replace('models/', ''));
-      // 依 candidates 優先順序選
-      for (const c of candidates) {
-        if (available.some(a => a === c || a.startsWith(c))) return c;
-      }
-      // fallback：直接用第一個可用的
-      if (available.length > 0) return available[0];
-    }
-  } catch(_) {}
-
-  // 若 /v1/models 失敗，用 v1beta 再試一次
-  try {
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
-    );
-    const data = await r.json();
-    if (data.models && data.models.length > 0) {
-      const available = data.models
-        .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
-        .map(m => m.name.replace('models/', ''));
-      for (const c of candidates) {
-        if (available.some(a => a === c || a.startsWith(c))) return c;
-      }
-      if (available.length > 0) return available[0];
-    }
-  } catch(_) {}
-
-  return null; // 無法偵測
-}
-
-// ============================================================
-// AI 辨識（統一入口）
-// ============================================================
-async function runOCR() {
-  if (!CONFIG.apiKey) return showToast('請先在設定頁填入 Google Gemini API Key', 'warning');
-
-  if (currentUploadType === 'image' && !ocrImageBase64)
-    return showToast('請先選擇圖片', 'warning');
-  if (currentUploadType === 'excel' && !excelWorkbook)
-    return showToast('請先選擇 Excel 檔案', 'warning');
-  if (currentUploadType === 'word' && !ocrTextContent)
-    return showToast('請先選擇 Word 檔案', 'warning');
-
-  const btn = document.getElementById('ocr-btn');
-  btn.disabled    = true;
-  btn.textContent = '🔍 偵測模型中...';
-
-  const PROMPT = `請辨識所有品項，以 JSON 陣列格式回傳，格式如下：
-[{"item_name":"品項名稱","unit":"單位","price":數字或null,"note":"備註或空字串"}]
-規則：
-- price 必須是數字；若為時價或看不清楚則填 null
-- 每個品項獨立一個物件
-- 忽略小計/合計/標題列
-- 只回傳 JSON，不要其他說明文字`;
-
-  try {
-    // 自動偵測可用模型（優先用設定的，若不可用則自動換）
-    let model = CONFIG.model;
-    let apiVer = 'v1';
-
-    // 組裝 parts
-    let parts = [];
-    if (currentUploadType === 'image') {
-      parts = [
-        { inline_data: { mime_type: ocrImageMime, data: ocrImageBase64 } },
-        { text: '這是一張廠商報價單圖片。' + PROMPT }
-      ];
-    } else if (currentUploadType === 'excel') {
-      const tableText = excelToText(activeSheetName);
-      parts = [{ text: `以下是廠商報價單的 Excel 內容（Tab 分隔）：\n\n${tableText}\n\n${PROMPT}` }];
-    } else {
-      parts = [{ text: `以下是廠商報價單的 Word 文件內容：\n\n${ocrTextContent}\n\n${PROMPT}` }];
-    }
-
-    const body = JSON.stringify({
-      contents: [{ parts }],
-      generationConfig: { temperature: 0.1, maxOutputTokens: 2048 }
-    });
-
-    btn.textContent = '🤖 辨識中...';
-
-    // 嘗試順序：v1 → v1beta，模型先用設定值，失敗再自動偵測
-    let result = null;
-    const tryList = [
-      { ver: 'v1',     m: model },
-      { ver: 'v1beta', m: model },
-    ];
-
-    for (const t of tryList) {
-      const url = `https://generativelanguage.googleapis.com/${t.ver}/models/${t.m}:generateContent?key=${CONFIG.apiKey}`;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body
-      });
-      const data = await res.json();
-
-      // 若模型不存在或配額問題，試下一個
-      if (data.error) {
-        const code = data.error.status || '';
-        // 配額超過 → 直接報錯，不繼續試
-        if (code === 'RESOURCE_EXHAUSTED') throw new Error('API 免費配額已用盡，請稍後再試或至 aistudio.google.com 查看用量');
-        continue; // 模型不存在 → 試下一個
-      }
-      result = data;
-      break;
-    }
-
-    // 若設定模型都失敗 → 自動偵測
-    if (!result) {
-      btn.textContent = '🔍 自動偵測模型...';
-      const detectedModel = await detectGeminiModel(CONFIG.apiKey);
-      if (!detectedModel) throw new Error('找不到可用的 Gemini 模型，請確認 API Key 是否正確，或至 aistudio.google.com 確認帳號狀態');
-
-      // 用偵測到的模型再試 v1 / v1beta
-      btn.textContent = `🤖 使用 ${detectedModel} 辨識...`;
-      for (const ver of ['v1', 'v1beta']) {
-        const url = `https://generativelanguage.googleapis.com/${ver}/models/${detectedModel}:generateContent?key=${CONFIG.apiKey}`;
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body
-        });
-        const data = await res.json();
-        if (!data.error) {
-          result = data;
-          // 更新設定讓下次直接用
-          CONFIG.model = detectedModel;
-          localStorage.setItem('gasModel', detectedModel);
-          showToast(`自動切換模型：${detectedModel}`, 'warning');
-          break;
-        }
-        if (data.error?.status === 'RESOURCE_EXHAUSTED')
-          throw new Error('API 免費配額已用盡，請稍後再試');
-      }
-    }
-
-    if (!result) throw new Error('所有 Gemini 模型均無法使用，請確認 API Key 與帳號狀態');
-    if (!result.candidates?.[0]?.content?.parts?.[0]?.text)
-      throw new Error('AI 無回傳內容，請重試');
-
-    const text  = result.candidates[0].content.parts[0].text.trim();
-    const match = text.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error('AI 回傳格式異常，請重試');
-
-    ocrItems = JSON.parse(match[0]);
-    renderOCRItems(null, 'ocr-items-list-img');
-    document.getElementById('ocr-result-section').style.display = 'block';
-    showToast(`辨識完成，共 ${ocrItems.length} 個品項`, 'success');
-
-  } catch (e) {
-    showToast('辨識失敗：' + e.message, 'error');
-  } finally {
-    btn.disabled    = false;
-    btn.textContent = '🤖 AI 辨識品項';
+    var result = await callGeminiVision(base64, mime);
+    document.getElementById('ai-result-text').value = result;
+    document.getElementById('ai-result-wrap').style.display = '';
+    toast('辨識完成', 'ok');
+  } catch(e) {
+    toast('辨識失敗：' + e.message, 'err');
   }
 }
 
-// listId：渲染目標容器 ID（預設 ocr-items-list）
-function renderOCRItems(sectionId, listId) {
-  const id   = listId || (currentChannel === 'file' ? 'ocr-items-list' : 'ocr-items-list-img');
-  const list = document.getElementById(id);
-  if (!list) return;
-  list.innerHTML = '';
-  ocrItems.forEach((item, i) => {
-    const div = document.createElement('div');
-    div.className = 'ocr-item-card';
-    div.innerHTML = `
-      <div class="item-actions">
-        <button class="btn-icon" onclick="removeOCRItem(${i},'${id}')" title="刪除">✕</button>
-      </div>
-      <div class="row-3" style="margin-bottom:8px;">
-        <div class="form-group" style="grid-column:1/3;margin:0">
-          <label class="form-label">品項名稱</label>
-          <input class="form-control" value="${escHtml(item.item_name)}" onchange="ocrItems[${i}].item_name=this.value">
-        </div>
-        <div class="form-group" style="margin:0">
-          <label class="form-label">單位</label>
-          <input class="form-control" value="${escHtml(item.unit)}" onchange="ocrItems[${i}].unit=this.value">
-        </div>
-      </div>
-      <div class="row-2">
-        <div class="form-group" style="margin:0">
-          <label class="form-label">單價</label>
-          <input class="form-control" type="number" value="${item.price ?? ''}" placeholder="時價" onchange="ocrItems[${i}].price=this.value?parseFloat(this.value):null">
-        </div>
-        <div class="form-group" style="margin:0">
-          <label class="form-label">備註</label>
-          <input class="form-control" value="${escHtml(item.note)}" onchange="ocrItems[${i}].note=this.value">
-        </div>
-      </div>
-    `;
-    list.appendChild(div);
+async function callGeminiVision(base64, mime) {
+  var models = [CONFIG.geminiModel, 'gemini-2.0-flash', 'gemini-1.5-flash'];
+  var seen = [];
+  var deduped = models.filter(function(m) {
+    if (seen.indexOf(m) >= 0) return false;
+    seen.push(m); return true;
   });
+  var prompt = '請辨識這張報價單圖片，將所有品項以JSON陣列格式回答，每項包含：item_name, unit, price, note。只回答JSON，不需要其他說明。';
+  var lastErr;
+  for (var i=0; i<deduped.length; i++) {
+    var model = deduped[i];
+    try {
+      var res = await fetch(
+        'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + CONFIG.geminiKey,
+        {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            contents:[{parts:[
+              {text:prompt},
+              {inlineData:{mimeType:mime, data:base64}}
+            ]}]
+          })
+        }
+      );
+      if (!res.ok) { var et = await res.text(); throw new Error(et); }
+      var d = await res.json();
+      return (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts && d.candidates[0].content.parts[0].text) || '（無回覆）';
+    } catch(e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error('所有模型均失敗');
 }
 
-function removeOCRItem(i, listId) {
-  ocrItems.splice(i, 1);
-  renderOCRItems(null, listId);
-}
-
-function addOCRItem() {
-  ocrItems.push({ item_name: '', unit: '', price: null, note: '' });
-  const id = currentChannel === 'file' ? 'ocr-items-list' : 'ocr-items-list-img';
-  renderOCRItems(null, id);
-  document.getElementById(id).lastElementChild?.scrollIntoView({ behavior: 'smooth' });
-}
-
-// channel: 'file'（通道一）| 'img'（通道二）
-async function confirmOCR(channel) {
-  if (!ocrItems.length) return showToast('無品項可存入', 'warning');
-
-  // 依通道取廠商/月份
-  const isFile  = !channel || channel === 'file';
-  const vendor  = document.getElementById(isFile ? 'file-vendor' : 'ocr-vendor').value;
-  const month   = document.getElementById(isFile ? 'file-month'  : 'ocr-month').value;
-
-  if (!vendor || !month) return showToast('請填入廠商與月份', 'warning');
-
+async function confirmAiImport() {
+  var vendor = document.getElementById('ai-vendor').value;
+  var month  = document.getElementById('ai-month').value;
+  var text   = document.getElementById('ai-result-text').value.trim();
+  if (!vendor || !month) { toast('請選擇廠商與月份','err'); return; }
+  if (!text) { toast('無辨識內容','err'); return; }
+  var items = [];
   try {
-    let saved = 0;
-    for (const item of ocrItems) {
-      if (!item.item_name) continue;
-      await gasCall('addRecord', {
-        vendor, month, store: '兩店通用',
-        item_name: item.item_name,
-        unit:  item.unit  || '',
-        price: item.price || 0,
-        note:  item.note  || '',
-        status: item.price ? 'confirmed' : 'pending'
+    var cleaned = text.replace(/```json/g,'').replace(/```/g,'').trim();
+    items = JSON.parse(cleaned);
+    if (!Array.isArray(items)) items = [items];
+  } catch(e) {
+    toast('無法解析 AI 回覆為 JSON，請手動調整後再試','err');
+    return;
+  }
+  try {
+    for (var i=0; i<items.length; i++) {
+      var item = items[i];
+      await addRecord({
+        vendor:    vendor,
+        month:     month,
+        store:     CONFIG.stores[0],
+        item_name: String(item.item_name||'').trim(),
+        unit:      String(item.unit||'').trim(),
+        price:     String(item.price||'').trim(),
+        note:      String(item.note||'').trim(),
+        status:    'pending',
       });
-      saved++;
     }
-    showToast(`✅ 已存入 ${saved} 筆記錄`, 'success');
-    ocrItems = [];
-
-    if (isFile) {
-      document.getElementById('file-result-section').style.display = 'none';
-    } else {
-      document.getElementById('ocr-result-section').style.display = 'none';
-      document.getElementById('preview-img').style.display = 'none';
-      ocrImageBase64 = null;
-    }
-    loadPendingBadge();
-  } catch (e) {
-    showToast(e.message, 'error');
+    toast('已匯入 ' + items.length + ' 筆 AI 辨識資料', 'ok');
+    clearImgPreview();
+    refreshPendingBadge();
+  } catch(e) {
+    toast('匯入失敗：' + e.message, 'err');
   }
 }
 
 // ============================================================
-// Vendors
+// CHAT
 // ============================================================
-const VENDOR_ICONS = { '全富':'🦐','陸陸肉':'🥩','擘進':'🧊','菜商':'🥦','鴻璟立昌':'🧂' };
-const VENDOR_COLORS = ['#e84a4a','#e8974a','#e8c84a','#4ae88a','#4a9ae8'];
+var chatHistory = [];
 
-// ============================================================
-// Chat 問答功能
-// ============================================================
-let chatHistory = []; // 多輪對話記憶
+function formatAIMarkdown(text) {
+  if (!text) return '';
+  var html = escHtml(text);
+  // Bold
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Tables
+  html = html.replace(/((?:\|[^\n]*\|(?:\n|$))+)/g, function(match) {
+    var lines = match.trim().split('\n').filter(function(l){ return l.trim(); });
+    if (lines.length < 2) return match;
+    var thtml = '<table>';
+    var first = true;
+    lines.forEach(function(line) {
+      if (/^\|[-:| ]+\|$/.test(line.trim())) return;
+      var cells = line.replace(/^\||\|$/g,'').split('|');
+      if (first) {
+        thtml += '<tr>' + cells.map(function(c){ return '<th>'+c.trim()+'</th>'; }).join('') + '</tr>';
+        first = false;
+      } else {
+        thtml += '<tr>' + cells.map(function(c){ return '<td>'+c.trim()+'</td>'; }).join('') + '</tr>';
+      }
+    });
+    thtml += '</table>';
+    return thtml;
+  });
+  html = html.replace(/\n/g, '<br>');
+  return html;
+}
+
+function appendBubble(role, content, id) {
+  var msgs = document.getElementById('chat-messages');
+  var wrap = document.createElement('div');
+  wrap.className = 'bubble-wrap' + (role==='user'?' user':'');
+  var bubble = document.createElement('div');
+  bubble.className = 'bubble ' + (role==='user'?'user':'ai');
+  if (id) bubble.id = id;
+  if (content === '__typing__') {
+    bubble.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  } else {
+    bubble.innerHTML = formatAIMarkdown(content);
+  }
+  wrap.appendChild(bubble);
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+  return bubble;
+}
 
 async function sendChat() {
-  const input = document.getElementById('chat-input');
-  const question = input.value.trim();
-  if (!question) return;
+  var input = document.getElementById('chat-input');
+  var msg = input.value.trim();
+  if (!msg) return;
   input.value = '';
-  input.style.height = 'auto';
-  await askQuestion(question);
+  input.style.height = '';
+  if (!CONFIG.geminiKey) { toast('請先設定 Gemini API Key','err'); return; }
+  appendBubble('user', msg);
+  chatHistory.push({role:'user', text:msg});
+  appendBubble('ai', '__typing__', 'typing-bubble');
+  try {
+    var records = await getRecords();
+    var dataJson = JSON.stringify(records.slice(0,300));
+    var systemPrompt = '你是意享餐廳集團的報價查核 AI 助理。\n你的任務是根據以下報價資料庫，用繁體中文回答主管的問題。\n規則：\n1. 回答要精準、簡潔，直接給結論\n2. 有數字比較時，必須用 Markdown 表格呈現\n3. 漲價用 ↑ 符號，降價用 ↓，持平用 —\n4. 表格欄位：月份｜單價｜漲跌幅（如適用）\n5. 最後附上一句簡短的分析結論\n報價資料（JSON）：' + dataJson;
+
+    var recentHistory = chatHistory.slice(-12);
+    var contents = [];
+    contents.push({role:'user', parts:[{text:systemPrompt}]});
+    contents.push({role:'model', parts:[{text:'好的，我已了解報價資料。請提問。'}]});
+    recentHistory.slice(0,-1).forEach(function(h) {
+      contents.push({role:h.role==='user'?'user':'model', parts:[{text:h.text}]});
+    });
+    contents.push({role:'user', parts:[{text:msg}]});
+
+    var res = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + CONFIG.geminiModel + ':generateContent?key=' + CONFIG.geminiKey,
+      {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({contents:contents})
+      }
+    );
+    if (!res.ok) { var et = await res.text(); throw new Error(et); }
+    var d = await res.json();
+    var reply = (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts[0].text) || '（無回覆）';
+    var tb = document.getElementById('typing-bubble');
+    if (tb) tb.parentElement.remove();
+    appendBubble('ai', reply);
+    chatHistory.push({role:'ai', text:reply});
+    if (chatHistory.length > 24) chatHistory = chatHistory.slice(-24);
+  } catch(e) {
+    var tb2 = document.getElementById('typing-bubble');
+    if (tb2) tb2.parentElement.remove();
+    appendBubble('ai', '錯誤：' + e.message);
+    toast('AI 回覆失敗：' + e.message, 'err');
+  }
 }
 
-function askQuick(q) {
-  // 先切換到問答頁
-  const tabs = document.querySelectorAll('.tab-item');
-  tabs.forEach(t => t.classList.remove('active'));
-  const chatTab = Array.from(tabs).find(t => t.textContent.includes('問答'));
-  if (chatTab) chatTab.classList.add('active');
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-chat').classList.add('active');
-  // 填入問題並送出
+function sendQuickQ(q) {
   document.getElementById('chat-input').value = q;
   sendChat();
 }
 
 function clearChat() {
   chatHistory = [];
-  document.getElementById('chat-messages').innerHTML = `
-    <div class="chat-bubble chat-bubble-ai">
-      <div class="chat-avatar">AI</div>
-      <div class="chat-content">
-        <p>對話已清除。有什麼想問的，請繼續！</p>
-      </div>
-    </div>`;
+  document.getElementById('chat-messages').innerHTML = '';
+  toast('對話已清除', 'ok');
 }
 
-function appendUserBubble(text) {
-  const wrap = document.getElementById('chat-messages');
-  const div = document.createElement('div');
-  div.className = 'chat-bubble chat-bubble-user';
-  div.innerHTML = `
-    <div class="chat-avatar">我</div>
-    <div class="chat-content"><p>${text.replace(/\n/g,'<br>')}</p></div>`;
-  wrap.appendChild(div);
-  wrap.scrollTop = wrap.scrollHeight;
-  return div;
-}
-
-function appendThinking() {
-  const wrap = document.getElementById('chat-messages');
-  const div = document.createElement('div');
-  div.className = 'chat-bubble chat-bubble-ai';
-  div.innerHTML = `
-    <div class="chat-avatar">AI</div>
-    <div class="chat-content">
-      <div class="chat-thinking"><span></span><span></span><span></span></div>
-    </div>`;
-  wrap.appendChild(div);
-  wrap.scrollTop = wrap.scrollHeight;
-  return div;
-}
-
-function renderAIContent(markdown) {
-  // 解析 markdown → HTML（支援表格、粗體、換行）
-  let html = markdown
-    // 粗體
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    // 表格
-    .replace(/^\|(.+)\|$/gm, row => row) // 先保留
-    // 換行
-    .replace(/\n/g, '\n');
-
-  // 偵測並轉換 markdown 表格
-  const tableRegex = /(\|.+\|\n\|[-| :]+\|\n(?:\|.+\|\n?)+)/g;
-  html = html.replace(tableRegex, (match) => {
-    const rows = match.trim().split('\n');
-    const headers = rows[0].split('|').filter(c => c.trim()).map(c => `<th>${c.trim()}</th>`).join('');
-    const bodyRows = rows.slice(2).map(row => {
-      const cells = row.split('|').filter(c => c.trim() !== undefined).slice(1,-1);
-      return '<tr>' + cells.map(c => {
-        const txt = c.trim();
-        const cls = txt.includes('↑') || txt.includes('+') ? ' class="up"'
-                  : txt.includes('↓') || txt.includes('-') && txt.match(/\d/) ? ' class="down"' : '';
-        return `<td${cls}>${txt}</td>`;
-      }).join('') + '</tr>';
-    }).join('');
-    return `<table><thead><tr>${headers}</tr></thead><tbody>${bodyRows}</tbody></table>`;
-  });
-
-  // 剩餘文字轉 <p>
-  const parts = html.split(/(<table[\s\S]*?<\/table>)/);
-  return parts.map(part => {
-    if (part.startsWith('<table')) return part;
-    return part.split('\n').filter(l => l.trim()).map(l => `<p>${l}</p>`).join('');
-  }).join('');
-}
-
-async function askQuestion(question) {
-  if (!CONFIG.apiKey) {
-    showToast('請先在設定頁填入 Gemini API Key', 'warning');
-    return;
-  }
-
-  // 顯示使用者問題
-  appendUserBubble(question);
-  const thinkingBubble = appendThinking();
-
-  // 禁用送出
-  const btn = document.getElementById('chat-send-btn');
-  btn.disabled = true;
-
-  try {
-    // 取得所有報價資料
-    const res = await gasCall('getRecords', {});
-    const records = res.records || [];
-
-    // 壓縮資料為 JSON 給 AI（只傳需要的欄位）
-    const dataSnippet = records.map(r => ({
-      廠商: r.vendor, 門市: r.store, 月份: r.month,
-      品項: r.item_name, 單位: r.unit,
-      單價: r.price, 備註: r.note, 狀態: r.status
-    }));
-
-    const systemPrompt = `你是意享餐廳集團的報價查核 AI 助理。
-你的任務是根據以下報價資料庫，用繁體中文回答主管的問題。
-
-規則：
-1. 回答要精準、簡潔，直接給結論
-2. 有數字比較時，必須用 Markdown 表格呈現
-3. 漲價用 ↑ 符號，降價用 ↓，持平用 —
-4. 表格欄位：月份｜單價｜漲跌幅（如適用）
-5. 最後附上一句簡短的分析結論
-
-報價資料（JSON）：
-${JSON.stringify(dataSnippet, null, 0)}`;
-
-    // 組裝對話歷史（最多保留最近 6 輪）
-    const recentHistory = chatHistory.slice(-12);
-    const messages = [
-      ...recentHistory,
-      { role: 'user', parts: [{ text: question }] }
-    ];
-
-    const payload = {
-      system_instruction: { parts: [{ text: systemPrompt }] },
-      contents: messages
-    };
-
-    const model = CONFIG.model || 'gemini-2.0-flash';
-    const apiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${CONFIG.apiKey}`,
-      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
-    );
-    const apiData = await apiRes.json();
-
-    if (apiData.error) throw new Error(apiData.error.message);
-    const answer = apiData.candidates?.[0]?.content?.parts?.[0]?.text || '無法取得回覆';
-
-    // 更新對話歷史
-    chatHistory.push({ role: 'user', parts: [{ text: question }] });
-    chatHistory.push({ role: 'model', parts: [{ text: answer }] });
-
-    // 替換 thinking bubble 為真實回覆
-    thinkingBubble.querySelector('.chat-content').innerHTML = renderAIContent(answer);
-    document.getElementById('chat-messages').scrollTop = 9999;
-
-  } catch(e) {
-    thinkingBubble.querySelector('.chat-content').innerHTML =
-      `<p style="color:var(--red);">錯誤：${e.message}</p>`;
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-// ============================================================
-// Dashboard：各廠商最新報價快速預覽
-// ============================================================
-async function loadDashboard() {
-  const container = document.getElementById('dashboard-container');
-  container.innerHTML = `<div class="loader"><div class="spinner"></div>載入中...</div>`;
-  try {
-    // 取所有記錄
-    const res = await gasCall('getRecords', {});
-    const records = res.records || [];
-
-    if (!records.length) {
-      container.innerHTML = `<div class="dash-no-data">尚無報價資料，請先上傳報價單</div>`;
-      return;
-    }
-
-    // 取得所有廠商（依照資料中出現的）
-    const vendors = [...new Set(records.map(r => r.vendor))];
-
-    let html = '';
-    vendors.forEach((vendor, vi) => {
-      const vendorRecords = records.filter(r => r.vendor === vendor);
-
-      // 找該廠商最新月份
-      const months = [...new Set(vendorRecords.map(r => r.month))].sort().reverse();
-      const latestMonth = months[0];
-      if (!latestMonth) return;
-
-      const items = vendorRecords.filter(r => r.month === latestMonth);
-      const confirmedItems = items.filter(r => r.status === 'confirmed');
-      const pendingItems   = items.filter(r => r.status === 'pending');
-      const alertItems     = items.filter(r => r.note && (r.note.includes('漲') || r.note.includes('縮水') || r.note.includes('告知')));
-      const hasAlert = alertItems.length > 0;
-
-      const colorDot = VENDOR_COLORS[vi % VENDOR_COLORS.length];
-
-      html += `
-      <div class="dash-vendor-card ${hasAlert ? 'has-alert' : ''}" id="dash-card-${vi}">
-        <div class="dash-vendor-header" onclick="toggleDashCard(${vi})">
-          <div class="dash-vendor-left">
-            <div style="width:8px;height:8px;border-radius:50%;background:${colorDot};flex-shrink:0;"></div>
-            <div>
-              <div class="dash-vendor-name">${vendor}</div>
-              <div class="dash-vendor-meta">${items.length} 品項｜${pendingItems.length > 0 ? pendingItems.length + ' 待確認' : '全數確認'}</div>
-            </div>
-          </div>
-          <div class="dash-vendor-right">
-            <span class="dash-month-badge">${latestMonth}</span>
-            ${hasAlert ? `<span class="dash-alert-badge">⚠️ ${alertItems.length} 異常</span>` : ''}
-            <span class="dash-chevron">▼</span>
-          </div>
-        </div>
-        <div class="dash-items-wrap">
-          <div style="overflow-x:auto;">
-            <table class="dash-items-table">
-              <thead>
-                <tr>
-                  <th>品項</th>
-                  <th>單位</th>
-                  <th>單價</th>
-                  <th>備註</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${items.map(item => `
-                  <tr>
-                    <td>${item.item_name}</td>
-                    <td style="color:var(--text-2)">${item.unit || '—'}</td>
-                    <td class="dash-price">${item.price ? '$' + Number(item.price).toLocaleString() : '<span style="color:var(--text-3)">時價</span>'}</td>
-                    <td>
-                      ${item.status === 'pending' ? '<span class="dash-pending">待確認</span> ' : ''}
-                      <span style="color:var(--text-2);font-size:12px;">${item.note || ''}</span>
-                    </td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>`;
-    });
-
-    container.innerHTML = html || `<div class="dash-no-data">尚無報價資料</div>`;
-  } catch(e) {
-    container.innerHTML = `<div class="dash-no-data" style="color:var(--red);">載入失敗：${e.message}</div>`;
-  }
-}
-
-function toggleDashCard(vi) {
-  const card = document.getElementById(`dash-card-${vi}`);
-  card.classList.toggle('open');
-}
-
-async function loadVendors() {
-  const list = document.getElementById('vendors-list');
-  list.innerHTML = `<div class="loader"><div class="spinner"></div>載入廠商資料...</div>`;
-  try {
-    const data = await gasCall('getVendors');
-    renderVendors(data.vendors);
-  } catch (e) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">${e.message}</div></div>`;
-  }
-}
-
-function renderVendors(vendors) {
-  const list = document.getElementById('vendors-list');
-  list.innerHTML = '';
-  if (!vendors.length) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">🏪</div><div class="empty-text">無廠商資料</div></div>`;
-    return;
-  }
-  vendors.forEach((v, i) => {
-    const card = document.createElement('div');
-    card.className = 'vendor-card';
-    card.innerHTML = `
-      <div class="vendor-avatar">${VENDOR_ICONS[v.name] || '🏪'}</div>
-      <div class="vendor-info">
-        <div class="vendor-name">${escHtml(v.name)}</div>
-        <div class="vendor-cat">${escHtml(v.category)}</div>
-        ${v.contact ? `<div style="font-size:11px;color:var(--text-3);margin-top:3px;">📞 ${escHtml(v.contact)}</div>` : ''}
-        ${v.note ? `<div style="font-size:11px;color:var(--gold);margin-top:3px;">${escHtml(v.note)}</div>` : ''}
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-        <select class="vendor-rating-select rating-${(v.rating||'').toLowerCase()}"
-                data-row="${v.rowIndex}" onchange="updateVendorRating(this)">
-          <option ${v.rating==='A'?'selected':''}>A</option>
-          <option ${v.rating==='B'?'selected':''}>B</option>
-          <option ${v.rating==='C'?'selected':''}>C</option>
-          <option ${v.rating==='D'?'selected':''}>D</option>
-        </select>
-        <button class="btn btn-sm btn-outline" onclick="editVendor(${JSON.stringify(v).replace(/"/g,'&quot;')})">編輯</button>
-      </div>
-    `;
-    list.appendChild(card);
-  });
-}
-
-async function updateVendorRating(sel) {
-  const rowIndex = sel.dataset.row;
-  const rating   = sel.value;
-  sel.className  = `vendor-rating-select rating-${rating.toLowerCase()}`;
-  try {
-    await gasCall('updateVendor', { rowIndex, rating });
-    showToast('評級已更新', 'success');
-  } catch (e) {
-    showToast(e.message, 'error');
-  }
-}
-
-function editVendor(v) {
-  document.getElementById('edit-modal-title').textContent = `編輯：${v.name}`;
-  document.getElementById('edit-modal-body').innerHTML = `
-    <div class="form-group">
-      <label class="form-label">聯絡方式</label>
-      <input class="form-control" id="ev-contact" value="${escHtml(v.contact || '')}">
-    </div>
-    <div class="form-group">
-      <label class="form-label">備註</label>
-      <input class="form-control" id="ev-note" value="${escHtml(v.note || '')}">
-    </div>
-  `;
-  document.getElementById('edit-modal-confirm').onclick = async () => {
-    try {
-      await gasCall('updateVendor', {
-        rowIndex: v.rowIndex,
-        contact: document.getElementById('ev-contact').value,
-        note: document.getElementById('ev-note').value,
-      });
-      closeModal('edit-modal');
-      showToast('廠商資料已更新', 'success');
-      loadVendors();
-    } catch (e) {
-      showToast(e.message, 'error');
-    }
-  };
-  openModal('edit-modal');
-}
-
-// ============================================================
-// Pending
-// ============================================================
-async function loadPending() {
-  const list = document.getElementById('pending-list');
-  list.innerHTML = `<div class="loader"><div class="spinner"></div>載入待處理事項...</div>`;
-  try {
-    const data = await gasCall('getPendingItems');
-    document.getElementById('pending-count-label').textContent = `共 ${data.items.length} 筆待確認`;
-    renderPending(data.items);
-    updatePendingBadge(data.items.length);
-  } catch (e) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">${e.message}</div></div>`;
-  }
-}
-
-async function loadPendingBadge() {
-  try {
-    const data = await gasCall('getPendingItems');
-    updatePendingBadge(data.items.length);
-  } catch {}
-}
-
-function updatePendingBadge(n) {
-  const badge = document.getElementById('pending-badge');
-  if (n > 0) { badge.style.display = 'flex'; badge.textContent = n > 99 ? '99+' : n; }
-  else badge.style.display = 'none';
-}
-
-function renderPending(items) {
-  const list = document.getElementById('pending-list');
-  list.innerHTML = '';
-  if (!items.length) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">目前無待處理事項</div></div>`;
-    return;
-  }
-
-  const byVendor = {};
-  items.forEach(item => {
-    if (!byVendor[item.vendor]) byVendor[item.vendor] = [];
-    byVendor[item.vendor].push(item);
-  });
-
-  Object.entries(byVendor).forEach(([vendor, vitems]) => {
-    const header = document.createElement('div');
-    header.style.cssText = 'font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px;padding:0 2px;';
-    header.textContent = `${VENDOR_ICONS[vendor] || '🏪'} ${vendor}`;
-    list.appendChild(header);
-
-    vitems.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'pending-card';
-      card.innerHTML = `
-        <div class="vendor-dot" style="background:var(--gold)"></div>
-        <div class="item-info">
-          <div class="item-name">${escHtml(item.item_name)}</div>
-          <div class="item-meta">${escHtml(item.unit)} · ${escHtml(item.month)}</div>
-          ${item.note ? `<div class="item-note">💬 ${escHtml(item.note)}</div>` : ''}
-        </div>
-        <button class="resolve-btn" onclick="resolveItem(${item.rowIndex}, this)">確認</button>
-      `;
-      list.appendChild(card);
-    });
-  });
-}
-
-async function resolveItem(rowIndex, btn) {
-  btn.disabled = true;
-  btn.textContent = '...';
-  try {
-    await gasCall('updateRecord', { rowIndex, status: 'confirmed' });
-    btn.closest('.pending-card').style.opacity = '0.4';
-    showToast('已標記確認', 'success');
-    loadPendingBadge();
-  } catch (e) {
-    showToast(e.message, 'error');
-    btn.disabled = false;
-    btn.textContent = '確認';
-  }
-}
-
-// ============================================================
-// Notifications
-// ============================================================
-async function requestNotification() {
-  if (!('Notification' in window)) return showToast('此瀏覽器不支援通知', 'warning');
-  const perm = await Notification.requestPermission();
-  if (perm === 'granted') showToast('通知已啟用', 'success');
-  else showToast('通知未授權', 'warning');
-}
-
-function triggerNotification(msg, title) {
-  if (Notification.permission === 'granted') {
-    new Notification(title || '報價異常', {
-      body: msg,
-      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect fill="%23e8c84a" width="32" height="32" rx="8"/><text y="24" x="8" font-size="20">意</text></svg>'
-    });
-  }
-}
-
-// ============================================================
-// Sheets Init
-// ============================================================
-async function initSheets() {
-  if (!CONFIG.gasUrl) return showToast('請先填入 GAS URL', 'warning');
-  try {
-    showToast('初始化中...', 'warning');
-    const data = await gasCall('initSheets');
-    showToast(data.message, 'success');
-  } catch (e) {
-    showToast(e.message, 'error');
-  }
-}
-
-async function testConnection() {
-  // 先從 input 欄位讀取最新值，不依賴 CONFIG 快取
-  const inputVal = document.getElementById('cfg-gas-url').value.trim();
-  if (inputVal) CONFIG.gasUrl = inputVal;
-  if (!CONFIG.gasUrl) return showToast('請先填入 GAS URL', 'warning');
-  try {
-    showToast('測試中...', 'warning');
-    await gasCall('getVendors');
-    showToast('✅ 連線正常！Sheets 資料可讀取', 'success');
-    const dot = document.getElementById('conn-dot');
-    dot.className = 'status-dot connected';
-    document.getElementById('conn-label').textContent = '已連線';
-  } catch (e) {
-    showToast('連線失敗：' + e.message, 'error');
-  }
-}
-
-// ============================================================
-// Modal
-// ============================================================
-function openModal(id)  { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+document.getElementById('chat-input').addEventListener('keydown', function(e) {
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+});
+document.getElementById('chat-input').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
 });
 
 // ============================================================
-// Toast
+// SETTINGS
 // ============================================================
-function showToast(msg, type = 'success') {
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  const icons = { success:'✅', error:'❌', warning:'⚠️' };
-  toast.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${escHtml(msg)}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3500);
+function loadSettingsUI() {
+  document.getElementById('gas-url-input').value    = CONFIG.gasUrl  || '';
+  document.getElementById('gemini-key-input').value = CONFIG.geminiKey || '';
+  document.getElementById('gemini-model-input').value = CONFIG.geminiModel || 'gemini-2.0-flash';
+}
+
+function saveSettings() {
+  CONFIG.gasUrl     = document.getElementById('gas-url-input').value.trim();
+  CONFIG.geminiKey  = document.getElementById('gemini-key-input').value.trim();
+  CONFIG.geminiModel = document.getElementById('gemini-model-input').value;
+  localStorage.setItem('gasUrl',       CONFIG.gasUrl);
+  localStorage.setItem('geminiKey',    CONFIG.geminiKey);
+  localStorage.setItem('geminiModel',  CONFIG.geminiModel);
+  checkStatus();
+  updateApiKeyWarning();
+  toast('設定已儲存', 'ok');
+}
+
+async function testConnection() {
+  CONFIG.gasUrl = document.getElementById('gas-url-input').value.trim();
+  if (!CONFIG.gasUrl) { toast('請輸入 GAS URL','err'); return; }
+  toast('測試中...','');
+  try {
+    await callGAS({action:'ping'});
+    document.getElementById('status-dot').className = 'online';
+    toast('連線成功！', 'ok');
+  } catch(e) {
+    document.getElementById('status-dot').className = 'offline';
+    toast('連線失敗：' + e.message, 'err');
+  }
+}
+
+async function initSheets() {
+  if (!CONFIG.gasUrl) { toast('請先設定 GAS URL','err'); return; }
+  try {
+    await callGAS({action:'initSheets'});
+    toast('Google Sheets 初始化成功', 'ok');
+  } catch(e) {
+    toast('初始化失敗：' + e.message, 'err');
+  }
+}
+
+function enableNotifications() {
+  if (!('Notification' in window)) { toast('此裝置不支援通知','err'); return; }
+  Notification.requestPermission().then(function(p) {
+    if (p==='granted') toast('通知已啟用','ok');
+    else toast('通知被拒絕','err');
+  });
+}
+
+function updateApiKeyWarning() {
+  var warn = document.getElementById('no-api-warn');
+  if (warn) warn.style.display = CONFIG.geminiKey ? 'none' : '';
 }
 
 // ============================================================
-// Utils
+// INIT
 // ============================================================
-function escHtml(str) {
-  if (str == null) return '';
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+async function init() {
+  // Ensure default vendors saved
+  if (!localStorage.getItem('local_vendors')) {
+    saveVendorsLocal(VENDORS_DEFAULT);
+  }
+
+  // Fill month selects
+  ['cmp-base','cmp-target','up-month','ai-month'].forEach(fillMonthSelect);
+
+  // Default: compare target = last month
+  var tgt = document.getElementById('cmp-target');
+  if (tgt && tgt.options.length > 1) tgt.selectedIndex = 1;
+
+  // Fill vendor selects
+  await fillVendorSelects();
+
+  // Render initial page
+  renderDashboard();
+
+  // Status check
+  checkStatus();
+
+  // API key warning
+  updateApiKeyWarning();
+
+  // Pending badge
+  refreshPendingBadge();
+
+  // Settings UI
+  loadSettingsUI();
 }
 
-// ============================================================
-// Init
-// ============================================================
-// Load pending badge on startup if GAS is configured
-if (CONFIG.gasUrl) {
-  loadPendingBadge();
-}
-// 啟動時載入 Dashboard（本機模式也可用）
-loadDashboard();
+init();
 </script>
-
 </body>
 </html>
