@@ -2373,6 +2373,9 @@ async function initSheets() {
 }
 
 async function testConnection() {
+  // 先從 input 欄位讀取最新值，不依賴 CONFIG 快取
+  const inputVal = document.getElementById('cfg-gas-url').value.trim();
+  if (inputVal) CONFIG.gasUrl = inputVal;
   if (!CONFIG.gasUrl) return showToast('請先填入 GAS URL', 'warning');
   try {
     showToast('測試中...', 'warning');
