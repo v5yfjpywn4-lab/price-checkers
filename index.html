@@ -389,7 +389,7 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
         <button class="btn btn-outline btn-sm" onclick="addItem()">＋ 新增</button>
       </div>
       <div id="file-items"></div>
-      <button class="btn btn-gold btn-block" style="margin-top:4px" onclick="confirmImport('file')">✅ 確認並存入</button>
+      <button type="button" class="btn btn-gold btn-block" style="margin-top:4px" onclick="confirmImport('file')">✅ 確認並存入</button>
     </div>
   </div>
 
@@ -425,7 +425,7 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
         <button class="btn btn-outline btn-sm" onclick="addItem('img')">＋ 新增</button>
       </div>
       <div id="img-items"></div>
-      <button class="btn btn-gold btn-block" style="margin-top:4px" onclick="confirmImport('img')">✅ 確認並存入</button>
+      <button type="button" class="btn btn-gold btn-block" style="margin-top:4px" onclick="confirmImport('img')">✅ 確認並存入</button>
     </div>
   </div>
 </div>
@@ -489,9 +489,9 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
   <div class="card">
     <div class="card-title">🔗 GAS 端點</div>
     <div class="field"><label>Google Apps Script Web App URL ★</label>
-      <input type="url" class="inp" id="cfg-gas" placeholder="https://script.google.com/macros/s/...">
+      <input type="text" class="inp" id="cfg-gas" placeholder="https://script.google.com/macros/s/...">
     </div>
-    <button class="btn btn-outline btn-block" onclick="testConn()">🔌 測試連線</button>
+    <button type="button" class="btn btn-outline btn-block" onclick="testConn()">🔌 測試連線</button>
   </div>
   <div class="card">
     <div class="card-title">🤖 Gemini API</div>
@@ -506,12 +506,12 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
         <option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest（精準）</option>
       </select>
     </div>
-    <button class="btn btn-gold btn-block" onclick="saveSettings()">💾 儲存設定</button>
+    <button type="button" class="btn btn-gold btn-block" onclick="saveSettings()">💾 儲存設定</button>
   </div>
   <div class="card">
     <div class="card-title">🗄️ 初始化 Sheets</div>
     <p style="font-size:13px;color:var(--text2);margin-bottom:11px">首次使用：建立 Sheets 分頁並匯入初始資料</p>
-    <button class="btn btn-outline btn-block" onclick="initSheets()">🚀 初始化 Google Sheets</button>
+    <button type="button" class="btn btn-outline btn-block" onclick="initSheets()">🚀 初始化 Google Sheets</button>
   </div>
   <div class="card">
     <div class="card-title">ℹ️ 版本資訊</div>
@@ -1356,7 +1356,7 @@ async function askQuestion(q){
 規則：1.精準簡潔直接給結論 2.有數字比較必須用Markdown表格 3.漲價用↑降價用↓持平用— 4.最後一句分析結論
 報價資料：${JSON.stringify(recs,null,0)}`;
     const msgs=[...chatHist.slice(-12),{role:'user',parts:[{text:q}]}];
-    const payload={system_instruction:{parts:[{text:sys}]},contents:msgs};
+    const payload={systemInstruction:{parts:[{text:sys}]},contents:msgs};
     const apiRes=await fetch(`https://generativelanguage.googleapis.com/v1/models/${CFG.model}:generateContent?key=${CFG.key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const apiData=await apiRes.json();
     if(apiData.error) throw new Error(apiData.error.message);
