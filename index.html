@@ -29,8 +29,6 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 button{font-family:inherit;cursor:pointer;border:none;outline:none}
 input,select,textarea{font-family:inherit;outline:none}
 a{color:inherit;text-decoration:none}
-
-/* NAV */
 .top-nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:rgba(10,10,15,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:100}
 .nav-logo{width:32px;height:32px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#000}
 .nav-brand{display:flex;align-items:center;gap:10px}
@@ -39,25 +37,17 @@ a{color:inherit;text-decoration:none}
 .nav-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)}
 .status-dot{width:7px;height:7px;border-radius:50%;background:var(--text3)}
 .status-dot.ok{background:var(--green)}
-
-/* TAB */
 .tab-bar{position:fixed;bottom:0;left:0;right:0;height:var(--tab-h);background:rgba(10,10,15,.97);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
 .tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text3);font-size:10px;font-weight:500;cursor:pointer;background:none;position:relative;padding:6px 0}
 .tab-item.active{color:var(--gold)}
 .tab-item.active::before{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--gold);border-radius:0 0 4px 4px}
 .tab-icon{font-size:20px;line-height:1}
 .tab-badge{position:absolute;top:4px;right:calc(50% - 16px);background:var(--red);color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px}
-
-/* MAIN */
 .main{margin-top:var(--nav-h);margin-bottom:calc(var(--tab-h) + env(safe-area-inset-bottom));padding:16px}
 .page{display:none}
 .page.active{display:block}
-
-/* CARD */
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
 .card-title{font-size:12px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
-
-/* FORM */
 .field{margin-bottom:12px}
 .field label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500}
 .inp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:14px;transition:border-color .2s}
@@ -65,8 +55,6 @@ a{color:inherit;text-decoration:none}
 .inp option{background:var(--bg3)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-
-/* BTN */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;transition:all .2s;cursor:pointer;border:none}
 .btn-gold{background:var(--gold);color:#000}
 .btn-gold:active{opacity:.85}
@@ -76,8 +64,6 @@ a{color:inherit;text-decoration:none}
 .btn-sm{padding:6px 12px;font-size:12px}
 .btn-block{width:100%}
 .btn-row{display:flex;gap:8px;margin-top:10px}
-
-/* TABLE */
 .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;font-size:13px;min-width:420px}
 thead th{background:var(--bg3);color:var(--text2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
@@ -85,36 +71,24 @@ tbody td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.04);color:va
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:rgba(255,255,255,.02)}
 .alert-row td{background:rgba(232,74,74,.06)}
-
-/* BADGE */
 .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:600}
 .badge-gold{background:var(--gold-glow);color:var(--gold);border:1px solid rgba(232,200,74,.3)}
 .badge-red{background:var(--red-dim);color:var(--red);border:1px solid rgba(232,74,74,.3)}
 .badge-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(74,232,138,.3)}
 .badge-gray{background:rgba(255,255,255,.06);color:var(--text2);border:1px solid var(--border)}
-
-/* UPLOAD ZONE */
 .upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:28px 16px;text-align:center;cursor:pointer;transition:all .2s;user-select:none}
 .upload-zone:hover,.upload-zone.drag-over{border-color:var(--gold);background:var(--gold-glow)}
 .uz-icon{font-size:36px;margin-bottom:8px}
 .uz-text{font-size:13px;color:var(--text2)}
 .uz-hint{font-size:11px;color:var(--text3);margin-top:4px}
-
-/* SECTION HEADER */
 .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .sec-title{font-size:17px;font-weight:700;color:var(--text)}
 .sec-sub{font-size:12px;color:var(--text3);margin-top:2px}
-
-/* SUMMARY CARDS */
 .sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
 .sum-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 10px;text-align:center}
 .sum-num{font-size:24px;font-weight:700}
 .sum-label{font-size:10px;color:var(--text3);margin-top:2px}
-
-/* CONFIG BANNER */
 .cfg-banner{background:linear-gradient(135deg,rgba(232,200,74,.12),rgba(232,200,74,.04));border:1px solid rgba(232,200,74,.3);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--gold);display:flex;gap:10px;align-items:flex-start}
-
-/* DASHBOARD */
 .dash-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:border-color .2s}
 .dash-card.has-alert{border-color:rgba(232,74,74,.5)}
 .dash-hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer;user-select:none}
@@ -136,8 +110,6 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 .dash-tbl tr:nth-child(even) td{background:rgba(255,255,255,.015)}
 .dash-pending{font-size:10px;color:var(--gold);background:var(--gold-glow);border-radius:4px;padding:2px 6px}
 .dash-nodata{text-align:center;color:var(--text3);font-size:13px;padding:20px}
-
-/* VENDOR CARD */
 .vendor-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
 .vendor-avatar{width:46px;height:46px;background:var(--bg3);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
 .vendor-info{flex:1;min-width:0}
@@ -145,8 +117,6 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 .vendor-cat{font-size:12px;color:var(--text2);margin-top:2px}
 .rating-sel{background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;font-weight:700;padding:5px 9px;cursor:pointer}
 .r-a{color:var(--green)} .r-b{color:var(--gold)} .r-c{color:#e8974a} .r-d{color:var(--red)}
-
-/* PENDING CARD */
 .pend-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:9px;display:flex;align-items:center;gap:11px}
 .pend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .pend-info{flex:1;min-width:0}
@@ -155,13 +125,9 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 .pend-note{font-size:11px;color:var(--gold);margin-top:3px}
 .resolve-btn{flex-shrink:0;background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit}
 .resolve-btn:active{background:var(--green-dim);color:var(--green);border-color:var(--green)}
-
-/* OCR ITEM */
 .ocr-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px;position:relative}
 .ocr-del{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,.06);color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;border:none}
 .ocr-del:hover{background:var(--red-dim);color:var(--red)}
-
-/* CHANNEL TABS */
 .ch-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .ch-tab{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s}
 .ch-tab.active{border-color:var(--gold);background:var(--gold-glow)}
@@ -169,22 +135,14 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 .ch-label{font-size:13px;font-weight:700;color:var(--text)}
 .ch-sub{font-size:11px;color:var(--text3);margin-top:3px}
 .ch-tab.active .ch-label{color:var(--gold)}
-
-/* UPLOAD TYPE TABS */
 .utype-tabs{display:flex;gap:8px;margin-bottom:12px}
 .utype-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--border);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer}
 .utype-tab.active{background:var(--gold-glow);border-color:rgba(232,200,74,.4);color:var(--gold)}
-
-/* SHEET SELECTOR */
 .sheet-btn{display:inline-flex;align-items:center;padding:4px 10px;margin:0 4px 4px 0;border-radius:100px;font-size:11px;font-weight:600;background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer}
 .sheet-btn.active{background:var(--gold-glow);border-color:rgba(232,200,74,.4);color:var(--gold)}
-
-/* EXCEL PREVIEW */
 #excel-preview-tbl{font-size:12px;min-width:auto}
 #excel-preview-tbl thead th{font-size:11px;padding:6px 9px;white-space:nowrap}
 #excel-preview-tbl tbody td{padding:5px 9px;white-space:nowrap;max-width:130px;overflow:hidden;text-overflow:ellipsis}
-
-/* CHAT */
 .chat-quick{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
 .chat-qbtn{background:var(--bg3);border:1px solid var(--border);border-radius:20px;color:var(--text2);font-size:12px;padding:5px 12px;cursor:pointer;font-family:inherit;transition:all .2s}
 .chat-qbtn:active,.chat-qbtn:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-glow)}
@@ -212,147 +170,88 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 .chat-inp::placeholder{color:var(--text3)}
 .chat-send{width:36px;height:36px;border-radius:50%;background:var(--gold);border:none;color:#000;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:opacity .2s}
 .chat-send:disabled{opacity:.4;cursor:not-allowed}
-
-/* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;display:none;align-items:flex-end;justify-content:center}
 .modal-overlay.open{display:flex}
 .modal-sheet{background:var(--bg2);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:600px;max-height:90dvh;overflow-y:auto;padding:22px 18px;padding-bottom:calc(22px + env(safe-area-inset-bottom))}
 .modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px}
 .modal-title{font-size:17px;font-weight:700;margin-bottom:18px;color:var(--gold)}
-
-/* TOAST */
 #toast-box{position:fixed;bottom:calc(var(--tab-h)+16px+env(safe-area-inset-bottom));left:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
 .toast{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;font-size:13px;display:flex;align-items:center;gap:9px;animation:tst .3s ease}
 .toast.ok{border-left:3px solid var(--green)} .toast.err{border-left:3px solid var(--red)} .toast.warn{border-left:3px solid var(--gold)}
 @keyframes tst{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
-
-/* LOADER */
 .loader{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:12px;color:var(--text2);font-size:13px}
 .spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* CHANGE COLORS */
 .c-up{color:var(--red);font-weight:700} .c-dn{color:var(--green);font-weight:700} .c-flat{color:var(--text2)}
-
-/* RESPONSIVE */
 @media(min-width:640px){.main{padding:24px}.sum-grid{grid-template-columns:repeat(4,1fr)}}
 @media(min-width:960px){.main{max-width:800px;margin-left:auto;margin-right:auto}.tab-bar{max-width:800px;left:50%;transform:translateX(-50%)}}
 </style>
 </head>
 <body>
-
-<!-- File inputs 置於最頂層，絕對不在 display:none 容器內 -->
 <input type="file" id="img-input" accept="image/*" style="display:none">
 <input type="file" id="excel-input" accept=".xlsx,.xls,.csv" style="display:none">
 <input type="file" id="word-input" accept=".docx" style="display:none">
-
-<!-- TOP NAV -->
 <nav class="top-nav">
   <div class="nav-brand">
     <div class="nav-logo">意</div>
-    <div>
-      <div class="nav-title">報價查核系統</div>
-      <div class="nav-sub">意享生態系 · 廠商管理</div>
-    </div>
+    <div><div class="nav-title">報價查核系統</div><div class="nav-sub">意享生態系 · 廠商管理</div></div>
   </div>
-  <div class="nav-status">
-    <div class="status-dot" id="conn-dot"></div>
-    <span id="conn-label">未設定</span>
-  </div>
+  <div class="nav-status"><div class="status-dot" id="conn-dot"></div><span id="conn-label">未設定</span></div>
 </nav>
-
-<!-- MAIN -->
 <main class="main">
-
-<!-- ① 比對頁 -->
 <div class="page active" id="page-compare">
   <div class="sec-hdr"><div><div class="sec-title">月份比對</div><div class="sec-sub">廠商漲跌幅比較</div></div></div>
-  <div class="cfg-banner" id="cfg-banner">
-    <span style="font-size:18px;flex-shrink:0">⚠️</span>
-    <div><strong>本機測試模式</strong>｜資料暫存瀏覽器，功能完整可測試。<br>正式使用請至 <strong>⚙️ 設定</strong> 填入 GAS URL。</div>
-  </div>
-
-  <!-- Dashboard -->
+  <div class="cfg-banner" id="cfg-banner"><span style="font-size:18px;flex-shrink:0">⚠️</span><div><strong>本機測試模式</strong>｜資料暫存瀏覽器，功能完整可測試。<br>正式使用請至 <strong>⚙️ 設定</strong> 填入 GAS URL。</div></div>
   <div class="sec-hdr" style="margin-top:4px">
     <div><div class="sec-title" style="font-size:15px">📋 各廠商最新報價</div><div class="sec-sub">點擊展開品項清單</div></div>
-    <button class="btn btn-outline btn-sm" onclick="loadDashboard()">↻ 更新</button>
+    <button type="button" class="btn btn-outline btn-sm" onclick="loadDashboard()">↻ 更新</button>
   </div>
   <div id="dashboard-wrap"><div class="loader"><div class="spinner"></div>載入中...</div></div>
-
-  <!-- 比對區 -->
   <div class="card">
     <div class="card-title">📊 查詢條件</div>
-    <div class="field">
-      <label>廠商</label>
-      <select class="inp" id="cmp-vendor">
-        <option value="">請選擇廠商</option>
-        <option>全富</option><option>陸陸肉</option><option>擘進</option><option>菜商</option><option>鴻璟立昌</option>
-      </select>
+    <div class="field"><label>廠商</label>
+      <select class="inp" id="cmp-vendor"><option value="">請選擇廠商</option><option>全富</option><option>陸陸肉</option><option>擘進</option><option>菜商</option><option>鴻璟立昌</option></select>
     </div>
     <div class="row2">
       <div class="field"><label>基準月（上月）</label><select class="inp" id="cmp-base"></select></div>
       <div class="field"><label>比對月（本月）</label><select class="inp" id="cmp-target"></select></div>
     </div>
-    <button class="btn btn-gold btn-block" onclick="doCompare()">🔍 開始比對</button>
+    <button type="button" class="btn btn-gold btn-block" onclick="doCompare()">🔍 開始比對</button>
   </div>
   <div id="cmp-result" style="display:none">
     <div class="sum-grid" id="cmp-summary"></div>
-    <div class="card" style="padding:0;overflow:hidden">
-      <div class="tbl-wrap">
-        <table id="cmp-table">
-          <thead><tr><th>品項</th><th>單位</th><th>上月</th><th>本月</th><th>漲跌</th><th>備註</th></tr></thead>
-          <tbody id="cmp-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-    <button class="btn btn-outline btn-block" style="margin-top:8px" onclick="exportCSV()">📥 匯出 CSV</button>
+    <div class="card" style="padding:0;overflow:hidden"><div class="tbl-wrap"><table id="cmp-table"><thead><tr><th>品項</th><th>單位</th><th>上月</th><th>本月</th><th>漲跌</th><th>備註</th></tr></thead><tbody id="cmp-tbody"></tbody></table></div></div>
+    <button type="button" class="btn btn-outline btn-block" style="margin-top:8px" onclick="exportCSV()">📥 匯出 CSV</button>
   </div>
 </div>
-
-<!-- ② 上傳頁 -->
 <div class="page" id="page-upload">
   <div class="sec-hdr"><div><div class="sec-title">上傳報價單</div><div class="sec-sub">選擇通道上傳</div></div></div>
-
-  <!-- 通道切換 -->
   <div class="ch-tabs">
-    <button class="ch-tab active" id="cht-file" onclick="switchCh('file',this)">
-      <div class="ch-icon">📊</div><div class="ch-label">Excel / Word</div><div class="ch-sub">不需要 API</div>
-    </button>
-    <button class="ch-tab" id="cht-img" onclick="switchCh('img',this)">
-      <div class="ch-icon">📷</div><div class="ch-label">圖片拍照</div><div class="ch-sub">需要 Gemini Key</div>
-    </button>
+    <button type="button" class="ch-tab active" id="cht-file" onclick="switchCh('file',this)"><div class="ch-icon">📊</div><div class="ch-label">Excel / Word</div><div class="ch-sub">不需要 API</div></button>
+    <button type="button" class="ch-tab" id="cht-img" onclick="switchCh('img',this)"><div class="ch-icon">📷</div><div class="ch-label">圖片拍照</div><div class="ch-sub">需要 Gemini Key</div></button>
   </div>
-
-  <!-- 通道一：Excel/Word -->
   <div id="ch-file">
     <div class="utype-tabs">
-      <button class="utype-tab active" id="ut-excel" onclick="switchUT('excel',this)">📊 Excel / CSV</button>
-      <button class="utype-tab" id="ut-word" onclick="switchUT('word',this)">📄 Word</button>
+      <button type="button" class="utype-tab active" id="ut-excel" onclick="switchUT('excel',this)">📊 Excel / CSV</button>
+      <button type="button" class="utype-tab" id="ut-word" onclick="switchUT('word',this)">📄 Word</button>
     </div>
     <div class="card" id="sec-excel">
       <div class="card-title">📊 上傳 Excel 報價單</div>
-      <div class="upload-zone" id="zone-excel" onclick="document.getElementById('excel-input').click()">
-        <div class="uz-icon">📊</div><div class="uz-text">點擊選擇 Excel 或 CSV</div><div class="uz-hint">.xlsx / .xls / .csv</div>
-      </div>
+      <div class="upload-zone" id="zone-excel" onclick="document.getElementById('excel-input').click()"><div class="uz-icon">📊</div><div class="uz-text">點擊選擇 Excel 或 CSV</div><div class="uz-hint">.xlsx / .xls / .csv</div></div>
       <div id="excel-info-wrap" style="display:none;margin-top:12px">
         <div style="font-size:12px;color:var(--text2);margin-bottom:6px" id="excel-info"></div>
-        <div class="tbl-wrap" style="max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:8px">
-          <table id="excel-preview-tbl" style="min-width:auto"><thead id="excel-prev-head"></thead><tbody id="excel-prev-body"></tbody></table>
-        </div>
+        <div class="tbl-wrap" style="max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:8px"><table id="excel-preview-tbl" style="min-width:auto"><thead id="excel-prev-head"></thead><tbody id="excel-prev-body"></tbody></table></div>
         <div style="margin-top:6px" id="sheet-selector"></div>
       </div>
     </div>
     <div class="card" id="sec-word" style="display:none">
       <div class="card-title">📄 上傳 Word 報價單</div>
-      <div class="upload-zone" id="zone-word" onclick="document.getElementById('word-input').click()">
-        <div class="uz-icon">📄</div><div class="uz-text">點擊選擇 Word 檔案</div><div class="uz-hint">.docx</div>
-      </div>
+      <div class="upload-zone" id="zone-word" onclick="document.getElementById('word-input').click()"><div class="uz-icon">📄</div><div class="uz-text">點擊選擇 Word 檔案</div><div class="uz-hint">.docx</div></div>
       <div id="word-preview" style="display:none;margin-top:12px">
         <div style="font-size:12px;color:var(--text2);margin-bottom:5px" id="word-info"></div>
         <div id="word-text" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px;max-height:160px;overflow-y:auto;font-size:12px;line-height:1.7;white-space:pre-wrap"></div>
       </div>
     </div>
-    <!-- 欄位對應 -->
     <div class="card" id="col-mapper" style="display:none">
       <div class="card-title">🗂️ 欄位對應</div>
       <p style="font-size:12px;color:var(--text2);margin-bottom:10px">設定會依廠商記憶</p>
@@ -369,143 +268,79 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
         <span style="font-size:12px;color:var(--text2)">略過標題列數</span>
       </div>
     </div>
-    <!-- 基本資訊 -->
     <div class="card" id="file-meta" style="display:none">
       <div class="card-title">🏷️ 基本資訊</div>
       <div class="row2">
-        <div class="field"><label>廠商</label>
-          <select class="inp" id="file-vendor" onchange="loadColMem()">
-            <option>全富</option><option>陸陸肉</option><option>擘進</option><option>菜商</option><option>鴻璟立昌</option>
-          </select>
-        </div>
+        <div class="field"><label>廠商</label><select class="inp" id="file-vendor" onchange="loadColMem()"><option>全富</option><option>陸陸肉</option><option>擘進</option><option>菜商</option><option>鴻璟立昌</option></select></div>
         <div class="field"><label>月份</label><select class="inp" id="file-month"></select></div>
       </div>
-      <button class="btn btn-gold btn-block" onclick="previewImport()">👁️ 預覽匯入品項</button>
+      <button type="button" class="btn btn-gold btn-block" onclick="previewImport()">👁️ 預覽匯入品項</button>
     </div>
-    <!-- 預覽結果 -->
     <div id="file-result" style="display:none">
-      <div class="sec-hdr" style="margin-top:8px">
-        <div class="sec-title" style="font-size:15px">匯入預覽</div>
-        <button class="btn btn-outline btn-sm" onclick="addItem()">＋ 新增</button>
-      </div>
+      <div class="sec-hdr" style="margin-top:8px"><div class="sec-title" style="font-size:15px">匯入預覽</div><button type="button" class="btn btn-outline btn-sm" onclick="addItem()">＋ 新增</button></div>
       <div id="file-items"></div>
       <button type="button" class="btn btn-gold btn-block" style="margin-top:4px" onclick="confirmImport('file')">✅ 確認並存入</button>
     </div>
   </div>
-
-  <!-- 通道二：圖片+AI -->
   <div id="ch-img" style="display:none">
-    <div id="img-api-warn" class="cfg-banner" style="display:none">
-      <span style="font-size:16px;flex-shrink:0">⚠️</span>
-      <div>尚未設定 Gemini API Key，請至 <strong>⚙️ 設定</strong> 頁填入。</div>
-    </div>
+    <div id="img-api-warn" class="cfg-banner" style="display:none"><span style="font-size:16px;flex-shrink:0">⚠️</span><div>尚未設定 Gemini API Key，請至 <strong>⚙️ 設定</strong> 頁填入。</div></div>
     <div class="card">
       <div class="card-title">📷 拍照 / 選擇圖片</div>
-      <div class="upload-zone" id="zone-img" onclick="document.getElementById('img-input').click()">
-        <div class="uz-icon">📷</div><div class="uz-text">點擊拍照或選擇報價單圖片</div><div class="uz-hint">JPG / PNG / HEIC / WebP</div>
-      </div>
+      <div class="upload-zone" id="zone-img" onclick="document.getElementById('img-input').click()"><div class="uz-icon">📷</div><div class="uz-text">點擊拍照或選擇報價單圖片</div><div class="uz-hint">JPG / PNG / HEIC / WebP</div></div>
       <img id="preview-img" style="display:none;width:100%;max-height:240px;object-fit:contain;border-radius:var(--radius-sm);border:1px solid var(--border);margin-top:12px" alt="預覽">
     </div>
     <div class="card" id="img-meta" style="display:none">
       <div class="card-title">🏷️ 基本資訊</div>
       <div class="row2">
-        <div class="field"><label>廠商</label>
-          <select class="inp" id="img-vendor">
-            <option>全富</option><option>陸陸肉</option><option>擘進</option><option>菜商</option><option>鴻璟立昌</option>
-          </select>
-        </div>
+        <div class="field"><label>廠商</label><select class="inp" id="img-vendor"><option>全富</option><option>陸陸肉</option><option>擘進</option><option>菜商</option><option>鴻璟立昌</option></select></div>
         <div class="field"><label>月份</label><select class="inp" id="img-month"></select></div>
       </div>
-      <button class="btn btn-gold btn-block" id="ai-btn" onclick="runOCR()">🤖 AI 辨識品項</button>
+      <button type="button" class="btn btn-gold btn-block" id="ai-btn" onclick="runOCR()">🤖 AI 辨識品項</button>
     </div>
-    <!-- AI 辨識結果 -->
     <div id="img-result" style="display:none">
-      <div class="sec-hdr" style="margin-top:8px">
-        <div class="sec-title" style="font-size:15px">辨識結果</div>
-        <button class="btn btn-outline btn-sm" onclick="addItem('img')">＋ 新增</button>
-      </div>
+      <div class="sec-hdr" style="margin-top:8px"><div class="sec-title" style="font-size:15px">辨識結果</div><button type="button" class="btn btn-outline btn-sm" onclick="addItem('img')">＋ 新增</button></div>
       <div id="img-items"></div>
       <button type="button" class="btn btn-gold btn-block" style="margin-top:4px" onclick="confirmImport('img')">✅ 確認並存入</button>
     </div>
   </div>
 </div>
-
-<!-- ③ 廠商頁 -->
 <div class="page" id="page-vendors">
   <div class="sec-hdr"><div><div class="sec-title">廠商管理</div><div class="sec-sub">A/B/C/D 評級</div></div></div>
   <div id="vendors-list"><div class="loader"><div class="spinner"></div>載入中...</div></div>
 </div>
-
-<!-- ④ 待處理頁 -->
 <div class="page" id="page-pending">
-  <div class="sec-hdr">
-    <div><div class="sec-title">待處理事項</div><div class="sec-sub" id="pend-sub">載入中...</div></div>
-    <button class="btn btn-outline btn-sm" onclick="loadPending()">↻ 重整</button>
-  </div>
+  <div class="sec-hdr"><div><div class="sec-title">待處理事項</div><div class="sec-sub" id="pend-sub">載入中...</div></div><button type="button" class="btn btn-outline btn-sm" onclick="loadPending()">↻ 重整</button></div>
   <div id="pending-list"><div class="loader"><div class="spinner"></div>載入中...</div></div>
 </div>
-
-<!-- ⑤ 問答頁 -->
 <div class="page" id="page-chat">
-  <div class="sec-hdr">
-    <div><div class="sec-title">AI 問答</div><div class="sec-sub">自然語言查詢報價資料</div></div>
-    <button class="btn btn-outline btn-sm" onclick="clearChat()">清除</button>
-  </div>
+  <div class="sec-hdr"><div><div class="sec-title">AI 問答</div><div class="sec-sub">自然語言查詢報價資料</div></div><button type="button" class="btn btn-outline btn-sm" onclick="clearChat()">清除</button></div>
   <div class="chat-quick">
-    <button class="chat-qbtn" onclick="askQuick('幫我整理過去三個月牛小排的價格趨勢')">牛小排近三月</button>
-    <button class="chat-qbtn" onclick="askQuick('哪些品項在最近一個月漲幅超過5%？')">近月漲超5%</button>
-    <button class="chat-qbtn" onclick="askQuick('全富廠商最新一個月所有品項報價')">全富最新報價</button>
-    <button class="chat-qbtn" onclick="askQuick('有哪些品項狀態是待確認？')">待確認品項</button>
-    <button class="chat-qbtn" onclick="askQuick('比較鮭魚和干貝近三個月的價格變化')">鮭魚 vs 干貝</button>
-    <button class="chat-qbtn" onclick="askQuick('所有廠商中單價最高的前十個品項')">單價 TOP 10</button>
+    <button type="button" class="chat-qbtn" onclick="askQuick('幫我整理過去三個月牛小排的價格趨勢')">牛小排近三月</button>
+    <button type="button" class="chat-qbtn" onclick="askQuick('哪些品項在最近一個月漲幅超過5%？')">近月漲超5%</button>
+    <button type="button" class="chat-qbtn" onclick="askQuick('全富廠商最新一個月所有品項報價')">全富最新報價</button>
+    <button type="button" class="chat-qbtn" onclick="askQuick('有哪些品項狀態是待確認？')">待確認品項</button>
+    <button type="button" class="chat-qbtn" onclick="askQuick('比較鮭魚和干貝近三個月的價格變化')">鮭魚 vs 干貝</button>
+    <button type="button" class="chat-qbtn" onclick="askQuick('所有廠商中單價最高的前十個品項')">單價 TOP 10</button>
   </div>
   <div class="chat-msgs" id="chat-msgs">
-    <div class="chat-bubble">
-      <div class="chat-avatar">AI</div>
-      <div class="chat-body">
-        <p>你好！我已載入所有報價資料，可以直接問我：</p>
-        <ul style="margin:6px 0 0 14px;color:var(--text2);font-size:13px;line-height:1.8">
-          <li>某品項的歷史價格走勢</li>
-          <li>某廠商的最新報價清單</li>
-          <li>哪些品項有異常漲幅</li>
-          <li>跨廠商同類品項比價</li>
-        </ul>
-      </div>
-    </div>
+    <div class="chat-bubble"><div class="chat-avatar">AI</div><div class="chat-body"><p>你好！我已載入所有報價資料，可以直接問我：</p><ul style="margin:6px 0 0 14px;color:var(--text2);font-size:13px;line-height:1.8"><li>某品項的歷史價格走勢</li><li>某廠商的最新報價清單</li><li>哪些品項有異常漲幅</li><li>跨廠商同類品項比價</li></ul></div></div>
   </div>
   <div class="chat-input-wrap">
-    <textarea class="chat-inp" id="chat-inp" placeholder="例：幫我整理這三個月牛五花的價格…" rows="1"
-      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
-      oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
-    <button class="chat-send" id="chat-send" onclick="sendChat()">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-    </button>
+    <textarea class="chat-inp" id="chat-inp" placeholder="例：幫我整理這三個月牛五花的價格…" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+    <button type="button" class="chat-send" id="chat-send" onclick="sendChat()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
   </div>
 </div>
-
-<!-- ⑥ 設定頁 -->
 <div class="page" id="page-settings">
   <div class="sec-hdr"><div><div class="sec-title">系統設定</div></div></div>
   <div class="card">
     <div class="card-title">🔗 GAS 端點</div>
-    <div class="field"><label>Google Apps Script Web App URL ★</label>
-      <input type="text" class="inp" id="cfg-gas" placeholder="https://script.google.com/macros/s/...">
-    </div>
+    <div class="field"><label>Google Apps Script Web App URL ★</label><input type="text" class="inp" id="cfg-gas" placeholder="https://script.google.com/macros/s/..."></div>
     <button type="button" class="btn btn-outline btn-block" onclick="testConn()">🔌 測試連線</button>
   </div>
   <div class="card">
     <div class="card-title">🤖 Gemini API</div>
-    <div class="field"><label>Google Gemini API Key（存於本機）</label>
-      <input type="password" class="inp" id="cfg-key" placeholder="AIza...">
-      <div style="font-size:11px;color:var(--text3);margin-top:5px">免費取得：<a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--gold)">aistudio.google.com/apikey</a></div>
-    </div>
-    <div class="field"><label>模型</label>
-      <select class="inp" id="cfg-model">
-        <option value="gemini-2.0-flash">gemini-2.0-flash（建議）</option>
-        <option value="gemini-1.5-flash-latest">gemini-1.5-flash-latest</option>
-        <option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest（精準）</option>
-      </select>
-    </div>
+    <div class="field"><label>Google Gemini API Key（存於本機）</label><input type="password" class="inp" id="cfg-key" placeholder="AIza..."><div style="font-size:11px;color:var(--text3);margin-top:5px">免費取得：<a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--gold)">aistudio.google.com/apikey</a></div></div>
+    <div class="field"><label>模型</label><select class="inp" id="cfg-model"><option value="gemini-2.0-flash">gemini-2.0-flash（建議）</option><option value="gemini-1.5-flash-latest">gemini-1.5-flash-latest</option><option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest（精準）</option></select></div>
     <button type="button" class="btn btn-gold btn-block" onclick="saveSettings()">💾 儲存設定</button>
   </div>
   <div class="card">
@@ -515,912 +350,484 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
   </div>
   <div class="card">
     <div class="card-title">ℹ️ 版本資訊</div>
-    <p style="font-size:12px;color:var(--text3)">報價查核系統 v2.0<br>意享生態系 · 2026<br>技術：HTML / GAS / Gemini API<br>部署：GitHub Pages</p>
+    <p style="font-size:12px;color:var(--text3)">報價查核系統 v2.1<br>意享生態系 · 2026<br>技術：HTML / GAS / Gemini API<br>部署：GitHub Pages</p>
   </div>
 </div>
-
 </main>
-
-<!-- TAB BAR -->
 <nav class="tab-bar">
-  <button class="tab-item active" onclick="goPage('compare',this)"><span class="tab-icon">📊</span><span>比對</span></button>
-  <button class="tab-item" onclick="goPage('upload',this)"><span class="tab-icon">📸</span><span>上傳</span></button>
-  <button class="tab-item" onclick="goPage('vendors',this)"><span class="tab-icon">🏪</span><span>廠商</span></button>
-  <button class="tab-item" onclick="goPage('pending',this)">
-    <span class="tab-icon">⚠️</span><span>待處理</span>
-    <span class="tab-badge" id="pend-badge" style="display:none"></span>
-  </button>
-  <button class="tab-item" onclick="goPage('chat',this)"><span class="tab-icon">💬</span><span>問答</span></button>
-  <button class="tab-item" onclick="goPage('settings',this)"><span class="tab-icon">⚙️</span><span>設定</span></button>
+  <button type="button" class="tab-item active" onclick="goPage('compare',this)"><span class="tab-icon">📊</span><span>比對</span></button>
+  <button type="button" class="tab-item" onclick="goPage('upload',this)"><span class="tab-icon">📸</span><span>上傳</span></button>
+  <button type="button" class="tab-item" onclick="goPage('vendors',this)"><span class="tab-icon">🏪</span><span>廠商</span></button>
+  <button type="button" class="tab-item" onclick="goPage('pending',this)"><span class="tab-icon">⚠️</span><span>待處理</span><span class="tab-badge" id="pend-badge" style="display:none"></span></button>
+  <button type="button" class="tab-item" onclick="goPage('chat',this)"><span class="tab-icon">💬</span><span>問答</span></button>
+  <button type="button" class="tab-item" onclick="goPage('settings',this)"><span class="tab-icon">⚙️</span><span>設定</span></button>
 </nav>
-
-<!-- TOAST -->
 <div id="toast-box"></div>
-
-<!-- EDIT MODAL -->
 <div class="modal-overlay" id="edit-modal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title" id="modal-title">編輯</div>
     <div id="modal-body"></div>
     <div class="btn-row">
-      <button class="btn btn-outline btn-block" onclick="closeModal()">取消</button>
-      <button class="btn btn-gold btn-block" id="modal-ok">確認</button>
+      <button type="button" class="btn btn-outline btn-block" onclick="closeModal()">取消</button>
+      <button type="button" class="btn btn-gold btn-block" id="modal-ok">確認</button>
     </div>
   </div>
 </div>
-
 <script>
-// ============================================================
-// CONFIG
-// ============================================================
-const CFG = {
-  gas:   localStorage.getItem('gasUrl')   || '',
-  key:   localStorage.getItem('apiKey')   || '',
-  model: localStorage.getItem('gasModel') || 'gemini-2.0-flash',
-};
-document.getElementById('cfg-gas').value   = CFG.gas;
-document.getElementById('cfg-key').value   = CFG.key;
-document.getElementById('cfg-model').value = CFG.model;
+const CFG={gas:localStorage.getItem('gasUrl')||'',key:localStorage.getItem('apiKey')||'',model:localStorage.getItem('gasModel')||'gemini-2.0-flash'};
+document.getElementById('cfg-gas').value=CFG.gas;
+document.getElementById('cfg-key').value=CFG.key;
+document.getElementById('cfg-model').value=CFG.model;
 
-function saveSettings() {
-  CFG.gas   = document.getElementById('cfg-gas').value.trim();
-  CFG.key   = document.getElementById('cfg-key').value.trim();
-  CFG.model = document.getElementById('cfg-model').value;
-  localStorage.setItem('gasUrl',   CFG.gas);
-  localStorage.setItem('apiKey',   CFG.key);
-  localStorage.setItem('gasModel', CFG.model);
-  toast('設定已儲存', 'ok');
+function saveSettings(){
+  CFG.gas=document.getElementById('cfg-gas').value.trim();
+  CFG.key=document.getElementById('cfg-key').value.trim();
+  CFG.model=document.getElementById('cfg-model').value;
+  localStorage.setItem('gasUrl',CFG.gas);
+  localStorage.setItem('apiKey',CFG.key);
+  localStorage.setItem('gasModel',CFG.model);
+  toast('設定已儲存','ok');
   updateStatus();
 }
-function updateStatus() {
-  const dot = document.getElementById('conn-dot');
-  const lbl = document.getElementById('conn-label');
-  const ban = document.getElementById('cfg-banner');
-  if (CFG.gas) {
-    dot.className = 'status-dot ok';
-    lbl.textContent = '已設定';
-    ban.style.display = 'none';
-  } else {
-    dot.className = 'status-dot';
-    lbl.textContent = '未設定';
-    ban.style.display = 'flex';
-  }
+function updateStatus(){
+  const dot=document.getElementById('conn-dot');
+  const lbl=document.getElementById('conn-label');
+  const ban=document.getElementById('cfg-banner');
+  if(CFG.gas){dot.className='status-dot ok';lbl.textContent='已設定';ban.style.display='none';}
+  else{dot.className='status-dot';lbl.textContent='未設定';ban.style.display='flex';}
 }
 updateStatus();
 
-// ============================================================
-// NAVIGATION
-// ============================================================
-function goPage(name, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  if (el) el.classList.add('active');
-  if (name === 'vendors') loadVendors();
-  if (name === 'pending') loadPending();
+function goPage(name,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(el) el.classList.add('active');
+  if(name==='vendors') loadVendors();
+  if(name==='pending') loadPending();
 }
 
-// ============================================================
-// MONTH SELECT HELPERS
-// ============================================================
-function buildMonths(sel) {
-  const now = new Date();
-  let html = '';
-  for (let i = 0; i < 36; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const v = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-    const label = d.getFullYear() + ' 年 ' + (d.getMonth()+1) + ' 月';
-    html += `<option value="${v}">${label}</option>`;
+function buildMonths(sel){
+  const now=new Date();let html='';
+  for(let i=0;i<36;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const v=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    const label=d.getFullYear()+' 年 '+(d.getMonth()+1)+' 月';
+    html+=`<option value="${v}">${label}</option>`;
   }
-  document.getElementById(sel).innerHTML = html;
+  document.getElementById(sel).innerHTML=html;
 }
-function initMonths() {
-  ['cmp-base','cmp-target','file-month','img-month'].forEach(id => buildMonths(id));
-  // 預設 cmp-base 上個月
-  const prev = new Date(); prev.setMonth(prev.getMonth()-1);
-  const pv = prev.getFullYear()+'-'+String(prev.getMonth()+1).padStart(2,'0');
-  const baseEl = document.getElementById('cmp-base');
-  for (let o of baseEl.options) if (o.value === pv) { o.selected = true; break; }
+function initMonths(){
+  ['cmp-base','cmp-target','file-month','img-month'].forEach(id=>buildMonths(id));
+  const prev=new Date();prev.setMonth(prev.getMonth()-1);
+  const pv=prev.getFullYear()+'-'+String(prev.getMonth()+1).padStart(2,'0');
+  const baseEl=document.getElementById('cmp-base');
+  for(let o of baseEl.options) if(o.value===pv){o.selected=true;break;}
 }
 initMonths();
 
-// ============================================================
-// GAS CALL / LOCAL DB
-// ============================================================
-async function gasCall(action, params={}) {
-  if (CFG.gas) {
-    const res = await fetch(CFG.gas, {
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify({action,...params})
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
+async function gasCall(action,params={}){
+  if(CFG.gas){
+    const res=await fetch(CFG.gas,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,...params})});
+    const data=await res.json();
+    if(data.error) throw new Error(data.error);
     return data;
   }
-  return localDB(action, params);
+  return localDB(action,params);
 }
 
-function localDB(action, params) {
-  const get = k => JSON.parse(localStorage.getItem(k)||'[]');
-  const set = (k,v) => localStorage.setItem(k, JSON.stringify(v));
-
-  if (action==='addRecord') {
-    const recs = get('local_recs');
-    recs.push({vendor:params.vendor,store:params.store||'兩店通用',month:params.month,
-      item_name:params.item_name,unit:params.unit||'',price:parseFloat(params.price)||0,
-      note:params.note||'',status:params.status||'pending',rowIndex:recs.length+2});
-    set('local_recs',recs); return {success:true};
+function localDB(action,params){
+  const get=k=>JSON.parse(localStorage.getItem(k)||'[]');
+  const set=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+  if(action==='addRecord'){
+    const recs=get('local_recs');
+    recs.push({vendor:params.vendor,store:params.store||'兩店通用',month:params.month,item_name:params.item_name,unit:params.unit||'',price:parseFloat(params.price)||0,note:params.note||'',status:params.status||'pending',rowIndex:recs.length+2});
+    set('local_recs',recs);return{success:true};
   }
-  if (action==='getRecords') {
-    let recs = get('local_recs');
-    if (params.vendor) recs = recs.filter(r=>r.vendor===params.vendor);
-    if (params.month)  recs = recs.filter(r=>r.month===params.month);
-    if (params.status) recs = recs.filter(r=>r.status===params.status);
-    return {success:true,records:recs};
+  if(action==='getRecords'){
+    let recs=get('local_recs');
+    if(params.vendor) recs=recs.filter(r=>r.vendor===params.vendor);
+    if(params.month) recs=recs.filter(r=>r.month===params.month);
+    if(params.status) recs=recs.filter(r=>r.status===params.status);
+    return{success:true,records:recs};
   }
-  if (action==='updateRecord') {
-    const recs = get('local_recs');
-    const i = recs.findIndex(r=>r.rowIndex===parseInt(params.rowIndex));
-    if (i!==-1) Object.assign(recs[i],params);
-    set('local_recs',recs); return {success:true};
+  if(action==='updateRecord'){
+    const recs=get('local_recs');
+    const i=recs.findIndex(r=>r.rowIndex===parseInt(params.rowIndex));
+    if(i!==-1) Object.assign(recs[i],params);
+    set('local_recs',recs);return{success:true};
   }
-  if (action==='deleteRecord') {
-    let recs = get('local_recs').filter(r=>r.rowIndex!==parseInt(params.rowIndex));
-    set('local_recs',recs); return {success:true};
+  if(action==='deleteRecord'){
+    let recs=get('local_recs').filter(r=>r.rowIndex!==parseInt(params.rowIndex));
+    set('local_recs',recs);return{success:true};
   }
-  if (action==='getPendingItems') {
-    return {success:true,items:get('local_recs').filter(r=>r.status==='pending')};
+  if(action==='getPendingItems'){
+    return{success:true,items:get('local_recs').filter(r=>r.status==='pending')};
   }
-  if (action==='getVendors') {
-    let v = get('local_vendors');
-    if (!v.length) {
-      v = [{name:'全富',category:'海鮮',rating:'A',contact:'',note:'',rowIndex:2},
-           {name:'陸陸肉',category:'肉品',rating:'A',contact:'',note:'',rowIndex:3},
-           {name:'擘進',category:'冷凍',rating:'B',contact:'',note:'',rowIndex:4},
-           {name:'菜商',category:'蔬菜',rating:'B',contact:'',note:'',rowIndex:5},
-           {name:'鴻璟立昌',category:'乾貨耗材',rating:'C',contact:'',note:'',rowIndex:6}];
+  if(action==='getVendors'){
+    let v=get('local_vendors');
+    if(!v.length){
+      v=[{name:'全富',category:'海鮮',rating:'A',contact:'',note:'',rowIndex:2},{name:'陸陸肉',category:'肉品',rating:'A',contact:'',note:'',rowIndex:3},{name:'擘進',category:'冷凍',rating:'B',contact:'',note:'',rowIndex:4},{name:'菜商',category:'蔬菜',rating:'B',contact:'',note:'',rowIndex:5},{name:'鴻璟立昌',category:'乾貨耗材',rating:'C',contact:'',note:'',rowIndex:6}];
       set('local_vendors',v);
     }
-    return {success:true,vendors:v};
+    return{success:true,vendors:v};
   }
-  if (action==='updateVendor') {
-    const v = get('local_vendors');
-    const i = v.findIndex(x=>x.rowIndex===parseInt(params.rowIndex));
-    if (i!==-1) Object.assign(v[i],params);
-    set('local_vendors',v); return {success:true};
+  if(action==='updateVendor'){
+    const v=get('local_vendors');
+    const i=v.findIndex(x=>x.rowIndex===parseInt(params.rowIndex));
+    if(i!==-1) Object.assign(v[i],params);
+    set('local_vendors',v);return{success:true};
   }
-  if (action==='compareMonths') {
-    const {vendor,baseMonth,compareMonth} = params;
-    const all = get('local_recs');
-    const base = all.filter(r=>r.vendor===vendor&&r.month===baseMonth&&r.status==='confirmed');
-    const comp = all.filter(r=>r.vendor===vendor&&r.month===compareMonth&&r.status==='confirmed');
-    const bmap = {}; base.forEach(r=>bmap[r.item_name]=r);
-    const results = []; let alertCount=0;
+  if(action==='compareMonths'){
+    const{vendor,baseMonth,compareMonth}=params;
+    const all=get('local_recs');
+    const base=all.filter(r=>r.vendor===vendor&&r.month===baseMonth&&r.status==='confirmed');
+    const comp=all.filter(r=>r.vendor===vendor&&r.month===compareMonth&&r.status==='confirmed');
+    const bmap={};base.forEach(r=>bmap[r.item_name]=r);
+    const results=[];let alertCount=0;
     comp.forEach(c=>{
-      const p = bmap[c.item_name];
-      if (!p){results.push({item_name:c.item_name,unit:c.unit,prev_price:null,curr_price:c.price,change_pct:null,status:'new',note:c.note});return}
-      const pct = p.price>0?((c.price-p.price)/p.price*100).toFixed(2):null;
-      const alert = pct!=null&&Math.abs(pct)>5;
-      if (alert) alertCount++;
+      const p=bmap[c.item_name];
+      if(!p){results.push({item_name:c.item_name,unit:c.unit,prev_price:null,curr_price:c.price,change_pct:null,status:'new',note:c.note});return;}
+      const pct=p.price>0?((c.price-p.price)/p.price*100).toFixed(2):null;
+      const alert=pct!=null&&Math.abs(pct)>5;
+      if(alert) alertCount++;
       results.push({item_name:c.item_name,unit:c.unit,prev_price:p.price,curr_price:c.price,change_pct:pct,alert,note:c.note});
     });
-    base.forEach(p=>{if(!comp.find(r=>r.item_name===p.item_name))results.push({item_name:p.item_name,unit:p.unit,prev_price:p.price,curr_price:null,change_pct:null,status:'removed',note:p.note})});
+    base.forEach(p=>{if(!comp.find(r=>r.item_name===p.item_name)) results.push({item_name:p.item_name,unit:p.unit,prev_price:p.price,curr_price:null,change_pct:null,status:'removed',note:p.note});});
     results.sort((a,b)=>(parseFloat(b.change_pct)||0)-(parseFloat(a.change_pct)||0));
-    return {success:true,vendor,baseMonth,compareMonth,results,alertCount};
+    return{success:true,vendor,baseMonth,compareMonth,results,alertCount};
   }
-  if (action==='exportCSV') {
-    const r = localDB('compareMonths',params);
+  if(action==='exportCSV'){
+    const r=localDB('compareMonths',params);
     const rows=[['品項','單位','上月','本月','漲跌幅(%)','備註']];
     r.results.forEach(x=>rows.push([x.item_name,x.unit,x.prev_price??'—',x.curr_price??'—',x.change_pct!=null?x.change_pct+'%':'—',x.note||'']));
     const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-    return {success:true,csv,filename:`比對報告_${params.vendor}_${params.baseMonth}_vs_${params.compareMonth}.csv`};
+    return{success:true,csv,filename:`比對報告_${params.vendor}_${params.baseMonth}_vs_${params.compareMonth}.csv`};
   }
-  if (action==='initSheets') return {success:true,message:'本機模式，資料存於 localStorage'};
-  return {success:true};
+  if(action==='initSheets') return{success:true,message:'本機模式，資料存於 localStorage'};
+  return{success:true};
 }
 
-// ============================================================
-// COMPARE
-// ============================================================
-let lastCmp = null;
-async function doCompare() {
-  const vendor = document.getElementById('cmp-vendor').value;
-  const base   = document.getElementById('cmp-base').value;
-  const tgt    = document.getElementById('cmp-target').value;
-  if (!vendor) return toast('請選擇廠商','warn');
-  if (base >= tgt) return toast('比對月需晚於基準月','warn');
+let lastCmp=null;
+async function doCompare(){
+  const vendor=document.getElementById('cmp-vendor').value;
+  const base=document.getElementById('cmp-base').value;
+  const tgt=document.getElementById('cmp-target').value;
+  if(!vendor) return toast('請選擇廠商','warn');
+  if(base>=tgt) return toast('比對月需晚於基準月','warn');
   document.getElementById('cmp-result').style.display='none';
-  try {
-    const data = await gasCall('compareMonths',{vendor,baseMonth:base,compareMonth:tgt});
-    lastCmp = data;
-    renderCmp(data);
+  try{
+    const data=await gasCall('compareMonths',{vendor,baseMonth:base,compareMonth:tgt});
+    lastCmp=data;renderCmp(data);
     document.getElementById('cmp-result').style.display='block';
-    if (data.alertCount>0) toast(`⚠️ ${data.alertCount} 個品項漲超 5%`,'warn');
-  } catch(e){ toast(e.message,'err') }
+    if(data.alertCount>0) toast(`⚠️ ${data.alertCount} 個品項漲超 5%`,'warn');
+  }catch(e){toast(e.message,'err')}
 }
-function renderCmp(data) {
-  const {results} = data;
-  let alertN=0,upN=0,dnN=0;
+function renderCmp(data){
+  const{results}=data;let alertN=0,upN=0,dnN=0;
+  results.forEach(r=>{const p=parseFloat(r.change_pct);if(r.status==='new'||r.status==='removed') return;if(p>5){alertN++;upN++;}else if(p>0) upN++;else if(p<0) dnN++;});
+  document.getElementById('cmp-summary').innerHTML=`<div class="sum-card"><div class="sum-num" style="color:var(--red)">${alertN}</div><div class="sum-label">⚠️ 漲超5%</div></div><div class="sum-card"><div class="sum-num" style="color:var(--red)">${upN}</div><div class="sum-label">漲價</div></div><div class="sum-card"><div class="sum-num" style="color:var(--green)">${dnN}</div><div class="sum-label">降價</div></div>`;
+  const tbody=document.getElementById('cmp-tbody');tbody.innerHTML='';
+  if(!results.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text3)">無比對資料</td></tr>';return;}
   results.forEach(r=>{
-    const p=parseFloat(r.change_pct);
-    if(r.status==='new'||r.status==='removed') return;
-    if(p>5){alertN++;upN++} else if(p>0) upN++; else if(p<0) dnN++;
-  });
-  document.getElementById('cmp-summary').innerHTML=`
-    <div class="sum-card"><div class="sum-num" style="color:var(--red)">${alertN}</div><div class="sum-label">⚠️ 漲超5%</div></div>
-    <div class="sum-card"><div class="sum-num" style="color:var(--red)">${upN}</div><div class="sum-label">漲價</div></div>
-    <div class="sum-card"><div class="sum-num" style="color:var(--green)">${dnN}</div><div class="sum-label">降價</div></div>`;
-  const tbody = document.getElementById('cmp-tbody');
-  tbody.innerHTML='';
-  if (!results.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text3)">無比對資料</td></tr>';return}
-  results.forEach(r=>{
-    const pct=parseFloat(r.change_pct);
-    const isAlert=!isNaN(pct)&&pct>5;
+    const pct=parseFloat(r.change_pct);const isAlert=!isNaN(pct)&&pct>5;
     let chg='<span class="c-flat">—</span>';
-    if(!isNaN(pct)){
-      const sign=pct>0?'▲':'▼';
-      const cls=pct>0?'c-up':(pct<0?'c-dn':'c-flat');
-      chg=`<span class="${cls}">${sign} ${Math.abs(pct)}%</span>`;
-      if(isAlert) chg+=` <span class="badge badge-red">⚠️</span>`;
-    }
+    if(!isNaN(pct)){const sign=pct>0?'▲':'▼';const cls=pct>0?'c-up':(pct<0?'c-dn':'c-flat');chg=`<span class="${cls}">${sign} ${Math.abs(pct)}%</span>`;if(isAlert) chg+=` <span class="badge badge-red">⚠️</span>`;}
     if(r.status==='new') chg='<span class="badge badge-gold">新品項</span>';
     if(r.status==='removed') chg='<span class="badge badge-gray">下架</span>';
-    const tr=document.createElement('tr');
-    if(isAlert) tr.className='alert-row';
+    const tr=document.createElement('tr');if(isAlert) tr.className='alert-row';
     tr.innerHTML=`<td style="font-weight:600">${esc(r.item_name)}</td><td style="color:var(--text2)">${esc(r.unit||'—')}</td><td>${r.prev_price!=null?'$'+r.prev_price:'—'}</td><td style="font-weight:600">${r.curr_price!=null?'$'+r.curr_price:'—'}</td><td>${chg}</td><td style="color:var(--text2);font-size:12px">${esc(r.note||'')}</td>`;
     tbody.appendChild(tr);
   });
 }
-async function exportCSV() {
-  if (!lastCmp) return toast('尚無比對結果','warn');
-  try {
-    const data = await gasCall('exportCSV',{vendor:document.getElementById('cmp-vendor').value,baseMonth:document.getElementById('cmp-base').value,compareMonth:document.getElementById('cmp-target').value});
-    const blob=new Blob(['﻿'+data.csv],{type:'text/csv;charset=utf-8'});
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=data.filename; a.click();
+async function exportCSV(){
+  if(!lastCmp) return toast('尚無比對結果','warn');
+  try{
+    const data=await gasCall('exportCSV',{vendor:document.getElementById('cmp-vendor').value,baseMonth:document.getElementById('cmp-base').value,compareMonth:document.getElementById('cmp-target').value});
+    const blob=new Blob(['\uFEFF'+data.csv],{type:'text/csv;charset=utf-8'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=data.filename;a.click();
     toast('CSV 已匯出','ok');
-  } catch(e){toast(e.message,'err')}
+  }catch(e){toast(e.message,'err')}
 }
 
-// ============================================================
-// DASHBOARD
-// ============================================================
 const V_COLORS=['#e84a4a','#e8974a','#e8c84a','#4ae88a','#4a9ae8'];
-async function loadDashboard() {
-  const wrap = document.getElementById('dashboard-wrap');
+async function loadDashboard(){
+  const wrap=document.getElementById('dashboard-wrap');
   wrap.innerHTML='<div class="loader"><div class="spinner"></div>載入中...</div>';
-  try {
-    const res = await gasCall('getRecords',{});
-    const recs = res.records||[];
-    if (!recs.length){wrap.innerHTML='<div class="dash-nodata">尚無報價資料，請先上傳報價單</div>';return}
-    const vendors=[...new Set(recs.map(r=>r.vendor))];
-    let html='';
+  try{
+    const res=await gasCall('getRecords',{});
+    const recs=res.records||[];
+    if(!recs.length){wrap.innerHTML='<div class="dash-nodata">尚無報價資料，請先上傳報價單</div>';return;}
+    const vendors=[...new Set(recs.map(r=>r.vendor))];let html='';
     vendors.forEach((v,vi)=>{
       const vrecs=recs.filter(r=>r.vendor===v);
       const months=[...new Set(vrecs.map(r=>r.month))].sort().reverse();
-      const latest=months[0]; if(!latest) return;
+      const latest=months[0];if(!latest) return;
       const items=vrecs.filter(r=>r.month===latest);
       const pend=items.filter(r=>r.status==='pending');
       const alerts=items.filter(r=>r.note&&(r.note.includes('漲')||r.note.includes('縮水')||r.note.includes('告知')));
-      const hasAlert=alerts.length>0;
-      const col=V_COLORS[vi%V_COLORS.length];
-      html+=`<div class="dash-card${hasAlert?' has-alert':''}" id="dc-${vi}">
-        <div class="dash-hdr" onclick="toggleDash(${vi})">
-          <div class="dash-left">
-            <div style="width:8px;height:8px;border-radius:50%;background:${col};flex-shrink:0"></div>
-            <div><div class="dash-name">${esc(v)}</div><div class="dash-meta">${items.length} 品項｜${pend.length?pend.length+' 待確認':'全數確認'}</div></div>
-          </div>
-          <div class="dash-right">
-            <span class="dash-month">${latest}</span>
-            ${hasAlert?`<span class="dash-alert">⚠️ ${alerts.length} 異常</span>`:''}
-            <span class="dash-chevron">▼</span>
-          </div>
-        </div>
-        <div class="dash-body"><div style="overflow-x:auto"><table class="dash-tbl">
-          <thead><tr><th>品項</th><th>單位</th><th>單價</th><th>備註</th></tr></thead>
-          <tbody>${items.map(it=>`<tr>
-            <td>${esc(it.item_name)}</td>
-            <td style="color:var(--text2)">${esc(it.unit||'—')}</td>
-            <td style="font-weight:500">${it.price?'$'+Number(it.price).toLocaleString():'<span style="color:var(--text3)">時價</span>'}</td>
-            <td>${it.status==='pending'?'<span class="dash-pending">待確認</span> ':''}<span style="color:var(--text2);font-size:12px">${esc(it.note||'')}</span></td>
-          </tr>`).join('')}</tbody>
-        </table></div></div>
-      </div>`;
+      const hasAlert=alerts.length>0;const col=V_COLORS[vi%V_COLORS.length];
+      html+=`<div class="dash-card${hasAlert?' has-alert':''}" id="dc-${vi}"><div class="dash-hdr" onclick="toggleDash(${vi})"><div class="dash-left"><div style="width:8px;height:8px;border-radius:50%;background:${col};flex-shrink:0"></div><div><div class="dash-name">${esc(v)}</div><div class="dash-meta">${items.length} 品項｜${pend.length?pend.length+' 待確認':'全數確認'}</div></div></div><div class="dash-right"><span class="dash-month">${latest}</span>${hasAlert?`<span class="dash-alert">⚠️ ${alerts.length} 異常</span>`:''}<span class="dash-chevron">▼</span></div></div><div class="dash-body"><div style="overflow-x:auto"><table class="dash-tbl"><thead><tr><th>品項</th><th>單位</th><th>單價</th><th>備註</th></tr></thead><tbody>${items.map(it=>`<tr><td>${esc(it.item_name)}</td><td style="color:var(--text2)">${esc(it.unit||'—')}</td><td style="font-weight:500">${it.price?'$'+Number(it.price).toLocaleString():'<span style="color:var(--text3)">時價</span>'}</td><td>${it.status==='pending'?'<span class="dash-pending">待確認</span> ':''}<span style="color:var(--text2);font-size:12px">${esc(it.note||'')}</span></td></tr>`).join('')}</tbody></table></div></div></div>`;
     });
     wrap.innerHTML=html||'<div class="dash-nodata">尚無報價資料</div>';
-  } catch(e){wrap.innerHTML=`<div class="dash-nodata" style="color:var(--red)">載入失敗：${esc(e.message)}</div>`}
+  }catch(e){wrap.innerHTML=`<div class="dash-nodata" style="color:var(--red)">載入失敗：${esc(e.message)}</div>`;}
 }
-function toggleDash(vi){document.getElementById('dc-'+vi).classList.toggle('open')}
+function toggleDash(vi){document.getElementById('dc-'+vi).classList.toggle('open');}
 
-// ============================================================
-// UPLOAD — CHANNEL SWITCH
-// ============================================================
-let curCh = 'file'; // 'file' | 'img'
-let curUT = 'excel'; // 'excel' | 'word'
-let ocrItems = [];
-let ocrItemsImg = [];
-
-function switchCh(ch, el) {
-  curCh = ch;
-  document.querySelectorAll('.ch-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('ch-file').style.display = ch==='file'?'block':'none';
-  document.getElementById('ch-img').style.display  = ch==='img'?'block':'none';
-  if (ch==='img') {
-    document.getElementById('img-api-warn').style.display = CFG.key?'none':'flex';
-  }
+let curCh='file';let curUT='excel';let ocrItems=[];let ocrItemsImg=[];
+function switchCh(ch,el){
+  curCh=ch;
+  document.querySelectorAll('.ch-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+  document.getElementById('ch-file').style.display=ch==='file'?'block':'none';
+  document.getElementById('ch-img').style.display=ch==='img'?'block':'none';
+  if(ch==='img') document.getElementById('img-api-warn').style.display=CFG.key?'none':'flex';
 }
-function switchUT(type, el) {
-  curUT = type;
-  document.querySelectorAll('.utype-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('sec-excel').style.display = type==='excel'?'block':'none';
-  document.getElementById('sec-word').style.display  = type==='word'?'block':'none';
+function switchUT(type,el){
+  curUT=type;
+  document.querySelectorAll('.utype-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+  document.getElementById('sec-excel').style.display=type==='excel'?'block':'none';
+  document.getElementById('sec-word').style.display=type==='word'?'block':'none';
   document.getElementById('col-mapper').style.display='none';
   document.getElementById('file-meta').style.display='none';
   document.getElementById('file-result').style.display='none';
   ocrItems=[];
 }
 
-// ============================================================
-// FILE INPUTS
-// ============================================================
-let wb = null, activeSheet = null;
+let wb=null,activeSheet=null;
+document.getElementById('img-input').addEventListener('change',function(){if(this.files[0]) handleImg(this.files[0]);});
+document.getElementById('excel-input').addEventListener('change',function(){if(this.files[0]) handleExcel(this.files[0]);});
+document.getElementById('word-input').addEventListener('change',function(){if(this.files[0]) handleWord(this.files[0]);});
 
-document.getElementById('img-input').addEventListener('change', function(){
-  if (this.files[0]) handleImg(this.files[0]);
-});
-document.getElementById('excel-input').addEventListener('change', function(){
-  if (this.files[0]) handleExcel(this.files[0]);
-});
-document.getElementById('word-input').addEventListener('change', function(){
-  if (this.files[0]) handleWord(this.files[0]);
-});
-
-// IMG
-function handleImg(file) {
+function handleImg(file){
   const reader=new FileReader();
-  reader.onload=e=>{
-    const prev=document.getElementById('preview-img');
-    prev.src=e.target.result; prev.style.display='block';
-    document.getElementById('img-meta').style.display='block';
-    document.getElementById('img-result').style.display='none';
-    ocrItemsImg=[];
-  };
+  reader.onload=e=>{const prev=document.getElementById('preview-img');prev.src=e.target.result;prev.style.display='block';document.getElementById('img-meta').style.display='block';document.getElementById('img-result').style.display='none';ocrItemsImg=[];};
   reader.readAsDataURL(file);
 }
-
-// DRAG — img
 const zoneImg=document.getElementById('zone-img');
-zoneImg.addEventListener('dragover',e=>{e.preventDefault();zoneImg.classList.add('drag-over')});
+zoneImg.addEventListener('dragover',e=>{e.preventDefault();zoneImg.classList.add('drag-over');});
 zoneImg.addEventListener('dragleave',()=>zoneImg.classList.remove('drag-over'));
-zoneImg.addEventListener('drop',e=>{e.preventDefault();zoneImg.classList.remove('drag-over');if(e.dataTransfer.files[0]) handleImg(e.dataTransfer.files[0])});
+zoneImg.addEventListener('drop',e=>{e.preventDefault();zoneImg.classList.remove('drag-over');if(e.dataTransfer.files[0]) handleImg(e.dataTransfer.files[0]);});
 
-// EXCEL
-function handleExcel(file) {
+function handleExcel(file){
   const reader=new FileReader();
-  reader.onload=e=>{
-    try{
-      wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
-      activeSheet=wb.SheetNames[0];
-      renderSheetSel(wb.SheetNames);
-      renderExcelPrev(activeSheet);
-      renderColMapper(activeSheet);
-      document.getElementById('file-meta').style.display='block';
-    }catch(err){toast('Excel 解析失敗：'+err.message,'err')}
-  };
+  reader.onload=e=>{try{wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});activeSheet=wb.SheetNames[0];renderSheetSel(wb.SheetNames);renderExcelPrev(activeSheet);renderColMapper(activeSheet);document.getElementById('file-meta').style.display='block';}catch(err){toast('Excel 解析失敗：'+err.message,'err');}};
   reader.readAsArrayBuffer(file);
 }
 function renderSheetSel(sheets){
   const el=document.getElementById('sheet-selector');
-  if(sheets.length<=1){el.innerHTML='';return}
-  el.innerHTML='<div style="font-size:11px;color:var(--text3);margin-bottom:5px">選擇工作表：</div>'+
-    sheets.map(s=>`<button class="sheet-btn${s===activeSheet?' active':''}" onclick="selSheet('${esc(s)}')">${esc(s)}</button>`).join('');
+  if(sheets.length<=1){el.innerHTML='';return;}
+  el.innerHTML='<div style="font-size:11px;color:var(--text3);margin-bottom:5px">選擇工作表：</div>'+sheets.map(s=>`<button type="button" class="sheet-btn${s===activeSheet?' active':''}" onclick="selSheet('${esc(s)}')">${esc(s)}</button>`).join('');
 }
-function selSheet(name){
-  activeSheet=name;
-  document.querySelectorAll('.sheet-btn').forEach(b=>b.classList.toggle('active',b.textContent===name));
-  renderExcelPrev(name);
-}
+function selSheet(name){activeSheet=name;document.querySelectorAll('.sheet-btn').forEach(b=>b.classList.toggle('active',b.textContent===name));renderExcelPrev(name);}
 function renderExcelPrev(sheet){
-  const ws=wb.Sheets[sheet];
-  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+  const ws=wb.Sheets[sheet];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
   document.getElementById('excel-info-wrap').style.display='block';
   document.getElementById('excel-info').textContent=`工作表「${sheet}」· ${rows.length} 列`;
-  const head=document.getElementById('excel-prev-head');
-  const body=document.getElementById('excel-prev-body');
-  head.innerHTML=''; body.innerHTML='';
-  if(!rows.length) return;
-  const prev=rows.slice(0,25);
-  const cols=Math.max(...prev.map(r=>r.length));
+  const head=document.getElementById('excel-prev-head');const body=document.getElementById('excel-prev-body');
+  head.innerHTML='';body.innerHTML='';if(!rows.length) return;
+  const prev=rows.slice(0,25);const cols=Math.max(...prev.map(r=>r.length));
   head.innerHTML='<tr>'+Array.from({length:cols},(_,i)=>`<th>${String.fromCharCode(65+i)}</th>`).join('')+'</tr>';
-  prev.forEach(row=>{
-    const tr=document.createElement('tr');
-    for(let i=0;i<cols;i++){const td=document.createElement('td');td.textContent=row[i]??'';tr.appendChild(td)}
-    body.appendChild(tr);
-  });
+  prev.forEach(row=>{const tr=document.createElement('tr');for(let i=0;i<cols;i++){const td=document.createElement('td');td.textContent=row[i]??'';tr.appendChild(td);}body.appendChild(tr);});
 }
 function renderColMapper(sheet){
-  const ws=wb.Sheets[sheet];
-  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-  if(!rows.length) return;
-  const headers=rows[0];
-  const noneOpt='<option value="">（略）</option>';
+  const ws=wb.Sheets[sheet];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});if(!rows.length) return;
+  const headers=rows[0];const noneOpt='<option value="">（略）</option>';
   const opts=headers.map((h,i)=>`<option value="${i}">${String.fromCharCode(65+i)}欄${h?'：'+h:''}</option>`).join('');
-  document.getElementById('map-name').innerHTML=opts;
-  document.getElementById('map-unit').innerHTML=noneOpt+opts;
-  document.getElementById('map-price').innerHTML=opts;
-  document.getElementById('map-note').innerHTML=noneOpt+opts;
-  // 自動猜欄位
+  document.getElementById('map-name').innerHTML=opts;document.getElementById('map-unit').innerHTML=noneOpt+opts;document.getElementById('map-price').innerHTML=opts;document.getElementById('map-note').innerHTML=noneOpt+opts;
   const g=guessCol(headers);
-  if(g.name!=null) document.getElementById('map-name').value=g.name;
-  if(g.unit!=null) document.getElementById('map-unit').value=g.unit;
-  if(g.price!=null) document.getElementById('map-price').value=g.price;
-  if(g.note!=null) document.getElementById('map-note').value=g.note;
-  document.getElementById('col-mapper').style.display='block';
-  loadColMem();
+  if(g.name!=null) document.getElementById('map-name').value=g.name;if(g.unit!=null) document.getElementById('map-unit').value=g.unit;if(g.price!=null) document.getElementById('map-price').value=g.price;if(g.note!=null) document.getElementById('map-note').value=g.note;
+  document.getElementById('col-mapper').style.display='block';loadColMem();
 }
 function guessCol(headers){
   const g={name:null,unit:null,price:null,note:null};
-  const nk=['品項','品名','名稱','item','name','商品'];
-  const uk=['單位','unit'];
-  const pk=['價格','單價','price','金額','售價'];
-  const rk=['備註','note','說明','規格'];
-  headers.forEach((h,i)=>{
-    const s=String(h).toLowerCase();
-    if(nk.some(k=>s.includes(k))&&g.name==null) g.name=i;
-    if(uk.some(k=>s.includes(k))&&g.unit==null) g.unit=i;
-    if(pk.some(k=>s.includes(k))&&g.price==null) g.price=i;
-    if(rk.some(k=>s.includes(k))&&g.note==null) g.note=i;
-  });
+  const nk=['品項','品名','名稱','item','name','商品'];const uk=['單位','unit'];const pk=['價格','單價','price','金額','售價'];const rk=['備註','note','說明','規格'];
+  headers.forEach((h,i)=>{const s=String(h).toLowerCase();if(nk.some(k=>s.includes(k))&&g.name==null) g.name=i;if(uk.some(k=>s.includes(k))&&g.unit==null) g.unit=i;if(pk.some(k=>s.includes(k))&&g.price==null) g.price=i;if(rk.some(k=>s.includes(k))&&g.note==null) g.note=i;});
   return g;
 }
-function saveColMem(){
-  const vendor=document.getElementById('file-vendor').value;
-  localStorage.setItem('colmap_'+vendor,JSON.stringify({
-    name:document.getElementById('map-name').value,
-    unit:document.getElementById('map-unit').value,
-    price:document.getElementById('map-price').value,
-    note:document.getElementById('map-note').value,
-    skip:document.getElementById('map-skip').value,
-  }));
-}
+function saveColMem(){const vendor=document.getElementById('file-vendor').value;localStorage.setItem('colmap_'+vendor,JSON.stringify({name:document.getElementById('map-name').value,unit:document.getElementById('map-unit').value,price:document.getElementById('map-price').value,note:document.getElementById('map-note').value,skip:document.getElementById('map-skip').value}));}
 function loadColMem(){
-  const vendor=document.getElementById('file-vendor').value;
-  const saved=localStorage.getItem('colmap_'+vendor);
-  if(!saved) return;
-  try{
-    const m=JSON.parse(saved);
-    if(m.name!=null) document.getElementById('map-name').value=m.name;
-    if(m.unit!=null) document.getElementById('map-unit').value=m.unit;
-    if(m.price!=null) document.getElementById('map-price').value=m.price;
-    if(m.note!=null) document.getElementById('map-note').value=m.note;
-    if(m.skip!=null) document.getElementById('map-skip').value=m.skip;
-  }catch(_){}
+  const vendor=document.getElementById('file-vendor').value;const saved=localStorage.getItem('colmap_'+vendor);if(!saved) return;
+  try{const m=JSON.parse(saved);if(m.name!=null) document.getElementById('map-name').value=m.name;if(m.unit!=null) document.getElementById('map-unit').value=m.unit;if(m.price!=null) document.getElementById('map-price').value=m.price;if(m.note!=null) document.getElementById('map-note').value=m.note;if(m.skip!=null) document.getElementById('map-skip').value=m.skip;}catch(_){}
 }
-
-// DRAG — excel
 const zoneExcel=document.getElementById('zone-excel');
-zoneExcel.addEventListener('dragover',e=>{e.preventDefault();zoneExcel.classList.add('drag-over')});
+zoneExcel.addEventListener('dragover',e=>{e.preventDefault();zoneExcel.classList.add('drag-over');});
 zoneExcel.addEventListener('dragleave',()=>zoneExcel.classList.remove('drag-over'));
-zoneExcel.addEventListener('drop',e=>{e.preventDefault();zoneExcel.classList.remove('drag-over');if(e.dataTransfer.files[0]) handleExcel(e.dataTransfer.files[0])});
+zoneExcel.addEventListener('drop',e=>{e.preventDefault();zoneExcel.classList.remove('drag-over');if(e.dataTransfer.files[0]) handleExcel(e.dataTransfer.files[0]);});
 
-// WORD
 function handleWord(file){
   const reader=new FileReader();
-  reader.onload=async e=>{
-    try{
-      const result=await mammoth.extractRawText({arrayBuffer:e.target.result});
-      const text=result.value;
-      document.getElementById('word-preview').style.display='block';
-      document.getElementById('word-info').textContent=file.name+' · '+text.length+' 字元';
-      document.getElementById('word-text').textContent=text.slice(0,1200)+(text.length>1200?'\n...（以下省略）':'');
-      document.getElementById('col-mapper').style.display='none';
-      document.getElementById('file-meta').style.display='block';
-    }catch(err){toast('Word 解析失敗：'+err.message,'err')}
-  };
+  reader.onload=async e=>{try{const result=await mammoth.extractRawText({arrayBuffer:e.target.result});const text=result.value;document.getElementById('word-preview').style.display='block';document.getElementById('word-info').textContent=file.name+' · '+text.length+' 字元';document.getElementById('word-text').textContent=text.slice(0,1200)+(text.length>1200?'\n...（以下省略）':'');document.getElementById('col-mapper').style.display='none';document.getElementById('file-meta').style.display='block';}catch(err){toast('Word 解析失敗：'+err.message,'err');}};
   reader.readAsArrayBuffer(file);
 }
 const zoneWord=document.getElementById('zone-word');
-zoneWord.addEventListener('dragover',e=>{e.preventDefault();zoneWord.classList.add('drag-over')});
+zoneWord.addEventListener('dragover',e=>{e.preventDefault();zoneWord.classList.add('drag-over');});
 zoneWord.addEventListener('dragleave',()=>zoneWord.classList.remove('drag-over'));
-zoneWord.addEventListener('drop',e=>{e.preventDefault();zoneWord.classList.remove('drag-over');if(e.dataTransfer.files[0]) handleWord(e.dataTransfer.files[0])});
+zoneWord.addEventListener('drop',e=>{e.preventDefault();zoneWord.classList.remove('drag-over');if(e.dataTransfer.files[0]) handleWord(e.dataTransfer.files[0]);});
 
-// ============================================================
-// IMPORT PREVIEW
-// ============================================================
 function previewImport(){
-  if(curUT==='excel'){
-    if(!wb) return toast('請先上傳 Excel 檔案','warn');
-    previewExcel();
-  } else {
-    ocrItems=[{item_name:'',unit:'',price:null,note:''}];
-    renderItems('file-items', ocrItems);
-    document.getElementById('file-result').style.display='block';
-    toast('請手動填入品項，或改用圖片通道','warn');
-  }
+  if(curUT==='excel'){if(!wb) return toast('請先上傳 Excel 檔案','warn');previewExcel();}
+  else{ocrItems=[{item_name:'',unit:'',price:null,note:''}];renderItems('file-items',ocrItems);document.getElementById('file-result').style.display='block';toast('請手動填入品項，或改用圖片通道','warn');}
 }
 function previewExcel(){
-  const nameC=parseInt(document.getElementById('map-name').value);
-  const unitC=document.getElementById('map-unit').value;
-  const priceC=parseInt(document.getElementById('map-price').value);
-  const noteC=document.getElementById('map-note').value;
-  const skip=parseInt(document.getElementById('map-skip').value)||1;
+  const nameC=parseInt(document.getElementById('map-name').value);const unitC=document.getElementById('map-unit').value;const priceC=parseInt(document.getElementById('map-price').value);const noteC=document.getElementById('map-note').value;const skip=parseInt(document.getElementById('map-skip').value)||1;
   if(isNaN(nameC)||isNaN(priceC)) return toast('請選擇品項名稱欄與價格欄','warn');
   saveColMem();
   const rows=XLSX.utils.sheet_to_json(wb.Sheets[activeSheet],{header:1,defval:''}).slice(skip);
-  ocrItems=rows
-    .filter(r=>String(r[nameC]||'').trim())
-    .map(r=>({
-      item_name:String(r[nameC]).trim(),
-      unit:unitC!==''?String(r[parseInt(unitC)]||'').trim():'',
-      price:parseFloat(String(r[priceC]).replace(/[^0-9.]/g,''))||null,
-      note:noteC!==''?String(r[parseInt(noteC)]||'').trim():'',
-    }));
+  ocrItems=rows.filter(r=>String(r[nameC]||'').trim()).map(r=>({item_name:String(r[nameC]).trim(),unit:unitC!==''?String(r[parseInt(unitC)]||'').trim():'',price:parseFloat(String(r[priceC]).replace(/[^0-9.]/g,''))||null,note:noteC!==''?String(r[parseInt(noteC)]||'').trim():''}));
   if(!ocrItems.length) return toast('未讀取到品項，請確認欄位設定','warn');
-  renderItems('file-items', ocrItems);
-  document.getElementById('file-result').style.display='block';
-  toast('讀取完成，共 '+ocrItems.length+' 個品項','ok');
+  renderItems('file-items',ocrItems);document.getElementById('file-result').style.display='block';toast('讀取完成，共 '+ocrItems.length+' 個品項','ok');
 }
-function renderItems(containerId, items){
-  const el=document.getElementById(containerId);
-  el.innerHTML='';
+function renderItems(containerId,items){
+  const el=document.getElementById(containerId);el.innerHTML='';
   items.forEach((item,i)=>{
-    const div=document.createElement('div');
-    div.className='ocr-card';
-    div.innerHTML=`
-      <button class="ocr-del" onclick="removeItem('${containerId}',${i})">✕</button>
-      <div class="row3" style="margin-bottom:8px">
-        <div class="field" style="grid-column:1/3;margin:0"><label>品項名稱</label><input class="inp" value="${esc(item.item_name)}" onchange="getItemList('${containerId}')[${i}].item_name=this.value"></div>
-        <div class="field" style="margin:0"><label>單位</label><input class="inp" value="${esc(item.unit)}" onchange="getItemList('${containerId}')[${i}].unit=this.value"></div>
-      </div>
-      <div class="row2">
-        <div class="field" style="margin:0"><label>單價</label><input class="inp" type="number" value="${item.price??''}" placeholder="時價" onchange="getItemList('${containerId}')[${i}].price=this.value?parseFloat(this.value):null"></div>
-        <div class="field" style="margin:0"><label>備註</label><input class="inp" value="${esc(item.note)}" onchange="getItemList('${containerId}')[${i}].note=this.value"></div>
-      </div>`;
+    const div=document.createElement('div');div.className='ocr-card';
+    div.innerHTML=`<button type="button" class="ocr-del" onclick="removeItem('${containerId}',${i})">✕</button><div class="row3" style="margin-bottom:8px"><div class="field" style="grid-column:1/3;margin:0"><label>品項名稱</label><input class="inp" value="${esc(item.item_name)}" onchange="getItemList('${containerId}')[${i}].item_name=this.value"></div><div class="field" style="margin:0"><label>單位</label><input class="inp" value="${esc(item.unit)}" onchange="getItemList('${containerId}')[${i}].unit=this.value"></div></div><div class="row2"><div class="field" style="margin:0"><label>單價</label><input class="inp" type="number" value="${item.price??''}" placeholder="時價" onchange="getItemList('${containerId}')[${i}].price=this.value?parseFloat(this.value):null"></div><div class="field" style="margin:0"><label>備註</label><input class="inp" value="${esc(item.note)}" onchange="getItemList('${containerId}')[${i}].note=this.value"></div></div>`;
     el.appendChild(div);
   });
 }
-function getItemList(containerId){
-  return containerId==='file-items'?ocrItems:ocrItemsImg;
-}
-function removeItem(containerId, i){
-  getItemList(containerId).splice(i,1);
-  renderItems(containerId, getItemList(containerId));
-}
+function getItemList(containerId){return containerId==='file-items'?ocrItems:ocrItemsImg;}
+function removeItem(containerId,i){getItemList(containerId).splice(i,1);renderItems(containerId,getItemList(containerId));}
 function addItem(ch){
-  if(ch==='img'){
-    ocrItemsImg.push({item_name:'',unit:'',price:null,note:''});
-    renderItems('img-items', ocrItemsImg);
-    document.getElementById('img-items').lastElementChild?.scrollIntoView({behavior:'smooth'});
-  } else {
-    ocrItems.push({item_name:'',unit:'',price:null,note:''});
-    renderItems('file-items', ocrItems);
-    document.getElementById('file-items').lastElementChild?.scrollIntoView({behavior:'smooth'});
-  }
+  if(ch==='img'){ocrItemsImg.push({item_name:'',unit:'',price:null,note:''});renderItems('img-items',ocrItemsImg);document.getElementById('img-items').lastElementChild?.scrollIntoView({behavior:'smooth'});}
+  else{ocrItems.push({item_name:'',unit:'',price:null,note:''});renderItems('file-items',ocrItems);document.getElementById('file-items').lastElementChild?.scrollIntoView({behavior:'smooth'});}
 }
 async function confirmImport(ch){
-  const isImg = ch==='img';
-  const items = isImg?ocrItemsImg:ocrItems;
+  const isImg=ch==='img';const items=isImg?ocrItemsImg:ocrItems;
   if(!items.length) return toast('無品項可存入','warn');
   const vendor=document.getElementById(isImg?'img-vendor':'file-vendor').value;
   const month=document.getElementById(isImg?'img-month':'file-month').value;
   if(!vendor||!month) return toast('請填入廠商與月份','warn');
   try{
     let saved=0;
-    for(const item of items){
-      if(!item.item_name) continue;
-      await gasCall('addRecord',{vendor,month,store:'兩店通用',item_name:item.item_name,unit:item.unit||'',price:item.price||0,note:item.note||'',status:item.price?'confirmed':'pending'});
-      saved++;
-    }
+    for(const item of items){if(!item.item_name) continue;await gasCall('addRecord',{vendor,month,store:'兩店通用',item_name:item.item_name,unit:item.unit||'',price:item.price||0,note:item.note||'',status:item.price?'confirmed':'pending'});saved++;}
     toast('✅ 已存入 '+saved+' 筆記錄','ok');
     if(isImg){ocrItemsImg=[];document.getElementById('img-result').style.display='none';document.getElementById('preview-img').style.display='none';}
     else{ocrItems=[];document.getElementById('file-result').style.display='none';}
-    loadPendingBadge();
-    loadDashboard();
-  }catch(e){toast(e.message,'err')}
+    loadPendingBadge();loadDashboard();
+  }catch(e){toast(e.message,'err');}
 }
 
-// ============================================================
-// AI OCR
-// ============================================================
 async function runOCR(){
   if(!CFG.key) return toast('請先設定 Gemini API Key','warn');
   const imgEl=document.getElementById('preview-img');
   if(!imgEl.src||imgEl.style.display==='none') return toast('請先選取圖片','warn');
-  const base64=imgEl.src.split(',')[1];
-  const mime=(imgEl.src.match(/data:([^;]+);/)||[])[1]||'image/jpeg';
-  const btn=document.getElementById('ai-btn');
-  btn.disabled=true; btn.textContent='🤖 辨識中...';
-  const PROMPT=`請辨識這張報價單圖片，將所有品項以JSON陣列格式回傳：
-[{"item_name":"品項名稱","unit":"單位","price":數字或null,"note":"備註"}]
-規則：price必須是數字；時價填null；只回傳JSON，不要其他說明。`;
+  const base64=imgEl.src.split(',')[1];const mime=(imgEl.src.match(/data:([^;]+);/)||[])[1]||'image/jpeg';
+  const btn=document.getElementById('ai-btn');btn.disabled=true;btn.textContent='🤖 辨識中...';
+  const PROMPT=`請辨識這張報價單圖片，將所有品項以JSON陣列格式回傳：\n[{"item_name":"品項名稱","unit":"單位","price":數字或null,"note":"備註"}]\n規則：price必須是數字；時價填null；只回傳JSON，不要其他說明。`;
   const body=JSON.stringify({contents:[{parts:[{inline_data:{mime_type:mime,data:base64}},{text:PROMPT}]}],generationConfig:{temperature:0.1,maxOutputTokens:2048}});
   const models=[CFG.model,'gemini-2.0-flash','gemini-1.5-flash','gemini-1.5-flash-latest'];
-  const versions=['v1','v1beta'];
-  let result=null;
-  outer:for(const m of [...new Set(models)]){
-    for(const v of versions){
-      try{
-        const res=await fetch(`https://generativelanguage.googleapis.com/${v}/models/${m}:generateContent?key=${CFG.key}`,{method:'POST',headers:{'Content-Type':'application/json'},body});
-        const data=await res.json();
-        if(data.error){if(data.error.status==='RESOURCE_EXHAUSTED') throw new Error('API 配額已用盡，請稍後再試');continue}
-        result=data; break outer;
-      }catch(e){if(e.message.includes('配額')) throw e}
-    }
-  }
+  const versions=['v1','v1beta'];let result=null;
+  outer:for(const m of [...new Set(models)]){for(const v of versions){try{const res=await fetch(`https://generativelanguage.googleapis.com/${v}/models/${m}:generateContent?key=${CFG.key}`,{method:'POST',headers:{'Content-Type':'application/json'},body});const data=await res.json();if(data.error){if(data.error.status==='RESOURCE_EXHAUSTED') throw new Error('API 配額已用盡');continue;}result=data;break outer;}catch(e){if(e.message.includes('配額')) throw e;}}}
+  btn.disabled=false;btn.textContent='🤖 AI 辨識品項';
   if(!result) throw new Error('找不到可用的 Gemini 模型');
   const text=result.candidates?.[0]?.content?.parts?.[0]?.text||'';
-  const match=text.match(/\[[\s\S]*\]/);
-  if(!match) throw new Error('AI 回傳格式異常，請重試');
-  try{
-    ocrItemsImg=JSON.parse(match[0]);
-    renderItems('img-items', ocrItemsImg);
-    document.getElementById('img-result').style.display='block';
-    toast('辨識完成，共 '+ocrItemsImg.length+' 個品項','ok');
-  }catch(e){toast('JSON 解析失敗：'+e.message,'err')}
-  btn.disabled=false; btn.textContent='🤖 AI 辨識品項';
+  const match=text.match(/\[[\s\S]*\]/);if(!match) throw new Error('AI 回傳格式異常，請重試');
+  try{ocrItemsImg=JSON.parse(match[0]);renderItems('img-items',ocrItemsImg);document.getElementById('img-result').style.display='block';toast('辨識完成，共 '+ocrItemsImg.length+' 個品項','ok');}
+  catch(e){toast('JSON 解析失敗：'+e.message,'err');}
 }
+const _runOCR=runOCR;
+window.runOCR=async function(){const btn=document.getElementById('ai-btn');try{await _runOCR();}catch(e){toast('辨識失敗：'+e.message,'err');btn.disabled=false;btn.textContent='🤖 AI 辨識品項';}};
 
-// 修正 runOCR try/catch 包裝
-const _runOCR = runOCR;
-window.runOCR = async function(){
-  const btn=document.getElementById('ai-btn');
-  try{ await _runOCR(); }
-  catch(e){ toast('辨識失敗：'+e.message,'err'); btn.disabled=false; btn.textContent='🤖 AI 辨識品項'; }
-};
-
-// ============================================================
-// VENDORS
-// ============================================================
 const V_ICONS={全富:'🦐',陸陸肉:'🥩',擘進:'🧊',菜商:'🥦',鴻璟立昌:'🧂'};
 async function loadVendors(){
-  const el=document.getElementById('vendors-list');
-  el.innerHTML='<div class="loader"><div class="spinner"></div>載入中...</div>';
-  try{
-    const data=await gasCall('getVendors');
-    renderVendors(data.vendors);
-  }catch(e){el.innerHTML=`<div style="padding:20px;color:var(--red);font-size:13px">${esc(e.message)}</div>`}
+  const el=document.getElementById('vendors-list');el.innerHTML='<div class="loader"><div class="spinner"></div>載入中...</div>';
+  try{const data=await gasCall('getVendors');renderVendors(data.vendors);}
+  catch(e){el.innerHTML=`<div style="padding:20px;color:var(--red);font-size:13px">${esc(e.message)}</div>`;}
 }
 function renderVendors(vendors){
-  const el=document.getElementById('vendors-list');
-  el.innerHTML='';
+  const el=document.getElementById('vendors-list');el.innerHTML='';
   vendors.forEach(v=>{
-    const card=document.createElement('div');
-    card.className='vendor-card';
-    card.innerHTML=`
-      <div class="vendor-avatar">${V_ICONS[v.name]||'🏪'}</div>
-      <div class="vendor-info">
-        <div class="vendor-name">${esc(v.name)}</div>
-        <div class="vendor-cat">${esc(v.category)}</div>
-        ${v.contact?`<div style="font-size:11px;color:var(--text3);margin-top:2px">📞 ${esc(v.contact)}</div>`:''}
-        ${v.note?`<div style="font-size:11px;color:var(--gold);margin-top:2px">${esc(v.note)}</div>`:''}
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px">
-        <select class="rating-sel r-${(v.rating||'').toLowerCase()}" data-row="${v.rowIndex}" onchange="updateRating(this)">
-          <option ${v.rating==='A'?'selected':''}>A</option>
-          <option ${v.rating==='B'?'selected':''}>B</option>
-          <option ${v.rating==='C'?'selected':''}>C</option>
-          <option ${v.rating==='D'?'selected':''}>D</option>
-        </select>
-        <button class="btn btn-outline btn-sm" onclick="editVendor(${JSON.stringify(v).replace(/"/g,'&quot;')})">編輯</button>
-      </div>`;
+    const card=document.createElement('div');card.className='vendor-card';
+    card.innerHTML=`<div class="vendor-avatar">${V_ICONS[v.name]||'🏪'}</div><div class="vendor-info"><div class="vendor-name">${esc(v.name)}</div><div class="vendor-cat">${esc(v.category)}</div>${v.contact?`<div style="font-size:11px;color:var(--text3);margin-top:2px">📞 ${esc(v.contact)}</div>`:''} ${v.note?`<div style="font-size:11px;color:var(--gold);margin-top:2px">${esc(v.note)}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px"><select class="rating-sel r-${(v.rating||'').toLowerCase()}" data-row="${v.rowIndex}" onchange="updateRating(this)"><option ${v.rating==='A'?'selected':''}>A</option><option ${v.rating==='B'?'selected':''}>B</option><option ${v.rating==='C'?'selected':''}>C</option><option ${v.rating==='D'?'selected':''}>D</option></select><button type="button" class="btn btn-outline btn-sm" onclick="editVendor(${JSON.stringify(v).replace(/"/g,'&quot;')})">編輯</button></div>`;
     el.appendChild(card);
   });
 }
-async function updateRating(sel){
-  sel.className=`rating-sel r-${sel.value.toLowerCase()}`;
-  try{await gasCall('updateVendor',{rowIndex:sel.dataset.row,rating:sel.value});toast('評級已更新','ok')}
-  catch(e){toast(e.message,'err')}
-}
+async function updateRating(sel){sel.className=`rating-sel r-${sel.value.toLowerCase()}`;try{await gasCall('updateVendor',{rowIndex:sel.dataset.row,rating:sel.value});toast('評級已更新','ok');}catch(e){toast(e.message,'err');}}
 function editVendor(v){
   document.getElementById('modal-title').textContent='編輯：'+v.name;
-  document.getElementById('modal-body').innerHTML=`
-    <div class="field"><label>聯絡方式</label><input class="inp" id="ev-contact" value="${esc(v.contact||'')}"></div>
-    <div class="field"><label>備註</label><input class="inp" id="ev-note" value="${esc(v.note||'')}"></div>`;
-  document.getElementById('modal-ok').onclick=async()=>{
-    try{await gasCall('updateVendor',{rowIndex:v.rowIndex,contact:document.getElementById('ev-contact').value,note:document.getElementById('ev-note').value});closeModal();toast('廠商資料已更新','ok');loadVendors()}
-    catch(e){toast(e.message,'err')}
-  };
+  document.getElementById('modal-body').innerHTML=`<div class="field"><label>聯絡方式</label><input class="inp" id="ev-contact" value="${esc(v.contact||'')}"></div><div class="field"><label>備註</label><input class="inp" id="ev-note" value="${esc(v.note||'')}"></div>`;
+  document.getElementById('modal-ok').onclick=async()=>{try{await gasCall('updateVendor',{rowIndex:v.rowIndex,contact:document.getElementById('ev-contact').value,note:document.getElementById('ev-note').value});closeModal();toast('廠商資料已更新','ok');loadVendors();}catch(e){toast(e.message,'err');}};
   openModal();
 }
 
-// ============================================================
-// PENDING
-// ============================================================
 async function loadPending(){
-  const el=document.getElementById('pending-list');
-  el.innerHTML='<div class="loader"><div class="spinner"></div>載入中...</div>';
-  try{
-    const data=await gasCall('getPendingItems');
-    document.getElementById('pend-sub').textContent='共 '+data.items.length+' 筆待確認';
-    renderPending(data.items);
-    updateBadge(data.items.length);
-  }catch(e){el.innerHTML=`<div style="padding:20px;color:var(--red);font-size:13px">${esc(e.message)}</div>`}
+  const el=document.getElementById('pending-list');el.innerHTML='<div class="loader"><div class="spinner"></div>載入中...</div>';
+  try{const data=await gasCall('getPendingItems');document.getElementById('pend-sub').textContent='共 '+data.items.length+' 筆待確認';renderPending(data.items);updateBadge(data.items.length);}
+  catch(e){el.innerHTML=`<div style="padding:20px;color:var(--red);font-size:13px">${esc(e.message)}</div>`;}
 }
-async function loadPendingBadge(){
-  try{const data=await gasCall('getPendingItems');updateBadge(data.items.length)}catch(_){}
-}
-function updateBadge(n){
-  const b=document.getElementById('pend-badge');
-  if(n>0){b.style.display='flex';b.textContent=n>99?'99+':n}else b.style.display='none';
-}
+async function loadPendingBadge(){try{const data=await gasCall('getPendingItems');updateBadge(data.items.length);}catch(_){}}
+function updateBadge(n){const b=document.getElementById('pend-badge');if(n>0){b.style.display='flex';b.textContent=n>99?'99+':n;}else b.style.display='none';}
 function renderPending(items){
-  const el=document.getElementById('pending-list');
-  el.innerHTML='';
-  if(!items.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3)">✅ 目前無待處理事項</div>';return}
-  const byV={};
-  items.forEach(it=>{if(!byV[it.vendor])byV[it.vendor]=[];byV[it.vendor].push(it)});
+  const el=document.getElementById('pending-list');el.innerHTML='';
+  if(!items.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3)">✅ 目前無待處理事項</div>';return;}
+  const byV={};items.forEach(it=>{if(!byV[it.vendor])byV[it.vendor]=[];byV[it.vendor].push(it);});
   Object.entries(byV).forEach(([v,vitems])=>{
-    const hdr=document.createElement('div');
-    hdr.style.cssText='font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:12px 0 7px;padding:0 2px';
-    hdr.textContent=(V_ICONS[v]||'🏪')+' '+v;
-    el.appendChild(hdr);
-    vitems.forEach(it=>{
-      const card=document.createElement('div');
-      card.className='pend-card';
-      card.innerHTML=`
-        <div class="pend-dot" style="background:var(--gold)"></div>
-        <div class="pend-info">
-          <div class="pend-name">${esc(it.item_name)}</div>
-          <div class="pend-meta">${esc(it.unit)} · ${esc(it.month)}</div>
-          ${it.note?`<div class="pend-note">💬 ${esc(it.note)}</div>`:''}
-        </div>
-        <button class="resolve-btn" onclick="resolveItem(${it.rowIndex},this)">確認</button>`;
-      el.appendChild(card);
-    });
+    const hdr=document.createElement('div');hdr.style.cssText='font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:12px 0 7px;padding:0 2px';hdr.textContent=(V_ICONS[v]||'🏪')+' '+v;el.appendChild(hdr);
+    vitems.forEach(it=>{const card=document.createElement('div');card.className='pend-card';card.innerHTML=`<div class="pend-dot" style="background:var(--gold)"></div><div class="pend-info"><div class="pend-name">${esc(it.item_name)}</div><div class="pend-meta">${esc(it.unit)} · ${esc(it.month)}</div>${it.note?`<div class="pend-note">💬 ${esc(it.note)}</div>`:''}</div><button type="button" class="resolve-btn" onclick="resolveItem(${it.rowIndex},this)">確認</button>`;el.appendChild(card);});
   });
 }
-async function resolveItem(rowIndex,btn){
-  btn.disabled=true; btn.textContent='...';
-  try{await gasCall('updateRecord',{rowIndex,status:'confirmed'});btn.closest('.pend-card').style.opacity='.4';toast('已標記確認','ok');loadPendingBadge()}
-  catch(e){toast(e.message,'err');btn.disabled=false;btn.textContent='確認'}
-}
+async function resolveItem(rowIndex,btn){btn.disabled=true;btn.textContent='...';try{await gasCall('updateRecord',{rowIndex,status:'confirmed'});btn.closest('.pend-card').style.opacity='.4';toast('已標記確認','ok');loadPendingBadge();}catch(e){toast(e.message,'err');btn.disabled=false;btn.textContent='確認';}}
 
-// ============================================================
-// CHAT
-// ============================================================
 let chatHist=[];
-async function sendChat(){
-  const inp=document.getElementById('chat-inp');
-  const q=inp.value.trim();
-  if(!q) return;
-  inp.value=''; inp.style.height='auto';
-  await askQuestion(q);
-}
+async function sendChat(){const inp=document.getElementById('chat-inp');const q=inp.value.trim();if(!q) return;inp.value='';inp.style.height='auto';await askQuestion(q);}
 function askQuick(q){
-  // 切換到問答頁
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
   document.getElementById('page-chat').classList.add('active');
-  const tabs=document.querySelectorAll('.tab-item');
-  tabs.forEach(t=>{if(t.textContent.includes('問答')) t.classList.add('active')});
-  document.getElementById('chat-inp').value=q;
-  sendChat();
+  document.querySelectorAll('.tab-item').forEach(t=>{if(t.textContent.includes('問答')) t.classList.add('active');});
+  document.getElementById('chat-inp').value=q;sendChat();
 }
-function clearChat(){
-  chatHist=[];
-  document.getElementById('chat-msgs').innerHTML=`
-    <div class="chat-bubble"><div class="chat-avatar">AI</div>
-    <div class="chat-body"><p>對話已清除，請繼續提問！</p></div></div>`;
-}
-function appendBubble(role, content){
-  const wrap=document.getElementById('chat-msgs');
-  const div=document.createElement('div');
-  div.className='chat-bubble'+(role==='user'?' user':'');
-  div.innerHTML=`<div class="chat-avatar">${role==='user'?'我':'AI'}</div><div class="chat-body">${content}</div>`;
-  wrap.appendChild(div);
-  wrap.scrollTop=wrap.scrollHeight;
-  return div;
-}
-function appendThinking(){
-  const wrap=document.getElementById('chat-msgs');
-  const div=document.createElement('div');
-  div.className='chat-bubble';
-  div.innerHTML='<div class="chat-avatar">AI</div><div class="chat-body"><div class="typing"><span></span><span></span><span></span></div></div>';
-  wrap.appendChild(div);
-  wrap.scrollTop=wrap.scrollHeight;
-  return div;
-}
+function clearChat(){chatHist=[];document.getElementById('chat-msgs').innerHTML='<div class="chat-bubble"><div class="chat-avatar">AI</div><div class="chat-body"><p>對話已清除，請繼續提問！</p></div></div>';}
+function appendBubble(role,content){const wrap=document.getElementById('chat-msgs');const div=document.createElement('div');div.className='chat-bubble'+(role==='user'?' user':'');div.innerHTML=`<div class="chat-avatar">${role==='user'?'我':'AI'}</div><div class="chat-body">${content}</div>`;wrap.appendChild(div);wrap.scrollTop=wrap.scrollHeight;return div;}
+function appendThinking(){const wrap=document.getElementById('chat-msgs');const div=document.createElement('div');div.className='chat-bubble';div.innerHTML='<div class="chat-avatar">AI</div><div class="chat-body"><div class="typing"><span></span><span></span><span></span></div></div>';wrap.appendChild(div);wrap.scrollTop=wrap.scrollHeight;return div;}
 function renderMd(md){
-  // 粗體
   let html=md.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
-  // markdown 表格
   html=html.replace(/(\|.+\|\n\|[-| :]+\|\n(?:\|.+\|\n?)+)/g,match=>{
-    const rows=match.trim().split('\n');
-    const ths=rows[0].split('|').filter(c=>c.trim()).map(c=>`<th>${c.trim()}</th>`).join('');
-    const trs=rows.slice(2).map(row=>{
-      const cells=row.split('|').slice(1,-1);
-      return '<tr>'+cells.map(c=>{
-        const t=c.trim();
-        const cls=t.includes('↑')||t.startsWith('+')?'class="up"':t.includes('↓')?'class="dn"':'';
-        return `<td ${cls}>${t}</td>`;
-      }).join('')+'</tr>';
-    }).join('');
+    const rows=match.trim().split('\n');const ths=rows[0].split('|').filter(c=>c.trim()).map(c=>`<th>${c.trim()}</th>`).join('');
+    const trs=rows.slice(2).map(row=>{const cells=row.split('|').slice(1,-1);return '<tr>'+cells.map(c=>{const t=c.trim();const cls=t.includes('↑')||t.startsWith('+')?'class="up"':t.includes('↓')?'class="dn"':'';return `<td ${cls}>${t}</td>`;}).join('')+'</tr>';}).join('');
     return `<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
   });
-  // 段落
   const parts=html.split(/(<table[\s\S]*?<\/table>)/);
   return parts.map(p=>p.startsWith('<table')?p:p.split('\n').filter(l=>l.trim()).map(l=>`<p>${l}</p>`).join('')).join('');
 }
 async function askQuestion(q){
-  if(!CFG.key){toast('請先設定 Gemini API Key','warn');return}
+  if(!CFG.key){toast('請先設定 Gemini API Key','warn');return;}
   appendBubble('user',`<p>${esc(q).replace(/\n/g,'<br>')}</p>`);
-  const thinking=appendThinking();
-  document.getElementById('chat-send').disabled=true;
+  const thinking=appendThinking();document.getElementById('chat-send').disabled=true;
   try{
     const res=await gasCall('getRecords',{});
     const recs=(res.records||[]).map(r=>({廠商:r.vendor,月份:r.month,品項:r.item_name,單位:r.unit,單價:r.price,備註:r.note,狀態:r.status}));
-    const sys=`你是意享餐廳集團的報價查核 AI 助理。根據以下報價資料庫用繁體中文回答主管問題。
-規則：1.精準簡潔直接給結論 2.有數字比較必須用Markdown表格 3.漲價用↑降價用↓持平用— 4.最後一句分析結論
-報價資料：${JSON.stringify(recs,null,0)}`;
+    const sys=`你是意享餐廳集團的報價查核 AI 助理。根據以下報價資料庫用繁體中文回答主管問題。\n規則：1.精準簡潔直接給結論 2.有數字比較必須用Markdown表格 3.漲價用↑降價用↓持平用— 4.最後一句分析結論\n報價資料：${JSON.stringify(recs,null,0)}`;
     const msgs=[...chatHist.slice(-12),{role:'user',parts:[{text:q}]}];
     const payload={systemInstruction:{parts:[{text:sys}]},contents:msgs};
     const apiRes=await fetch(`https://generativelanguage.googleapis.com/v1/models/${CFG.model}:generateContent?key=${CFG.key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    const apiData=await apiRes.json();
-    if(apiData.error) throw new Error(apiData.error.message);
+    const apiData=await apiRes.json();if(apiData.error) throw new Error(apiData.error.message);
     const answer=apiData.candidates?.[0]?.content?.parts?.[0]?.text||'無法取得回覆';
-    chatHist.push({role:'user',parts:[{text:q}]});
-    chatHist.push({role:'model',parts:[{text:answer}]});
-    thinking.querySelector('.chat-body').innerHTML=renderMd(answer);
-    document.getElementById('chat-msgs').scrollTop=99999;
-  }catch(e){
-    thinking.querySelector('.chat-body').innerHTML=`<p style="color:var(--red)">錯誤：${esc(e.message)}</p>`;
-  }finally{
-    document.getElementById('chat-send').disabled=false;
-  }
+    chatHist.push({role:'user',parts:[{text:q}]});chatHist.push({role:'model',parts:[{text:answer}]});
+    thinking.querySelector('.chat-body').innerHTML=renderMd(answer);document.getElementById('chat-msgs').scrollTop=99999;
+  }catch(e){thinking.querySelector('.chat-body').innerHTML=`<p style="color:var(--red)">錯誤：${esc(e.message)}</p>`;}
+  finally{document.getElementById('chat-send').disabled=false;}
 }
 
-// ============================================================
-// SETTINGS
-// ============================================================
 async function testConn(){
-  const val=document.getElementById('cfg-gas').value.trim();
-  if(val) CFG.gas=val;
+  const val=document.getElementById('cfg-gas').value.trim();if(val) CFG.gas=val;
   if(!CFG.gas) return toast('請先填入 GAS URL','warn');
-  try{
-    toast('測試中...','warn');
-    await gasCall('getVendors');
-    toast('✅ 連線正常','ok');
-    document.getElementById('conn-dot').className='status-dot ok';
-    document.getElementById('conn-label').textContent='已連線';
-  }catch(e){toast('連線失敗：'+e.message,'err')}
+  try{toast('測試中...','warn');await gasCall('getVendors');toast('✅ 連線正常','ok');document.getElementById('conn-dot').className='status-dot ok';document.getElementById('conn-label').textContent='已連線';}
+  catch(e){toast('連線失敗：'+e.message,'err');}
 }
-async function initSheets(){
-  if(!CFG.gas) return toast('請先填入 GAS URL','warn');
-  try{toast('初始化中...','warn');const d=await gasCall('initSheets');toast(d.message,'ok')}
-  catch(e){toast(e.message,'err')}
+async function initSheets(){if(!CFG.gas) return toast('請先填入 GAS URL','warn');try{toast('初始化中...','warn');const d=await gasCall('initSheets');toast(d.message,'ok');}catch(e){toast(e.message,'err');}}
+
+function openModal(){document.getElementById('edit-modal').classList.add('open');}
+function closeModal(){document.getElementById('edit-modal').classList.remove('open');}
+document.getElementById('edit-modal').addEventListener('click',e=>{if(e.target===e.currentTarget) closeModal();});
+
+function toast(msg,type='ok'){
+  const box=document.getElementById('toast-box');const el=document.createElement('div');el.className=`toast ${type}`;
+  const ic={ok:'✅',err:'❌',warn:'⚠️'};el.innerHTML=`<span>${ic[type]||'ℹ️'}</span><span>${esc(msg)}</span>`;
+  box.appendChild(el);setTimeout(()=>el.remove(),3500);
 }
+function esc(s){if(s==null) return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-// ============================================================
-// MODAL
-// ============================================================
-function openModal(){document.getElementById('edit-modal').classList.add('open')}
-function closeModal(){document.getElementById('edit-modal').classList.remove('open')}
-document.getElementById('edit-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
-
-// ============================================================
-// TOAST
-// ============================================================
-function toast(msg, type='ok'){
-  const box=document.getElementById('toast-box');
-  const el=document.createElement('div');
-  el.className=`toast ${type}`;
-  const ic={ok:'✅',err:'❌',warn:'⚠️'};
-  el.innerHTML=`<span>${ic[type]||'ℹ️'}</span><span>${esc(msg)}</span>`;
-  box.appendChild(el);
-  setTimeout(()=>el.remove(),3500);
-}
-
-// ============================================================
-// UTILS
-// ============================================================
-function esc(s){if(s==null)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-
-// ============================================================
-// INIT
-// ============================================================
 loadDashboard();
 if(CFG.gas) loadPendingBadge();
 </script>
